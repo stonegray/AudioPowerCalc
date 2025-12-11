@@ -18,6 +18,7 @@ const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   units: 'metric',
   splDistance: '1m',
   arraySummationFactor: 0.91,
+  appMode: 'advanced',
 };
 
 const createDefaultDistroChannel = (id: string): DistroChannel => ({
@@ -40,6 +41,7 @@ const createDefaultAmpChannel = (id: string, index: number): AmpChannel => ({
   loadOhms: 8,
   energyWatts: 0,
   musicPowerWatts: 0,
+  gain: 0,
 });
 
 export function useSystemStore() {

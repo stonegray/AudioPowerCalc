@@ -3,65 +3,99 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { Trash2 } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import type { DistroChannel, PhaseType, CableInputMode } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface DistroChannelRowProps {
   channel: DistroChannel;
   index: number;
   maxPhases: number;
+  generatorPhaseType: PhaseType;
   onUpdate: (updates: Partial<DistroChannel>) => void;
   onRemove: () => void;
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
+  appMode?: 'basic' | 'advanced' | 'engineering';
 }
 
 export default function DistroChannelRow({
   channel,
   index,
   maxPhases,
+  generatorPhaseType,
   onUpdate,
   onRemove,
   onNodeClick,
   connectionColor,
+  appMode = 'advanced',
 }: DistroChannelRowProps) {
   const phaseOptions = Array.from({ length: maxPhases }, (_, i) => i + 1);
+  const voltageForAmpacity = 120;
+  const maxWatts = channel.ampacity * voltageForAmpacity;
+  const utilizationPercent = maxWatts > 0 ? (channel.loadWatts / maxWatts) * 100 : 0;
+  const utilizationColor = utilizationPercent > 90 ? 'text-destructive' : 
+    utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-muted-foreground';
+
+  const getAvailablePhaseTypes = (): { value: PhaseType; label: string }[] => {
+    const types: { value: PhaseType; label: string }[] = [
+      { value: 'single', label: 'Single' },
+      { value: 'split', label: 'Split' },
+    ];
+    
+    if (maxPhases >= 3) {
+      types.push({ value: '3_delta', label: '3ph Delta' });
+      if (generatorPhaseType !== '3_delta') {
+        types.push({ value: '3_wye', label: '3ph Wye' });
+      }
+    }
+    
+    return types;
+  };
+
+  const availablePhaseTypes = getAvailablePhaseTypes();
+  const isBasic = appMode === 'basic';
 
   return (
-    <div className="relative bg-muted/50 rounded-md p-3 pr-6">
-      <div className="flex items-center justify-between gap-2 mb-2">
+    <div className="relative bg-muted/50 rounded-md p-2 pr-8">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
         <div className="flex items-center gap-2">
           <Switch
             checked={channel.enabled}
             onCheckedChange={(checked) => onUpdate({ enabled: checked })}
             data-testid={`switch-distro-enabled-${index}`}
           />
-          <span className="text-sm font-medium">Distro {index + 1}</span>
+          <span className="text-xs font-medium">D{index + 1}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-muted-foreground">
-            {channel.loadAmps.toFixed(1)}A / {channel.loadWatts.toFixed(0)}W
-          </span>
+        <div className="flex items-center gap-2 flex-1 justify-end">
+          <div className="flex items-center gap-1 min-w-[100px]">
+            <span className={cn('text-xs font-mono', utilizationColor)}>
+              {channel.loadWatts.toFixed(0)}W/{maxWatts}W
+            </span>
+          </div>
+          <Progress value={Math.min(utilizationPercent, 100)} className="h-1.5 w-16" />
           <Button 
             variant="ghost" 
             size="icon" 
+            className="h-6 w-6"
             onClick={onRemove}
             data-testid={`button-remove-distro-${index}`}
           >
-            <Trash2 className="w-4 h-4" />
+            <Trash2 className="w-3 h-3" />
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Phase</Label>
+      <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground">Ph</Label>
           <Select
             value={String(channel.phaseSource)}
             onValueChange={(v) => onUpdate({ phaseSource: Number(v) })}
           >
-            <SelectTrigger className="h-8" data-testid={`select-phase-${index}`}>
+            <SelectTrigger className="h-7 w-14 text-xs" data-testid={`select-phase-${index}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -72,13 +106,13 @@ export default function DistroChannelRow({
           </Select>
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Ampacity</Label>
+        <div className="flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground">A</Label>
           <Select
             value={String(channel.ampacity)}
             onValueChange={(v) => onUpdate({ ampacity: Number(v) })}
           >
-            <SelectTrigger className="h-8" data-testid={`select-ampacity-${index}`}>
+            <SelectTrigger className="h-7 w-16 text-xs" data-testid={`select-ampacity-${index}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -90,32 +124,30 @@ export default function DistroChannelRow({
           </Select>
         </div>
 
-        <div className="space-y-1">
+        <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Type</Label>
           <Select
             value={channel.outputType}
             onValueChange={(v: PhaseType) => onUpdate({ outputType: v })}
           >
-            <SelectTrigger className="h-8" data-testid={`select-output-type-${index}`}>
+            <SelectTrigger className="h-7 w-24 text-xs" data-testid={`select-output-type-${index}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="single">Single</SelectItem>
-              <SelectItem value="split">Split</SelectItem>
-              <SelectItem value="3_delta">3Ph Delta</SelectItem>
-              <SelectItem value="3_wye">3Ph Wye</SelectItem>
+              {availablePhaseTypes.map((type) => (
+                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Cable</Label>
-          <div className="flex gap-1">
+        {!isBasic && (
+          <div className="flex items-center gap-1">
             <Select
               value={channel.cable.mode}
               onValueChange={(v: CableInputMode) => onUpdate({ cable: { ...channel.cable, mode: v } })}
             >
-              <SelectTrigger className="h-8 w-16" data-testid={`select-cable-mode-${index}`}>
+              <SelectTrigger className="h-7 w-14 text-xs" data-testid={`select-cable-mode-${index}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -129,14 +161,14 @@ export default function DistroChannelRow({
                   type="number"
                   value={channel.cable.awg || 12}
                   onChange={(e) => onUpdate({ cable: { ...channel.cable, awg: Number(e.target.value) } })}
-                  className="h-8 w-12 font-mono text-right"
+                  className="h-7 w-10 font-mono text-right text-xs"
                   data-testid={`input-cable-awg-${index}`}
                 />
                 <Input
                   type="number"
                   value={channel.cable.length || 50}
                   onChange={(e) => onUpdate({ cable: { ...channel.cable, length: Number(e.target.value) } })}
-                  className="h-8 w-14 font-mono text-right"
+                  className="h-7 w-12 font-mono text-right text-xs"
                   placeholder="ft"
                   data-testid={`input-cable-length-${index}`}
                 />
@@ -146,13 +178,13 @@ export default function DistroChannelRow({
                 type="number"
                 value={channel.cable.manualResistance || 0}
                 onChange={(e) => onUpdate({ cable: { ...channel.cable, manualResistance: Number(e.target.value) } })}
-                className="h-8 flex-1 font-mono text-right"
+                className="h-7 w-16 font-mono text-right text-xs"
                 placeholder="mΩ"
                 data-testid={`input-cable-resistance-${index}`}
               />
             )}
           </div>
-        </div>
+        )}
       </div>
 
       <ConnectionNode

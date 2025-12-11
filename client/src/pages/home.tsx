@@ -254,19 +254,22 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold">Audio System Power Calculator</h1>
-          <ThemeToggle />
+        <div className="w-full px-4 py-2 flex items-center justify-between gap-4">
+          <h1 className="text-lg font-semibold">Audio System Power Calculator</h1>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="w-full px-4 py-4">
         <GlobalSettingsPanel
           settings={state.globalSettings}
           onUpdate={updateGlobalSettings}
           onSave={() => setSaveDialogOpen(true)}
           onLoad={() => setLoadDialogOpen(true)}
           onFindProblems={handleFindProblems}
+          onStartSimulation={() => toast({ title: 'Simulation Started', description: 'Running power flow analysis...' })}
           savedConfigs={getSavedConfigurations()}
         />
 
@@ -294,6 +297,7 @@ export default function Home() {
                     getConnectionColor={getConnectionColor}
                     derates={gen.derates}
                     effectiveWatts={gen.effectiveWatts}
+                    appMode={state.globalSettings.appMode}
                   />
                 ))}
                 <AddEquipmentButton
@@ -321,6 +325,7 @@ export default function Home() {
                     onOutputNodeClick={handleAmpOutputNodeClick}
                     inputConnectionColor={getConnectionColor(amp.id)}
                     getOutputConnectionColor={getConnectionColor}
+                    appMode={state.globalSettings.appMode}
                   />
                 ))}
                 {poweredSpeakersWithCalcs.map(spk => (
@@ -366,6 +371,7 @@ export default function Home() {
                     onRemove={() => removeSpeaker(spk.id)}
                     onNodeClick={handleSpeakerNodeClick}
                     connectionColor={getConnectionColor(spk.id)}
+                    appMode={state.globalSettings.appMode}
                   />
                 ))}
                 <AddEquipmentButton

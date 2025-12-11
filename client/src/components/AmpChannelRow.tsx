@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import ConnectionNode from './ConnectionNode';
+import GainKnob from './GainKnob';
 import type { AmpChannel } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +16,7 @@ interface AmpChannelRowProps {
   onUpdate: (updates: Partial<AmpChannel>) => void;
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
+  appMode?: 'basic' | 'advanced' | 'engineering';
 }
 
 export default function AmpChannelRow({
@@ -26,29 +28,31 @@ export default function AmpChannelRow({
   onUpdate,
   onNodeClick,
   connectionColor,
+  appMode = 'advanced',
 }: AmpChannelRowProps) {
   const isDisabled = bridgePartnerDisabled;
   const channelNum = index + 1;
+  const isBasic = appMode === 'basic';
 
   return (
     <div 
       className={cn(
-        'relative bg-muted/50 rounded-md p-2 pr-6 transition-opacity',
+        'relative bg-muted/50 rounded-md p-2 pr-8 transition-opacity',
         isDisabled && 'opacity-50'
       )}
     >
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 min-w-[80px]">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-1.5 min-w-[60px]">
           <Switch
             checked={channel.enabled}
             onCheckedChange={(checked) => onUpdate({ enabled: checked })}
             disabled={isDisabled}
             data-testid={`switch-channel-enabled-${index}`}
           />
-          <span className="text-sm font-medium">Ch {channelNum}</span>
+          <span className="text-xs font-medium">Ch{channelNum}</span>
         </div>
 
-        {canBridge && supportsBridging && (
+        {canBridge && supportsBridging && !isBasic && (
           <div className="flex items-center gap-1">
             <Switch
               checked={channel.bridged}
@@ -56,47 +60,54 @@ export default function AmpChannelRow({
               disabled={isDisabled}
               data-testid={`switch-channel-bridge-${index}`}
             />
-            <Label className="text-xs text-muted-foreground">Bridge</Label>
+            <Label className="text-xs text-muted-foreground">Br</Label>
           </div>
         )}
 
-        <div className="flex items-center gap-1 flex-1">
-          <Label className="text-xs text-muted-foreground w-8">HPF</Label>
-          <Input
-            type="number"
-            value={channel.hpf}
-            onChange={(e) => onUpdate({ hpf: Number(e.target.value) })}
-            className="h-7 w-16 font-mono text-right text-xs"
-            disabled={isDisabled}
-            data-testid={`input-hpf-${index}`}
-          />
-          <span className="text-xs text-muted-foreground">Hz</span>
-        </div>
+        <GainKnob
+          value={channel.gain}
+          onChange={(gain) => onUpdate({ gain })}
+          size="sm"
+          testId={`knob-channel-gain-${index}`}
+        />
 
-        <div className="flex items-center gap-1 flex-1">
-          <Label className="text-xs text-muted-foreground w-8">LPF</Label>
-          <Input
-            type="number"
-            value={channel.lpf}
-            onChange={(e) => onUpdate({ lpf: Number(e.target.value) })}
-            className="h-7 w-16 font-mono text-right text-xs"
-            disabled={isDisabled}
-            data-testid={`input-lpf-${index}`}
-          />
-          <span className="text-xs text-muted-foreground">Hz</span>
-        </div>
+        {!isBasic && (
+          <>
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">HPF</Label>
+              <Input
+                type="number"
+                value={channel.hpf}
+                onChange={(e) => onUpdate({ hpf: Number(e.target.value) })}
+                className="h-6 w-14 font-mono text-right text-xs"
+                disabled={isDisabled}
+                data-testid={`input-hpf-${index}`}
+              />
+            </div>
+
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">LPF</Label>
+              <Input
+                type="number"
+                value={channel.lpf}
+                onChange={(e) => onUpdate({ lpf: Number(e.target.value) })}
+                className="h-6 w-14 font-mono text-right text-xs"
+                disabled={isDisabled}
+                data-testid={`input-lpf-${index}`}
+              />
+            </div>
+          </>
+        )}
 
         <Badge variant="secondary" className="font-mono text-xs">
           {channel.loadOhms.toFixed(1)}Ω
         </Badge>
-      </div>
 
-      {!isDisabled && (
-        <div className="flex justify-end gap-4 mt-1 text-xs font-mono text-muted-foreground">
-          <span>{channel.energyWatts.toFixed(0)}W energy</span>
-          <span>{channel.musicPowerWatts.toFixed(0)}W music</span>
+        <div className="flex gap-2 text-xs font-mono text-muted-foreground ml-auto">
+          <span>{channel.energyWatts.toFixed(0)}W</span>
+          <span>{channel.musicPowerWatts.toFixed(0)}W pk</span>
         </div>
-      )}
+      </div>
 
       {!isDisabled && (
         <ConnectionNode

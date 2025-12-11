@@ -8,7 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import { ChevronDown, Plus, Trash2, Zap } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
-import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS } from '@/lib/types';
+import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface GeneratorCardProps {
@@ -23,6 +23,7 @@ interface GeneratorCardProps {
   getConnectionColor?: (nodeId: string) => string | undefined;
   derates?: { temp: number; altitude: number; user: number };
   effectiveWatts?: number;
+  appMode?: AppMode;
 }
 
 export default function GeneratorCard({
@@ -37,9 +38,11 @@ export default function GeneratorCard({
   getConnectionColor,
   derates = { temp: 1, altitude: 1, user: 1 },
   effectiveWatts = generator.continuousWatts,
+  appMode = 'advanced',
 }: GeneratorCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const isCustom = generator.model === 'custom';
+  const isBasic = appMode === 'basic';
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
     generator.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
 
@@ -63,45 +66,45 @@ export default function GeneratorCard({
 
   return (
     <Card className="relative">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-yellow-500" />
+            <Zap className="w-4 h-4 text-yellow-500" />
             <Input
               value={generator.name}
               onChange={(e) => onUpdate({ name: e.target.value })}
-              className="h-8 w-40 font-medium"
+              className="h-7 w-32 font-medium text-sm"
               data-testid={`input-generator-name-${generator.id}`}
             />
           </div>
-          <Button variant="ghost" size="icon" onClick={onRemove} data-testid={`button-remove-generator-${generator.id}`}>
-            <Trash2 className="w-4 h-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRemove} data-testid={`button-remove-generator-${generator.id}`}>
+            <Trash2 className="w-3 h-3" />
           </Button>
         </div>
         
-        <div className="flex items-center justify-between gap-4 mt-2">
+        <div className="flex items-center justify-between gap-3 mt-1.5">
           <div className="flex-1">
-            <div className="flex items-baseline gap-2 mb-1">
-              <span className={cn('text-2xl font-mono font-semibold', utilizationColor)}>
+            <div className="flex items-baseline gap-1.5 mb-0.5">
+              <span className={cn('text-xl font-mono font-semibold', utilizationColor)}>
                 {generator.utilizationPercent.toFixed(0)}%
               </span>
-              <span className="text-sm text-muted-foreground">utilization</span>
+              <span className="text-xs text-muted-foreground">util</span>
             </div>
-            <Progress value={generator.utilizationPercent} className="h-2" />
+            <Progress value={generator.utilizationPercent} className="h-1.5" />
           </div>
           <div className="text-right">
-            <div className="text-lg font-mono">{effectiveWatts.toFixed(0)}W</div>
+            <div className="text-base font-mono">{effectiveWatts.toFixed(0)}W</div>
             <div className="text-xs text-muted-foreground">effective</div>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
+      <CardContent className="space-y-2 px-3 pb-3">
+        <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-1">
             <Label className="text-xs text-muted-foreground">Model</Label>
             <Select value={generator.model} onValueChange={handleModelChange}>
-              <SelectTrigger data-testid={`select-generator-model-${generator.id}`}>
+              <SelectTrigger className="h-7 w-32 text-xs" data-testid={`select-generator-model-${generator.id}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -112,59 +115,34 @@ export default function GeneratorCard({
             </Select>
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Type</Label>
-            <Select 
-              value={generator.type} 
-              onValueChange={(v: GeneratorType) => onUpdate({ type: v })}
-              disabled={!isCustom}
-            >
-              <SelectTrigger data-testid={`select-generator-type-${generator.id}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="inverter">Inverter</SelectItem>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="shore">Shore Power</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {isCustom && (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Continuous (W)</Label>
-              <Input
-                type="number"
-                value={generator.continuousWatts}
-                onChange={(e) => onUpdate({ continuousWatts: Number(e.target.value) })}
-                className="font-mono text-right"
-                data-testid={`input-continuous-watts-${generator.id}`}
-              />
+          {!isBasic && (
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">Type</Label>
+              <Select 
+                value={generator.type} 
+                onValueChange={(v: GeneratorType) => onUpdate({ type: v })}
+                disabled={!isCustom}
+              >
+                <SelectTrigger className="h-7 w-24 text-xs" data-testid={`select-generator-type-${generator.id}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inverter">Inverter</SelectItem>
+                  <SelectItem value="standard">Standard</SelectItem>
+                  <SelectItem value="shore">Shore</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">Peak (W)</Label>
-              <Input
-                type="number"
-                value={generator.peakWatts}
-                onChange={(e) => onUpdate({ peakWatts: Number(e.target.value) })}
-                className="font-mono text-right"
-                data-testid={`input-peak-watts-${generator.id}`}
-              />
-            </div>
-          </div>
-        )}
+          )}
 
-        <div className="grid grid-cols-3 gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Phases</Label>
+          <div className="flex items-center gap-1">
+            <Label className="text-xs text-muted-foreground">Ph</Label>
             <Select
               value={String(generator.phaseCount)}
               onValueChange={(v) => onUpdate({ phaseCount: Number(v) as 1 | 2 | 3 })}
               disabled={!isCustom}
             >
-              <SelectTrigger data-testid={`select-phases-${generator.id}`}>
+              <SelectTrigger className="h-7 w-12 text-xs" data-testid={`select-phases-${generator.id}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -175,38 +153,70 @@ export default function GeneratorCard({
             </Select>
           </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Voltage</Label>
-            <Input
-              type="number"
-              value={generator.voltage}
-              onChange={(e) => onUpdate({ voltage: Number(e.target.value) })}
-              className="font-mono text-right"
-              disabled={!isCustom}
-              data-testid={`input-voltage-${generator.id}`}
-            />
-          </div>
+          {!isBasic && (
+            <>
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">V</Label>
+                <Input
+                  type="number"
+                  value={generator.voltage}
+                  onChange={(e) => onUpdate({ voltage: Number(e.target.value) })}
+                  className="h-7 w-14 font-mono text-right text-xs"
+                  disabled={!isCustom}
+                  data-testid={`input-voltage-${generator.id}`}
+                />
+              </div>
 
-          <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Derate %</Label>
-            <Input
-              type="number"
-              value={generator.userDerate}
-              onChange={(e) => onUpdate({ userDerate: Number(e.target.value) })}
-              className="font-mono text-right"
-              data-testid={`input-user-derate-${generator.id}`}
-            />
-          </div>
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">Derate</Label>
+                <Input
+                  type="number"
+                  value={generator.userDerate}
+                  onChange={(e) => onUpdate({ userDerate: Number(e.target.value) })}
+                  className="h-7 w-12 font-mono text-right text-xs"
+                  data-testid={`input-user-derate-${generator.id}`}
+                />
+                <span className="text-xs text-muted-foreground">%</span>
+              </div>
+            </>
+          )}
         </div>
 
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Feeder Cable</Label>
-          <div className="flex gap-2">
+        {isCustom && !isBasic && (
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">Cont</Label>
+              <Input
+                type="number"
+                value={generator.continuousWatts}
+                onChange={(e) => onUpdate({ continuousWatts: Number(e.target.value) })}
+                className="h-7 w-20 font-mono text-right text-xs"
+                data-testid={`input-continuous-watts-${generator.id}`}
+              />
+              <span className="text-xs text-muted-foreground">W</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">Peak</Label>
+              <Input
+                type="number"
+                value={generator.peakWatts}
+                onChange={(e) => onUpdate({ peakWatts: Number(e.target.value) })}
+                className="h-7 w-20 font-mono text-right text-xs"
+                data-testid={`input-peak-watts-${generator.id}`}
+              />
+              <span className="text-xs text-muted-foreground">W</span>
+            </div>
+          </div>
+        )}
+
+        {!isBasic && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Label className="text-xs text-muted-foreground">Feeder</Label>
             <Select
               value={generator.feederCable.mode}
               onValueChange={(v: CableInputMode) => onUpdate({ feederCable: { ...generator.feederCable, mode: v } })}
             >
-              <SelectTrigger className="w-20" data-testid={`select-feeder-mode-${generator.id}`}>
+              <SelectTrigger className="h-7 w-14 text-xs" data-testid={`select-feeder-mode-${generator.id}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -220,15 +230,14 @@ export default function GeneratorCard({
                   type="number"
                   value={generator.feederCable.awg || 10}
                   onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, awg: Number(e.target.value) } })}
-                  className="w-16 font-mono text-right"
-                  placeholder="AWG"
+                  className="h-7 w-12 font-mono text-right text-xs"
                   data-testid={`input-feeder-awg-${generator.id}`}
                 />
                 <Input
                   type="number"
                   value={generator.feederCable.length || 25}
                   onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, length: Number(e.target.value) } })}
-                  className="flex-1 font-mono text-right"
+                  className="h-7 w-14 font-mono text-right text-xs"
                   placeholder="ft"
                   data-testid={`input-feeder-length-${generator.id}`}
                 />
@@ -238,67 +247,71 @@ export default function GeneratorCard({
                 type="number"
                 value={generator.feederCable.manualResistance || 0}
                 onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, manualResistance: Number(e.target.value) } })}
-                className="flex-1 font-mono text-right"
+                className="h-7 w-16 font-mono text-right text-xs"
                 placeholder="mΩ"
                 data-testid={`input-feeder-resistance-${generator.id}`}
               />
             )}
           </div>
-        </div>
+        )}
 
-        <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="w-full justify-between" data-testid={`button-toggle-derates-${generator.id}`}>
-              <span className="text-xs text-muted-foreground">Derate Breakdown</span>
-              <ChevronDown className={cn('w-4 h-4 transition-transform', detailsOpen && 'rotate-180')} />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div className="bg-muted/50 rounded-md p-3 text-sm font-mono space-y-1">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Rated Power:</span>
-                <span>{generator.continuousWatts}W</span>
+        {appMode === 'engineering' && (
+          <Collapsible open={detailsOpen} onOpenChange={setDetailsOpen}>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-full justify-between h-7" data-testid={`button-toggle-derates-${generator.id}`}>
+                <span className="text-xs text-muted-foreground">Derate Breakdown</span>
+                <ChevronDown className={cn('w-3 h-3 transition-transform', detailsOpen && 'rotate-180')} />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="bg-muted/50 rounded-md p-2 text-xs font-mono space-y-0.5">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Rated:</span>
+                  <span>{generator.continuousWatts}W</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Temp:</span>
+                  <span>{(derates.temp * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Alt:</span>
+                  <span>{(derates.altitude * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">User:</span>
+                  <span>{(derates.user * 100).toFixed(0)}%</span>
+                </div>
+                <div className="flex justify-between border-t pt-0.5 mt-0.5 font-medium">
+                  <span>Eff:</span>
+                  <span>{effectiveWatts.toFixed(0)}W</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Temperature:</span>
-                <span>{(derates.temp * 100).toFixed(0)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Altitude:</span>
-                <span>{(derates.altitude * 100).toFixed(0)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">User Derate:</span>
-                <span>{(derates.user * 100).toFixed(0)}%</span>
-              </div>
-              <div className="flex justify-between border-t pt-1 mt-1 font-medium">
-                <span>Effective:</span>
-                <span>{effectiveWatts.toFixed(0)}W</span>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+            </CollapsibleContent>
+          </Collapsible>
+        )}
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Distribution Channels</span>
-            <Button variant="outline" size="sm" onClick={onAddDistro} data-testid={`button-add-distro-${generator.id}`}>
-              <Plus className="w-4 h-4 mr-1" />
+            <span className="text-xs font-medium">Distribution</span>
+            <Button variant="outline" size="sm" className="h-6 text-xs" onClick={onAddDistro} data-testid={`button-add-distro-${generator.id}`}>
+              <Plus className="w-3 h-3 mr-1" />
               Add
             </Button>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {generator.distroChannels.map((channel, index) => (
               <DistroChannelRow
                 key={channel.id}
                 channel={channel}
                 index={index}
                 maxPhases={generator.phaseCount}
+                generatorPhaseType={generator.phaseType}
                 onUpdate={(updates) => onUpdateDistro(channel.id, updates)}
                 onRemove={() => onRemoveDistro(channel.id)}
                 onNodeClick={onNodeClick}
                 connectionColor={getConnectionColor?.(channel.id)}
+                appMode={appMode}
               />
             ))}
           </div>

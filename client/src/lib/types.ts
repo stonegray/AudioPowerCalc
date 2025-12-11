@@ -4,6 +4,7 @@ export type PhaseType = 'single' | 'split' | '3_delta' | '3_wye';
 export type Units = 'metric' | 'imperial';
 export type SPLDistance = '1m' | '10m' | '50m';
 export type CableInputMode = 'awg' | 'manual';
+export type AppMode = 'basic' | 'advanced' | 'engineering';
 
 export interface GlobalSettings {
   musicGenre: MusicGenre;
@@ -12,6 +13,7 @@ export interface GlobalSettings {
   units: Units;
   splDistance: SPLDistance;
   arraySummationFactor: number;
+  appMode: AppMode;
 }
 
 export interface CableConfig {
@@ -57,6 +59,7 @@ export interface AmpChannel {
   loadOhms: number;
   energyWatts: number;
   musicPowerWatts: number;
+  gain: number;
 }
 
 export interface Amplifier {
