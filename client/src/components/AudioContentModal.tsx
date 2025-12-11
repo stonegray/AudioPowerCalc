@@ -1,11 +1,12 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trash2, AlertCircle, AlertTriangle } from 'lucide-react';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MusicGenre, CrestCurvePoint } from '@/lib/types';
 import { GENRE_CREST_PRESETS } from '@/lib/types';
 
@@ -188,15 +189,10 @@ export default function AudioContentModal({
   crestCurve,
   onCrestCurveChange,
 }: AudioContentModalProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [formula, setFormula] = useState(PRESET_FORMULAS[genre]);
   const [formulaError, setFormulaError] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState<'points' | 'formula'>('formula');
 
   const isCustom = genre === 'custom';
-  const sortedCurve = [...(crestCurve || [])].sort((a, b) => a.frequency - b.frequency);
 
   useEffect(() => {
     if (genre !== 'custom') {
@@ -267,76 +263,6 @@ export default function AudioContentModal({
       onCrestCurveChange(newCurve);
     }
   }, [formula, isCustom, onGenreChange, onCrestCurveChange]);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent, index: number) => {
-    if (!isCustom || editMode !== 'points') return;
-    e.preventDefault();
-    e.stopPropagation();
-    setDraggingIndex(index);
-    setSelectedIndex(index);
-  }, [isCustom, editMode]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (draggingIndex === null || !svgRef.current || !isCustom) return;
-    
-    const svg = svgRef.current;
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    const newFreq = Math.round(xToFreq(x));
-    const newCrest = Math.round(yToCrest(y) * 10) / 10;
-    
-    const clampedFreq = Math.max(MIN_FREQ, Math.min(MAX_FREQ, newFreq));
-    const clampedCrest = Math.max(MIN_CREST, Math.min(MAX_CREST, newCrest));
-    
-    const newCurve = [...sortedCurve];
-    newCurve[draggingIndex] = { frequency: clampedFreq, crestFactor: clampedCrest };
-    onCrestCurveChange(newCurve.sort((a, b) => a.frequency - b.frequency));
-  }, [draggingIndex, isCustom, sortedCurve, onCrestCurveChange]);
-
-  const handleMouseUp = useCallback(() => {
-    setDraggingIndex(null);
-  }, []);
-
-  const handleAddPoint = useCallback((e: React.MouseEvent) => {
-    if (!isCustom || editMode !== 'points' || !svgRef.current) return;
-    
-    const svg = svgRef.current;
-    const rect = svg.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    if (x < PADDING.left || x > PADDING.left + PLOT_WIDTH) return;
-    if (y < PADDING.top || y > PADDING.top + PLOT_HEIGHT) return;
-    
-    const newFreq = Math.round(xToFreq(x));
-    const newCrest = Math.round(yToCrest(y) * 10) / 10;
-    
-    const newCurve = [...sortedCurve, { frequency: newFreq, crestFactor: newCrest }];
-    onCrestCurveChange(newCurve.sort((a, b) => a.frequency - b.frequency));
-  }, [isCustom, editMode, sortedCurve, onCrestCurveChange]);
-
-  const handleDeletePoint = useCallback(() => {
-    if (selectedIndex === null || sortedCurve.length <= 2) return;
-    const newCurve = sortedCurve.filter((_, i) => i !== selectedIndex);
-    onCrestCurveChange(newCurve);
-    setSelectedIndex(null);
-  }, [selectedIndex, sortedCurve, onCrestCurveChange]);
-
-  useEffect(() => {
-    const handleGlobalMouseUp = () => setDraggingIndex(null);
-    window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, []);
-
-  const pointsPathD = sortedCurve.length > 1
-    ? sortedCurve.map((pt, i) => {
-        const x = freqToX(pt.frequency);
-        const y = crestToY(pt.crestFactor);
-        return i === 0 ? `M ${x} ${y}` : `L ${x} ${y}`;
-      }).join(' ')
-    : '';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -415,10 +341,21 @@ export default function AudioContentModal({
           </div>
 
           {isCustom && (
-            <Tabs value={editMode} onValueChange={(v) => setEditMode(v as 'points' | 'formula')}>
+            <Tabs value="formula">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="formula">Formula Mode</TabsTrigger>
-                <TabsTrigger value="points">Point Mode</TabsTrigger>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
+                        Point Mode
+                      </TabsTrigger>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Coming Soon</p>
+                  </TooltipContent>
+                </Tooltip>
               </TabsList>
             </Tabs>
           )}
@@ -426,27 +363,12 @@ export default function AudioContentModal({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Crest Factor vs Frequency</Label>
-              {isCustom && editMode === 'points' && selectedIndex !== null && sortedCurve.length > 2 && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleDeletePoint}
-                  data-testid="button-delete-point"
-                >
-                  <Trash2 className="w-4 h-4 mr-1" />
-                  Delete Point
-                </Button>
-              )}
             </div>
             <div className="border rounded-md bg-muted/30 p-2">
               <svg
-                ref={svgRef}
                 width={GRAPH_WIDTH}
                 height={GRAPH_HEIGHT}
-                className={isCustom && editMode === 'points' ? "cursor-crosshair select-none" : "select-none"}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onDoubleClick={isCustom && editMode === 'points' ? handleAddPoint : undefined}
+                className="select-none"
                 data-testid="svg-crest-graph"
               >
                 <defs>
@@ -459,8 +381,8 @@ export default function AudioContentModal({
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.02" />
                   </linearGradient>
                   <linearGradient id="formulaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity="1" />
-                    <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity="1" />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="1" />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.6" />
                   </linearGradient>
                 </defs>
 
@@ -553,51 +475,13 @@ export default function AudioContentModal({
                   </>
                 )}
 
-                {editMode === 'points' && sortedCurve.map((pt, i) => {
-                  const x = freqToX(pt.frequency);
-                  const y = crestToY(pt.crestFactor);
-                  const isSelected = selectedIndex === i;
-                  const isDragging = draggingIndex === i;
-                  
-                  return (
-                    <g key={i}>
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r={isSelected || isDragging ? 8 : 6}
-                        fill={isCustom ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))"}
-                        stroke="hsl(var(--background))"
-                        strokeWidth={2}
-                        className={isCustom ? "cursor-grab active:cursor-grabbing" : ""}
-                        onMouseDown={(e) => handleMouseDown(e, i)}
-                        data-testid={`point-${i}`}
-                      />
-                      {(isSelected || isDragging) && (
-                        <text
-                          x={x}
-                          y={y - 14}
-                          textAnchor="middle"
-                          className="text-[9px] fill-foreground font-mono"
-                        >
-                          {formatFreq(Math.round(pt.frequency))}Hz, {pt.crestFactor.toFixed(1)}dB
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
               </svg>
               
-              {isCustom && editMode === 'points' && (
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Double-click to add point. Drag points to adjust. Select and delete with button.
-                </p>
-              )}
-              {isCustom && editMode === 'formula' && (
+              {isCustom ? (
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Edit the formula above to shape the curve. Click Apply to update.
                 </p>
-              )}
-              {!isCustom && (
+              ) : (
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Select "Custom" preset to edit the curve
                 </p>
