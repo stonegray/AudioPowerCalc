@@ -71,7 +71,8 @@ export default function GeneratorCard({
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
     generator.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
   
-  const derateDescriptions = globalSettings ? generateDerateDescriptions(generator, globalSettings) : null;
+  const totalLoadWatts = generator.distroChannels.reduce((sum, ch) => sum + (ch.loadWatts || 0), 0);
+  const derateDescriptions = globalSettings ? generateDerateDescriptions(generator, globalSettings, totalLoadWatts) : null;
 
   const handleFeederPreset = (preset: { awg: number; length: number }) => {
     onUpdate({
@@ -347,6 +348,12 @@ export default function GeneratorCard({
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {derateDescriptions.user}
+                    </div>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                      {derateDescriptions.feeder}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-medium">
+                      {derateDescriptions.voltageAtDistro}
                     </div>
                   </>
                 )}

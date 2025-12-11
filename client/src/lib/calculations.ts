@@ -1,4 +1,5 @@
 import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel } from './types';
+import { AWG_RESISTANCE } from './types';
 
 export function calculateCableResistance(
   awg: number,
@@ -22,10 +23,47 @@ export function calculateAltitudeDerate(altitudeMeters: number): number {
   return Math.max(0, 1 - (deratePercent / 100));
 }
 
+export function getFeederCableResistance(cable: { mode: string; awg?: number; length?: number; manualResistance?: number }): number {
+  if (cable.mode === 'manual') {
+    return (cable.manualResistance || 0) / 1000;
+  }
+  if (cable.mode === 'awg' && cable.awg && cable.length) {
+    return calculateCableResistance(cable.awg, cable.length, AWG_RESISTANCE);
+  }
+  return 0;
+}
+
+export function calculateFeederLosses(
+  generator: Generator,
+  totalLoadWatts: number
+): { resistanceOhms: number; currentAmps: number; powerLossWatts: number; voltageDrop: number; voltageAtDistro: number } {
+  const resistanceOhms = getFeederCableResistance(generator.feederCable);
+  
+  const phases = generator.phaseCount === 3 ? 3 : 1;
+  const voltage = generator.voltage;
+  
+  const currentAmps = phases === 3
+    ? totalLoadWatts / (voltage * Math.sqrt(3))
+    : totalLoadWatts / voltage;
+  
+  const powerLossWatts = Math.pow(currentAmps, 2) * resistanceOhms;
+  const voltageDrop = currentAmps * resistanceOhms;
+  const voltageAtDistro = Math.max(0, voltage - voltageDrop);
+  
+  return {
+    resistanceOhms,
+    currentAmps,
+    powerLossWatts,
+    voltageDrop,
+    voltageAtDistro,
+  };
+}
+
 export function generateDerateDescriptions(
   generator: Generator,
-  settings: GlobalSettings
-): { temp: string; altitude: string; user: string } {
+  settings: GlobalSettings,
+  totalLoadWatts: number = 0
+): { temp: string; altitude: string; user: string; feeder: string; voltageAtDistro: string } {
   const tempDerate = calculateTemperatureDerate(settings.ambientTemperature);
   const tempLoss = (1 - tempDerate) * 100;
   const tempOverBase = Math.max(0, settings.ambientTemperature - 40);
@@ -46,7 +84,14 @@ export function generateDerateDescriptions(
   
   const userDesc = `User: ${((1 - userDerate) * 100).toFixed(1)}%`;
   
-  return { temp: tempDesc, altitude: altDesc, user: userDesc };
+  const feederLosses = calculateFeederLosses(generator, totalLoadWatts);
+  const feederDesc = feederLosses.powerLossWatts > 0
+    ? `Feeder: ${feederLosses.powerLossWatts.toFixed(0)}W loss (${feederLosses.currentAmps.toFixed(1)}A, ${feederLosses.voltageDrop.toFixed(1)}V drop)`
+    : 'Feeder: 0W loss (no load)';
+  
+  const voltageDesc = `Distro: ${feederLosses.voltageAtDistro.toFixed(0)}V`;
+  
+  return { temp: tempDesc, altitude: altDesc, user: userDesc, feeder: feederDesc, voltageAtDistro: voltageDesc };
 }
 
 export function calculateGeneratorEffectiveWatts(
