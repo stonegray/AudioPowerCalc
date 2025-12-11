@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Save, FolderOpen, AlertTriangle, Play, Info } from 'lucide-react';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode } from '@/lib/types';
+import { GENRE_CREST_PRESETS } from '@/lib/types';
 
 interface GlobalSettingsPanelProps {
   settings: GlobalSettings;
@@ -88,7 +89,10 @@ export default function GlobalSettingsPanel({
             <Label className="text-xs text-muted-foreground">Genre</Label>
             <Select
               value={settings.musicGenre}
-              onValueChange={(v: MusicGenre) => onUpdate({ musicGenre: v })}
+              onValueChange={(v: MusicGenre) => onUpdate({ 
+                musicGenre: v,
+                crestCurve: GENRE_CREST_PRESETS[v]
+              })}
             >
               <SelectTrigger className="w-40 h-8" data-testid="select-music-genre">
                 <SelectValue />
