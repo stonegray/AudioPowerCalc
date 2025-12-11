@@ -45,7 +45,7 @@ export default function GainKnob({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const deltaY = startY.current - moveEvent.clientY;
-      const sensitivity = (max - min) / 150;
+      const sensitivity = (max - min) / 300;
       const newValue = Math.min(max, Math.max(min, startValue.current + deltaY * sensitivity));
       onChange(Math.round(newValue * 10) / 10);
     };
