@@ -97,6 +97,7 @@ export default function SpeakerCard({
             value={speaker.model}
             onValueChange={handleModelChange}
             options={presets}
+            formatData={(preset) => `${preset.pmaxAES}W AES`}
             testId={`select-speaker-model-${speaker.id}`}
           />
         </div>

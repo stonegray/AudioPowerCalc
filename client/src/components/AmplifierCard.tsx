@@ -146,6 +146,7 @@ export default function AmplifierCard({
             value={amplifier.model}
             onValueChange={handleModelChange}
             options={presets}
+            formatData={(preset) => `${preset.channelCount}ch ${preset.pmax}W`}
             testId={`select-amp-model-${amplifier.id}`}
           />
         </div>

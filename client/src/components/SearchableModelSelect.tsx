@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 interface SearchableModelSelectProps {
   value: string;
   onValueChange: (value: string) => void;
-  options: Record<string, { name: string }>;
+  options: Record<string, any>;
+  formatData?: (preset: any) => string;
   testId?: string;
 }
 
@@ -16,6 +17,7 @@ export default function SearchableModelSelect({
   value,
   onValueChange,
   options,
+  formatData,
   testId,
 }: SearchableModelSelectProps) {
   const [open, setOpen] = useState(false);
@@ -57,25 +59,35 @@ export default function SearchableModelSelect({
               No models found.
             </div>
           ) : (
-            filteredOptions.map(([key, preset]) => (
-              <button
-                key={key}
-                onClick={() => {
-                  onValueChange(key);
-                  setOpen(false);
-                  setSearch('');
-                }}
-                className={cn(
-                  'w-full text-left px-2 py-1.5 text-xs rounded hover:bg-muted transition-colors flex items-center gap-2',
-                  value === key && 'bg-muted font-medium'
-                )}
-              >
-                {value === key && <Check className="w-3 h-3" />}
-                <span className={value === key ? 'ml-0' : 'ml-5'}>
-                  {preset.name}
-                </span>
-              </button>
-            ))
+            filteredOptions.map(([key, preset]) => {
+              const dataDisplay = formatData ? formatData(preset) : null;
+              return (
+                <button
+                  key={key}
+                  onClick={() => {
+                    onValueChange(key);
+                    setOpen(false);
+                    setSearch('');
+                  }}
+                  className={cn(
+                    'w-full text-left px-2 py-1.5 text-xs rounded hover:bg-muted transition-colors flex items-center gap-2',
+                    value === key && 'bg-muted font-medium'
+                  )}
+                >
+                  {value === key && <Check className="w-3 h-3" />}
+                  <div className={value === key ? 'ml-0' : 'ml-5'}>
+                    <div className="flex items-baseline gap-1.5">
+                      <span>{preset.name}</span>
+                      {dataDisplay && (
+                        <span className="text-muted-foreground text-xs">
+                          {dataDisplay}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              );
+            })
           )}
         </div>
       </PopoverContent>

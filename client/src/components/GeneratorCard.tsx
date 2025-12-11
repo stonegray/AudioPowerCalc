@@ -107,6 +107,7 @@ export default function GeneratorCard({
             value={generator.model}
             onValueChange={handleModelChange}
             options={presets}
+            formatData={(preset) => `${preset.continuousWatts}W`}
             testId={`select-generator-model-${generator.id}`}
           />
         </div>
