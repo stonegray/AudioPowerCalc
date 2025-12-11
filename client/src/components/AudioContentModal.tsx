@@ -312,9 +312,9 @@ export default function AudioContentModal({
 
         <div className={`grid grid-cols-2 gap-6 flex-1 overflow-hidden transition-opacity ${!isCustom ? 'opacity-50 pointer-events-none' : ''}`}>
           {/* Left Column: Formula and Time Domain */}
-          <div className="space-y-4 overflow-y-auto pr-4">
+          <div className="flex flex-col space-y-4 overflow-hidden">
             {/* Formula Input */}
-            <div className="space-y-2">
+            <div className="space-y-2 overflow-y-auto pr-4">
               <Label htmlFor="formula-input">Curve Formula</Label>
               <div className="space-y-2">
                 <div className="flex items-start gap-2">
