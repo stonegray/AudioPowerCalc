@@ -93,6 +93,9 @@ export default function DistroChannelRow({
           <span className="text-xs font-medium">D{index + 1}</span>
         </div>
         <div className="flex items-center gap-2 flex-1 justify-end">
+          <Badge variant="outline" className="font-mono text-xs h-fit">
+            {voltageForAmpacity}V
+          </Badge>
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center gap-1 min-w-[100px] cursor-help">
@@ -154,10 +157,6 @@ export default function DistroChannelRow({
             </SelectContent>
           </Select>
         </div>
-
-        <Badge variant="outline" className="font-mono text-xs h-fit">
-          {voltageForAmpacity}V
-        </Badge>
 
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Type</Label>
