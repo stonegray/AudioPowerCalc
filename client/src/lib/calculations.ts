@@ -160,3 +160,39 @@ export function recalculateAmplifiers(
     };
   });
 }
+
+export function recalculateSpeakers(
+  speakers: Speaker[],
+  amplifiers: Amplifier[],
+  connections: Connection[]
+): Speaker[] {
+  return speakers.map(speaker => {
+    let incomingPower = 0;
+    
+    for (const connection of connections) {
+      if (connection.targetId === speaker.id && connection.sourceType === 'ampChannel') {
+        const amplifier = amplifiers.find(amp =>
+          amp.channels.some(ch => ch.id === connection.sourceId)
+        );
+        
+        if (amplifier) {
+          const channel = amplifier.channels.find(ch => ch.id === connection.sourceId);
+          if (channel) {
+            incomingPower = channel.energyWatts;
+            break;
+          }
+        }
+      }
+    }
+    
+    const totalPmax = speaker.pmaxAES * speaker.quantity;
+    const utilizationPercent = totalPmax > 0
+      ? Math.min(100, (incomingPower / totalPmax) * 100)
+      : 0;
+    
+    return {
+      ...speaker,
+      utilizationPercent,
+    };
+  });
+}

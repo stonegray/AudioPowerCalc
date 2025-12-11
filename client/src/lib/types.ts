@@ -129,6 +129,7 @@ export interface Speaker {
   quantity: number;
   gain: number;
   splOutput: number;
+  utilizationPercent: number;
   connectedAmpChannelId?: string;
 }
 
