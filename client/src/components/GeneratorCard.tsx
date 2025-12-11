@@ -7,12 +7,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ChevronDown, Plus, Trash2, Zap, Info } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ChevronDown, Plus, Trash2, Zap, Info, Cable } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode, GlobalSettings } from '@/lib/types';
+import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode, GlobalSettings, CableConfig } from '@/lib/types';
 import { generateDerateDescriptions } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
+
+const FEEDER_PRESETS: { label: string; awg: number; length: number }[] = [
+  { label: "25' 12 AWG", awg: 12, length: 25 },
+  { label: "50' 12 AWG", awg: 12, length: 50 },
+  { label: "100' 12 AWG", awg: 12, length: 100 },
+  { label: "25' 10 AWG", awg: 10, length: 25 },
+  { label: "50' 10 AWG", awg: 10, length: 50 },
+  { label: "100' 10 AWG", awg: 10, length: 100 },
+  { label: "25' 8 AWG", awg: 8, length: 25 },
+  { label: "50' 8 AWG", awg: 8, length: 50 },
+  { label: "100' 8 AWG", awg: 8, length: 100 },
+  { label: "25' 6 AWG", awg: 6, length: 25 },
+  { label: "50' 6 AWG", awg: 6, length: 50 },
+  { label: "100' 6 AWG", awg: 6, length: 100 },
+  { label: "25' 4 AWG", awg: 4, length: 25 },
+  { label: "50' 4 AWG", awg: 4, length: 50 },
+  { label: "100' 4 AWG", awg: 4, length: 100 },
+];
 
 interface GeneratorCardProps {
   generator: Generator;
@@ -46,12 +65,25 @@ export default function GeneratorCard({
   globalSettings,
 }: GeneratorCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [feederPresetsOpen, setFeederPresetsOpen] = useState(false);
   const isCustom = generator.model === 'custom';
   const isBasic = appMode === 'basic';
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
     generator.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
   
   const derateDescriptions = globalSettings ? generateDerateDescriptions(generator, globalSettings) : null;
+
+  const handleFeederPreset = (preset: { awg: number; length: number }) => {
+    onUpdate({
+      feederCable: {
+        ...generator.feederCable,
+        mode: 'awg',
+        awg: preset.awg,
+        length: preset.length,
+      },
+    });
+    setFeederPresetsOpen(false);
+  };
 
   const handleModelChange = (model: string) => {
     const preset = presets[model];
@@ -224,6 +256,30 @@ export default function GeneratorCard({
         {!isBasic && (
           <div className="flex flex-wrap items-center gap-2">
             <Label className="text-xs text-muted-foreground">Feeder</Label>
+            <Popover open={feederPresetsOpen} onOpenChange={setFeederPresetsOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-xs" data-testid={`button-feeder-presets-${generator.id}`}>
+                  <Cable className="w-3 h-3 mr-1" />
+                  Presets
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-40 p-1" align="start">
+                <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                  {FEEDER_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.label}
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start h-7 text-xs font-mono"
+                      onClick={() => handleFeederPreset(preset)}
+                      data-testid={`button-feeder-preset-${preset.awg}-${preset.length}`}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             <Select
               value={generator.feederCable.mode}
               onValueChange={(v: CableInputMode) => onUpdate({ feederCable: { ...generator.feederCable, mode: v } })}
