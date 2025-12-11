@@ -459,7 +459,7 @@ export default function AudioContentModal({
                 </text>
 
                 {formulaPath && (
-                  <>
+                  <g key={formula}>
                     <path
                       d={formulaPath + ` L ${formulaCurvePoints[formulaCurvePoints.length - 1]?.x || 0} ${PADDING.top + PLOT_HEIGHT} L ${formulaCurvePoints[0]?.x || 0} ${PADDING.top + PLOT_HEIGHT} Z`}
                       fill="url(#fillGradient)"
@@ -472,7 +472,7 @@ export default function AudioContentModal({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                  </>
+                  </g>
                 )}
 
               </svg>
