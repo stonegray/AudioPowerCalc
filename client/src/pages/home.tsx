@@ -9,6 +9,7 @@ import AddEquipmentButton from '@/components/AddEquipmentButton';
 import ConnectionLines from '@/components/ConnectionLines';
 import SaveLoadDialog from '@/components/SaveLoadDialog';
 import AudioContentModal from '@/components/AudioContentModal';
+import ProUpgradeModal from '@/components/ProUpgradeModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -36,6 +37,7 @@ export default function Home() {
   } | null>(null);
   const [hoveredConnectionId, setHoveredConnectionId] = useState<string | null>(null);
   const [audioContentModalOpen, setAudioContentModalOpen] = useState(false);
+  const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
 
   const {
     state,
@@ -296,7 +298,7 @@ export default function Home() {
           onSave={() => setSaveDialogOpen(true)}
           onLoad={() => setLoadDialogOpen(true)}
           onFindProblems={handleFindProblems}
-          onStartSimulation={() => toast({ title: 'Simulation Started', description: 'Running power flow analysis...' })}
+          onStartSimulation={() => setProUpgradeModalOpen(true)}
           savedConfigs={getSavedConfigurations()}
         />
 
@@ -463,6 +465,11 @@ export default function Home() {
         onGenreChange={(genre) => updateGlobalSettings({ musicGenre: genre })}
         crestCurve={state.globalSettings.crestCurve || []}
         onCrestCurveChange={(curve) => updateGlobalSettings({ crestCurve: curve })}
+      />
+
+      <ProUpgradeModal
+        open={proUpgradeModalOpen}
+        onOpenChange={setProUpgradeModalOpen}
       />
     </div>
   );
