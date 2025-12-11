@@ -370,7 +370,7 @@ export function recalculateSpeakers(
     }
     
     const utilizationPercent = speaker.pmax > 0
-      ? (incomingAudioPower / speaker.pmax) * 100
+      ? (incomingAudioPower / (speaker.pmax * speaker.quantity)) * 100
       : 0;
     
     return {
