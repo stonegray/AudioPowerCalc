@@ -229,11 +229,9 @@ export function calculateAverageCrest(
   return sum / (numSamples + 1);
 }
 
-export function calculateChannelEnergy(
+export function calculateChannelAudioPower(
   channel: AmpChannel,
-  connectedSpeakers: Speaker[],
-  ampEfficiency: number,
-  averageCrest: number = 8
+  connectedSpeakers: Speaker[]
 ): number {
   if (!channel.enabled || connectedSpeakers.length === 0) {
     return 0;
@@ -244,13 +242,27 @@ export function calculateChannelEnergy(
   }, 0);
   
   const gainFactor = Math.pow(10, channel.gain / 10);
+  return totalSpeakerPmax * gainFactor;
+}
+
+export function calculateChannelEnergy(
+  channel: AmpChannel,
+  connectedSpeakers: Speaker[],
+  ampEfficiency: number,
+  averageCrest: number = 8
+): number {
+  if (!channel.enabled || connectedSpeakers.length === 0) {
+    return 0;
+  }
+  
+  const audioPower = calculateChannelAudioPower(channel, connectedSpeakers);
   
   // Apply crest factor: lower crest = more energy used
   // Crest factor represents peak-to-average ratio in dB
   // Convert to linear: crestLinear = 10^(crest/10)
-  // Energy = Pmax / crestLinear (since average power = peak / crest)
+  // Energy = Audio Power / crestLinear * efficiency (since average power = peak / crest)
   const crestLinear = Math.pow(10, averageCrest / 10);
-  const channelEnergy = (totalSpeakerPmax / crestLinear) * ampEfficiency * gainFactor;
+  const channelEnergy = (audioPower / crestLinear) * ampEfficiency;
   
   return Math.max(0, channelEnergy);
 }
@@ -305,11 +317,13 @@ export function recalculateAmplifiers(
       });
       
       const averageCrest = calculateAverageCrest(channel.hpf, channel.lpf, crestCurve);
+      const audioPower = calculateChannelAudioPower(channel, connectedSpeakers);
       const channelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency, averageCrest);
       const effectiveZ = calculateChannelEffectiveZ(connectedSpeakers);
       
       return {
         ...channel,
+        musicPowerWatts: audioPower,
         energyWatts: channelEnergy,
         effectiveZ,
         averageCrest,
