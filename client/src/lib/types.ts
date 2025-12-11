@@ -101,6 +101,7 @@ export interface AmpChannel {
   energyWatts: number;
   musicPowerWatts: number;
   gain: number;
+  effectiveZ: number;
 }
 
 export interface Amplifier {

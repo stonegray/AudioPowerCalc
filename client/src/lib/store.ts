@@ -45,6 +45,7 @@ const createDefaultAmpChannel = (id: string, index: number): AmpChannel => ({
   energyWatts: 0,
   musicPowerWatts: 0,
   gain: 0,
+  effectiveZ: 8,
 });
 
 export function useSystemStore() {

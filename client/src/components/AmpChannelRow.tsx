@@ -106,8 +106,12 @@ export default function AmpChannelRow({
             </>
           )}
 
-          <Badge variant="secondary" className="font-mono text-xs">
+          <Badge variant="secondary" className="font-mono text-xs" data-testid={`badge-load-ohms-${index}`}>
             {channel.loadOhms.toFixed(1)}Ω
+          </Badge>
+          
+          <Badge variant="secondary" className="font-mono text-xs" data-testid={`badge-effective-z-${index}`}>
+            {channel.effectiveZ.toFixed(1)}Ω eff
           </Badge>
 
           <div className="flex gap-2 text-xs font-mono text-muted-foreground ml-auto">

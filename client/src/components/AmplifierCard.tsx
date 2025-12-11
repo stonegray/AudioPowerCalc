@@ -65,6 +65,7 @@ export default function AmplifierCard({
           energyWatts: 0,
           musicPowerWatts: 0,
           gain: 0,
+          effectiveZ: 8,
         })
       );
       onUpdate({
@@ -247,6 +248,7 @@ export default function AmplifierCard({
                       energyWatts: 0,
                       musicPowerWatts: 0,
                       gain: 0,
+                      effectiveZ: 8,
                     }
                   );
                   onUpdate({ channelCount: count, channels });
@@ -283,7 +285,7 @@ export default function AmplifierCard({
                 {amplifier.channels.map((ch, i) => (
                   <div key={ch.id} className="flex justify-between">
                     <span className="text-muted-foreground">Ch {i + 1}:</span>
-                    <span>{ch.energyWatts.toFixed(0)}W/{ch.musicPowerWatts.toFixed(0)}W/{ch.loadOhms.toFixed(1)}Ω</span>
+                    <span>{ch.energyWatts.toFixed(0)}W/{ch.musicPowerWatts.toFixed(0)}W/{ch.effectiveZ.toFixed(1)}Ω</span>
                   </div>
                 ))}
               </div>

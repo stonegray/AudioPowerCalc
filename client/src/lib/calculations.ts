@@ -99,6 +99,19 @@ export function getCrestFactor(genre: string): number {
   }
 }
 
+export function calculateChannelEffectiveZ(
+  connectedSpeakers: Speaker[]
+): number {
+  if (connectedSpeakers.length === 0) return 8;
+  
+  let totalConductance = 0;
+  for (const speaker of connectedSpeakers) {
+    totalConductance += speaker.quantity / speaker.impedance;
+  }
+  
+  return totalConductance > 0 ? 1 / totalConductance : 8;
+}
+
 export function calculateChannelEnergy(
   channel: AmpChannel,
   connectedSpeakers: Speaker[],
@@ -169,10 +182,12 @@ export function recalculateAmplifiers(
       });
       
       const channelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency);
+      const effectiveZ = calculateChannelEffectiveZ(connectedSpeakers);
       
       return {
         ...channel,
         energyWatts: channelEnergy,
+        effectiveZ,
       };
     });
     
