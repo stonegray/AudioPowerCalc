@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
@@ -39,6 +40,8 @@ export default function SpeakerCard({
 }: SpeakerCardProps) {
   const isCustom = speaker.model === 'custom';
   const isBasic = appMode === 'basic';
+  const utilizationColor = speaker.utilizationPercent > 90 ? 'text-destructive' : 
+    speaker.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
 
   const handleModelChange = (model: string) => {
     const preset = presets[model];
@@ -94,6 +97,18 @@ export default function SpeakerCard({
             {speaker.splOutput.toFixed(1)}
           </span>
           <span className="text-xs text-muted-foreground">dB SPL @ {splDistance}</span>
+        </div>
+        
+        <div className="flex items-center justify-between gap-3 mt-1.5">
+          <div className="flex-1">
+            <div className="flex items-baseline gap-1.5 mb-0.5">
+              <span className={cn('text-lg font-mono font-semibold', utilizationColor)}>
+                {speaker.utilizationPercent.toFixed(0)}%
+              </span>
+              <span className="text-xs text-muted-foreground">util</span>
+            </div>
+            <Progress value={speaker.utilizationPercent} className="h-1.5" />
+          </div>
         </div>
       </CardHeader>
 
