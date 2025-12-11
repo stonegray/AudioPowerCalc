@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
+import GainKnob from './GainKnob';
 import type { Speaker as SpeakerType, SPEAKER_PRESETS } from '@/lib/types';
 
 interface SpeakerCardProps {
@@ -80,9 +81,17 @@ export default function SpeakerCard({
             </span>
             <span className="text-sm text-muted-foreground">dB SPL @ {splDistance}</span>
           </div>
-          <Badge variant="secondary" className="font-mono">
-            {speaker.quantity}x
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Badge variant="secondary" className="font-mono">
+              {speaker.quantity}x
+            </Badge>
+            <GainKnob
+              value={speaker.gain}
+              onChange={(gain) => onUpdate({ gain })}
+              size="sm"
+              testId={`knob-speaker-gain-${speaker.id}`}
+            />
+          </div>
         </div>
       </CardHeader>
 

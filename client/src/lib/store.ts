@@ -170,6 +170,7 @@ export function useSystemStore() {
       impedance: 8,
       sensitivity: 100,
       quantity: 1,
+      gain: 0,
       splOutput: 0,
     };
     saveState({ ...state, speakers: [...state.speakers, newSpeaker] });
@@ -200,6 +201,7 @@ export function useSystemStore() {
       impedance: 8,
       sensitivity: 100,
       quantity: 1,
+      gain: 0,
       pmax: 500,
       efficiency: 0.85,
       parasiticDraw: 30,

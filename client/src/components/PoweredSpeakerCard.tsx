@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
+import GainKnob from './GainKnob';
 import type { PoweredSpeaker } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -60,8 +61,8 @@ export default function PoweredSpeakerCard({
           </Button>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 mt-2">
-          <div>
+        <div className="flex items-center justify-between gap-4 mt-2">
+          <div className="flex-1">
             <div className="flex items-baseline gap-2 mb-1">
               <span className={cn('text-xl font-mono font-semibold', utilizationColor)}>
                 {utilizationPercent.toFixed(0)}%
@@ -74,6 +75,12 @@ export default function PoweredSpeakerCard({
             <div className="text-lg font-mono">{speaker.splOutput.toFixed(1)} dB</div>
             <div className="text-xs text-muted-foreground">SPL @ {splDistance}</div>
           </div>
+          <GainKnob
+            value={speaker.gain}
+            onChange={(gain) => onUpdate({ gain })}
+            size="sm"
+            testId={`knob-powered-speaker-gain-${speaker.id}`}
+          />
         </div>
       </CardHeader>
 

@@ -83,6 +83,7 @@ export interface Speaker {
   impedance: number;
   sensitivity: number;
   quantity: number;
+  gain: number;
   splOutput: number;
   connectedAmpChannelId?: string;
 }
@@ -95,6 +96,7 @@ export interface PoweredSpeaker {
   impedance: number;
   sensitivity: number;
   quantity: number;
+  gain: number;
   pmax: number;
   efficiency: number;
   parasiticDraw: number;
