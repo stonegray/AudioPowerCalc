@@ -115,10 +115,15 @@ export default function AmpChannelRow({
             <span>{channel.musicPowerWatts.toFixed(0)}W pk</span>
           </div>
 
-          <div className="w-12 flex-shrink-0">
-            <div className="text-center text-xs font-mono">
-              {channel.gain > 0 ? '+' : ''}{channel.gain.toFixed(1)} dB
-            </div>
+          <div className="w-16 flex-shrink-0">
+            <GainKnob
+              value={channel.gain}
+              onChange={(gain) => onUpdate({ gain })}
+              min={-60}
+              max={0}
+              size="sm"
+              testId={`knob-channel-gain-${index}`}
+            />
           </div>
         </div>
 
