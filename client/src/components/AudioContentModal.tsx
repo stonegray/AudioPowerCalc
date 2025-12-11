@@ -191,6 +191,7 @@ export default function AudioContentModal({
 }: AudioContentModalProps) {
   const [formula, setFormula] = useState(() => PRESET_FORMULAS[genre] || PRESET_FORMULAS.rock);
   const [formulaError, setFormulaError] = useState<string | null>(null);
+  const [timeFormula, setTimeFormula] = useState('');
 
   const isCustom = genre === 'custom';
 
@@ -374,16 +375,18 @@ export default function AudioContentModal({
             )}
           </div>
 
-          {/* Right Column: Graph */}
-          <div className="space-y-2 flex flex-col overflow-hidden">
-            <Label>Crest Factor vs Frequency</Label>
-            <div className="border rounded-md bg-muted/30 p-2 flex-1 flex items-center justify-center overflow-auto">
-              <svg
-                width={GRAPH_WIDTH}
-                height={GRAPH_HEIGHT}
-                className="select-none flex-shrink-0"
-                data-testid="svg-crest-graph"
-              >
+          {/* Right Column: Graph and Time Domain */}
+          <div className="space-y-4 flex flex-col overflow-hidden">
+            {/* Graph */}
+            <div className="space-y-2 flex-1 flex flex-col overflow-hidden">
+              <Label>Crest Factor vs Frequency</Label>
+              <div className="border rounded-md bg-muted/30 p-2 flex-1 flex items-center justify-center overflow-auto">
+                <svg
+                  width={GRAPH_WIDTH}
+                  height={GRAPH_HEIGHT}
+                  className="select-none flex-shrink-0"
+                  data-testid="svg-crest-graph"
+                >
                 <defs>
                   <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.8" />
@@ -489,16 +492,36 @@ export default function AudioContentModal({
                 )}
 
               </svg>
+              </div>
+              {isCustom ? (
+                <p className="text-xs text-muted-foreground text-center">
+                  Edit the formula to shape the curve
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center">
+                  Select "Custom" to edit
+                </p>
+              )}
             </div>
-            {isCustom ? (
-              <p className="text-xs text-muted-foreground text-center">
-                Edit the formula to shape the curve
+
+            {/* Time Domain */}
+            <div className="space-y-2">
+              <Label htmlFor="time-formula">Time Domain</Label>
+              <div className="flex items-start gap-2">
+                <span className="text-sm font-mono text-muted-foreground pt-2">C(t) =</span>
+                <Textarea
+                  id="time-formula"
+                  value={timeFormula}
+                  onChange={(e) => setTimeFormula(e.target.value)}
+                  className="font-mono text-sm resize-none flex-1"
+                  placeholder="e.g., 4 + 4 * cos(2 * pi * f * t)"
+                  data-testid="input-time-formula"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Use: t (time), f (frequency), pi, cos(), sin(), exp()
               </p>
-            ) : (
-              <p className="text-xs text-muted-foreground text-center">
-                Select "Custom" to edit
-              </p>
-            )}
+            </div>
           </div>
         </div>
       </DialogContent>
