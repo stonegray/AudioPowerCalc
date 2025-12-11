@@ -22,7 +22,7 @@ const PADDING = { top: 20, right: 30, bottom: 40, left: 50 };
 const PLOT_WIDTH = GRAPH_WIDTH - PADDING.left - PADDING.right;
 const PLOT_HEIGHT = GRAPH_HEIGHT - PADDING.top - PADDING.bottom;
 
-const MIN_FREQ = 20;
+const MIN_FREQ = 10;
 const MAX_FREQ = 20000;
 const MIN_CREST = 0;
 const MAX_CREST = 20;
@@ -52,7 +52,7 @@ const yToCrest = (y: number): number => {
   return ratio * MAX_CREST;
 };
 
-const FREQ_TICKS = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+const FREQ_TICKS = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
 const CREST_TICKS = [0, 5, 10, 15, 20];
 
 const formatFreq = (f: number): string => {
