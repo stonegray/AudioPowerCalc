@@ -1,4 +1,4 @@
-export type MusicGenre = "bass_dubstep" | "rock" | "acoustic" | "custom";
+export type MusicGenre = "bass_dubstep" | "rock" | "acoustic" | "white_noise" | "custom";
 export type GeneratorType = "inverter" | "standard" | "shore";
 export type PhaseType = "single" | "split" | "3_delta" | "3_wye";
 export type Units = "metric" | "imperial";
@@ -52,6 +52,16 @@ export const GENRE_CREST_PRESETS: Record<MusicGenre, CrestCurvePoint[]> = {
     { frequency: 2000, crestFactor: 16 },
     { frequency: 8000, crestFactor: 18 },
     { frequency: 20000, crestFactor: 18 },
+  ],
+  white_noise: [
+    { frequency: 10, crestFactor: 0 },
+    { frequency: 100, crestFactor: 0 },
+    { frequency: 500, crestFactor: 0 },
+    { frequency: 1000, crestFactor: 0 },
+    { frequency: 2000, crestFactor: 0 },
+    { frequency: 5000, crestFactor: 0 },
+    { frequency: 10000, crestFactor: 0 },
+    { frequency: 20000, crestFactor: 0 },
   ],
   custom: [
     { frequency: 10, crestFactor: 1.8 },

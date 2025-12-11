@@ -101,6 +101,7 @@ export default function GlobalSettingsPanel({
                 <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
                 <SelectItem value="rock">Rock</SelectItem>
                 <SelectItem value="acoustic">Acoustic</SelectItem>
+                <SelectItem value="white_noise">White Noise</SelectItem>
                 <SelectItem value="custom">Custom</SelectItem>
               </SelectContent>
             </Select>

@@ -140,6 +140,7 @@ export function getCrestFactor(genre: string): number {
     case 'bass_dubstep': return 6;
     case 'rock': return 10;
     case 'acoustic': return 15;
+    case 'white_noise': return 0;
     default: return 12;
   }
 }

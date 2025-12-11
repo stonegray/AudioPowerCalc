@@ -67,6 +67,7 @@ const PRESET_FORMULAS: Record<MusicGenre, string> = {
   bass_dubstep: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
   rock: '8',
   acoustic: '10 + 2.5 * log10(f / 10)',
+  white_noise: '0',
   custom: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
 };
 
@@ -283,6 +284,7 @@ export default function AudioContentModal({
               <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
               <SelectItem value="rock">Rock</SelectItem>
               <SelectItem value="acoustic">Acoustic</SelectItem>
+              <SelectItem value="white_noise">White Noise</SelectItem>
               <SelectItem value="custom">Custom</SelectItem>
             </SelectContent>
           </Select>
