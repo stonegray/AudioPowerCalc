@@ -33,8 +33,22 @@ export default function DistroChannelRow({
   connectionColor,
   appMode = 'advanced',
 }: DistroChannelRowProps) {
-  const phaseOptions = Array.from({ length: maxPhases }, (_, i) => i + 1);
-  const voltageForAmpacity = 120;
+  const getPhaseOptions = (): { value: number; label: string }[] => {
+    if (generatorPhaseType === '3_wye' && maxPhases >= 3) {
+      return [
+        { value: 1, label: 'L12' },
+        { value: 2, label: 'L23' },
+        { value: 3, label: 'L31' },
+      ];
+    }
+    return Array.from({ length: maxPhases }, (_, i) => ({
+      value: i + 1,
+      label: `L${i + 1}`,
+    }));
+  };
+
+  const phaseOptions = getPhaseOptions();
+  const voltageForAmpacity = generatorPhaseType === '3_wye' ? 208 : 120;
   const maxWatts = channel.ampacity * voltageForAmpacity;
   const utilizationPercent = maxWatts > 0 ? (channel.loadWatts / maxWatts) * 100 : 0;
   const utilizationColor = utilizationPercent > 90 ? 'text-destructive' : 
@@ -109,7 +123,7 @@ export default function DistroChannelRow({
             </SelectTrigger>
             <SelectContent>
               {phaseOptions.map((p) => (
-                <SelectItem key={p} value={String(p)}>L{p}</SelectItem>
+                <SelectItem key={p.value} value={String(p.value)}>{p.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
