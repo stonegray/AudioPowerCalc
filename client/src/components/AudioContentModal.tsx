@@ -325,6 +325,13 @@ export default function AudioContentModal({
               Use: f (frequency), log10(), sqrt(), pow(), sin(), cos(), exp(), pi, ^ for power
             </p>
             
+            {!isCustom && (
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 text-sm mt-2 p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>Formula is read-only for genre presets. Select "Custom" to modify the curve.</span>
+              </div>
+            )}
+            
             {curveValidation.hasError && (
               <div className="flex items-center gap-2 text-destructive text-sm mt-2 p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
