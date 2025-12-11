@@ -111,6 +111,11 @@ export default function GlobalSettingsPanel({
                   inputMode="numeric"
                   value={displayTemp}
                   onChange={(e) => handleTempChange(Number(e.target.value))}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = (e as any).deltaY > 0 ? -1 : 1;
+                    handleTempChange(displayTemp + delta);
+                  }}
                   className="w-16 h-8 font-mono text-right text-sm"
                   data-testid="input-temperature"
                 />
@@ -124,6 +129,11 @@ export default function GlobalSettingsPanel({
                   inputMode="numeric"
                   value={displayAlt}
                   onChange={(e) => handleAltChange(Number(e.target.value))}
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = (e as any).deltaY > 0 ? -10 : 10;
+                    handleAltChange(displayAlt + delta);
+                  }}
                   className="w-20 h-8 font-mono text-right text-sm"
                   data-testid="input-altitude"
                 />
