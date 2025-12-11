@@ -75,7 +75,7 @@ export default function DistroChannelRow({
               {channel.loadWatts.toFixed(0)}W/{maxWatts}W
             </span>
           </div>
-          <Progress value={Math.min(utilizationPercent, 100)} className="h-1.5 w-16" />
+          <Progress value={utilizationPercent} className="h-1.5 w-16" />
           <Button 
             variant="ghost" 
             size="icon" 

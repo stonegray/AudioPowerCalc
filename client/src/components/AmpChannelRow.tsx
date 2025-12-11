@@ -141,7 +141,7 @@ export default function AmpChannelRow({
 
         <div className="flex items-center gap-2">
           <div className="flex-1">
-            <Progress value={Math.min(utilizationPercent, 100)} className="h-1.5" />
+            <Progress value={utilizationPercent} className="h-1.5" />
           </div>
           <div className="text-xs font-mono text-muted-foreground min-w-[32px] text-right">
             {utilizationPercent.toFixed(0)}%

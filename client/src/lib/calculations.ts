@@ -178,7 +178,7 @@ export function recalculateAmplifiers(
   return amplifiers.map(amp => {
     const energyWatts = calculateAmplifierEnergy(amp, speakers, connections);
     const utilizationPercent = amp.pmax > 0 
-      ? Math.min(100, (energyWatts / amp.pmax) * 100) 
+      ? (energyWatts / amp.pmax) * 100
       : 0;
     
     const updatedChannels = (amp.channels || []).map(channel => {
@@ -236,7 +236,7 @@ export function recalculateSpeakers(
     
     const totalPmax = speaker.pmaxAES * speaker.quantity;
     const utilizationPercent = totalPmax > 0
-      ? Math.min(100, (incomingPower / totalPmax) * 100)
+      ? (incomingPower / totalPmax) * 100
       : 0;
     
     return {
