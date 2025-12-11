@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -266,101 +266,122 @@ export default function AudioContentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[580px]">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Audio Content - Crest Curve</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>Curve Formula</Label>
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-mono text-muted-foreground">C(f) =</span>
-                  <Input
-                    value={formula}
-                    onChange={(e) => handleFormulaChange(e.target.value)}
-                    className="font-mono text-sm flex-1"
-                    placeholder="e.g., 6 + 2 * log10(f / 10)"
-                    disabled={!isCustom}
-                    data-testid="input-formula"
-                  />
-                </div>
-                {formulaError && (
-                  <div className="flex items-center gap-1 text-destructive text-xs mt-1">
-                    <AlertCircle className="w-3 h-3" />
-                    {formulaError}
+        <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
+          {/* Left Column: Inputs and Warnings */}
+          <div className="space-y-4 overflow-y-auto pr-4">
+            {/* Genre Selector */}
+            <div className="space-y-2">
+              <Label htmlFor="genre-select">Genre</Label>
+              <Select value={genre} onValueChange={handleGenreChange}>
+                <SelectTrigger id="genre-select" data-testid="select-genre">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
+                  <SelectItem value="rock">Rock</SelectItem>
+                  <SelectItem value="acoustic">Acoustic</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Formula Input */}
+            <div className="space-y-2">
+              <Label htmlFor="formula-input">Curve Formula</Label>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-sm font-mono text-muted-foreground pt-2">C(f) =</span>
+                  <div className="flex-1">
+                    <Textarea
+                      id="formula-input"
+                      value={formula}
+                      onChange={(e) => handleFormulaChange(e.target.value)}
+                      className="font-mono text-sm resize-none min-h-24"
+                      placeholder="e.g., 6 + 2 * log10(f / 10)"
+                      disabled={!isCustom}
+                      data-testid="input-formula"
+                    />
                   </div>
-                )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Functions: log10(), sqrt(), pow(), sin(), cos(), exp() | Constants: pi, f (frequency) | Operator: ^ for power
+                </p>
               </div>
-              {isCustom && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleApplyFormula}
-                  disabled={!!formulaError}
-                  data-testid="button-apply-formula"
-                >
-                  Apply
-                </Button>
+
+              {formulaError && (
+                <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md">
+                  <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                  <span>{formulaError}</span>
+                </div>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Use: f (frequency), log10(), sqrt(), pow(), sin(), cos(), exp(), pi, ^ for power
-            </p>
-            
+
             {!isCustom && (
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 text-sm mt-2 p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
-                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span>Formula is read-only for genre presets. Select "Custom" to modify the curve.</span>
+              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
+                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                <span>Formula is read-only for genre presets. Select "Custom" to modify.</span>
               </div>
             )}
-            
+
             {curveValidation.hasError && (
-              <div className="flex items-center gap-2 text-destructive text-sm mt-2 p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
+                <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
                 <span>{curveValidation.errorMessage}</span>
               </div>
             )}
-            
+
             {curveValidation.hasWarning && !curveValidation.hasError && (
-              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 text-sm mt-2 p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
-                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
+                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
                 <span>{curveValidation.warningMessage}</span>
               </div>
             )}
+
+            {isCustom && (
+              <Button 
+                onClick={handleApplyFormula}
+                disabled={!!formulaError}
+                className="w-full"
+                data-testid="button-apply-formula"
+              >
+                Apply Formula
+              </Button>
+            )}
+
+            {isCustom && (
+              <Tabs value="formula">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="formula">Formula Mode</TabsTrigger>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="inline-flex">
+                        <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
+                          Point Mode
+                        </TabsTrigger>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Coming Soon</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TabsList>
+              </Tabs>
+            )}
           </div>
 
-          {isCustom && (
-            <Tabs value="formula">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="formula">Formula Mode</TabsTrigger>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="inline-flex">
-                      <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
-                        Point Mode
-                      </TabsTrigger>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Coming Soon</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TabsList>
-            </Tabs>
-          )}
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Crest Factor vs Frequency</Label>
-            </div>
-            <div className="border rounded-md bg-muted/30 p-2">
+          {/* Right Column: Graph */}
+          <div className="space-y-2 flex flex-col overflow-hidden">
+            <Label>Crest Factor vs Frequency</Label>
+            <div className="border rounded-md bg-muted/30 p-2 flex-1 flex items-center justify-center overflow-auto">
               <svg
                 width={GRAPH_WIDTH}
                 height={GRAPH_HEIGHT}
-                className="select-none"
+                className="select-none flex-shrink-0"
                 data-testid="svg-crest-graph"
               >
                 <defs>
@@ -468,17 +489,16 @@ export default function AudioContentModal({
                 )}
 
               </svg>
-              
-              {isCustom ? (
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Edit the formula above to shape the curve. Click Apply to update.
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  Select "Custom" preset to edit the curve
-                </p>
-              )}
             </div>
+            {isCustom ? (
+              <p className="text-xs text-muted-foreground text-center">
+                Edit the formula to shape the curve
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground text-center">
+                Select "Custom" to edit
+              </p>
+            )}
           </div>
         </div>
       </DialogContent>
