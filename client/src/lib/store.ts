@@ -267,17 +267,40 @@ export function useSystemStore() {
 
   const addConnection = useCallback((connection: Omit<Connection, 'id'>) => {
     const id = `conn_${Date.now()}`;
-    saveState({
+    let newState = {
       ...state,
       connections: [...state.connections, { ...connection, id }],
-    });
+    };
+    
+    // If connecting distro to amp, set the amp's connectedDistroId
+    if (connection.sourceType === 'distro' && connection.targetType === 'amp') {
+      newState.amplifiers = newState.amplifiers.map(amp => 
+        amp.id === connection.targetId 
+          ? { ...amp, connectedDistroId: connection.sourceId }
+          : amp
+      );
+    }
+    
+    saveState(newState);
   }, [state, saveState]);
 
   const removeConnection = useCallback((id: string) => {
-    saveState({
+    const connToRemove = state.connections.find(c => c.id === id);
+    let newState = {
       ...state,
       connections: state.connections.filter(c => c.id !== id),
-    });
+    };
+    
+    // If removing distro to amp connection, clear the amp's connectedDistroId
+    if (connToRemove?.sourceType === 'distro' && connToRemove?.targetType === 'amp') {
+      newState.amplifiers = newState.amplifiers.map(amp => 
+        amp.id === connToRemove.targetId 
+          ? { ...amp, connectedDistroId: undefined }
+          : amp
+      );
+    }
+    
+    saveState(newState);
   }, [state, saveState]);
 
   const saveConfiguration = useCallback((name: string) => {
