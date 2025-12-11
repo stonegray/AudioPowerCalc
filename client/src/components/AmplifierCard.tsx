@@ -301,7 +301,7 @@ export default function AmplifierCard({
                 {amplifier.channels.map((ch, i) => (
                   <div key={ch.id} className="flex justify-between">
                     <span className="text-muted-foreground">Ch {i + 1}:</span>
-                    <span>{ch.energyWatts.toFixed(0)}W/{ch.musicPowerWatts.toFixed(0)}W/{ch.effectiveZ.toFixed(1)}Ω</span>
+                    <span>{ch.energyWatts.toFixed(0)}W/{ch.musicPowerWatts.toFixed(0)}W/{ch.effectiveZ.toFixed(2)}Ω</span>
                   </div>
                 ))}
               </div>

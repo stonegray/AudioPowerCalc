@@ -117,9 +117,9 @@ export default function AmpChannelRow({
             variant={impedanceWarning ? "destructive" : "secondary"} 
             className="font-mono text-xs" 
             data-testid={`badge-effective-z-${index}`}
-            title={impedanceWarning ? `Effective Z (${channel.effectiveZ.toFixed(1)}Ω) below minimum (${minImpedance}Ω)` : undefined}
+            title={impedanceWarning ? `Effective Z (${channel.effectiveZ.toFixed(2)}Ω) below minimum (${minImpedance}Ω)` : undefined}
           >
-            {channel.effectiveZ.toFixed(1)}Ω eff
+            {channel.effectiveZ.toFixed(2)}Ω eff
           </Badge>
 
           <div className="flex gap-2 text-xs font-mono text-muted-foreground ml-auto">

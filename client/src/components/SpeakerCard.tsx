@@ -256,7 +256,7 @@ export default function SpeakerCard({
 
         <div className="bg-muted/50 rounded-md px-2 py-1 text-xs font-mono">
           <span className="text-muted-foreground">Eff Z: </span>
-          <span>{((effectiveImpedance + cableImpedanceOhms) / speaker.quantity).toFixed(1)}Ω</span>
+          <span>{((effectiveImpedance + cableImpedanceOhms) / speaker.quantity).toFixed(2)}Ω</span>
         </div>
       </CardContent>
     </Card>
