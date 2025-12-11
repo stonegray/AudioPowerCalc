@@ -9,7 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { ChevronDown, Plus, Trash2, Zap } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode } from '@/lib/types';
+import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode, GlobalSettings } from '@/lib/types';
+import { generateDerateDescriptions } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 
 interface GeneratorCardProps {
@@ -25,6 +26,7 @@ interface GeneratorCardProps {
   derates?: { temp: number; altitude: number; user: number };
   effectiveWatts?: number;
   appMode?: AppMode;
+  globalSettings?: GlobalSettings;
 }
 
 export default function GeneratorCard({
@@ -40,12 +42,15 @@ export default function GeneratorCard({
   derates = { temp: 1, altitude: 1, user: 1 },
   effectiveWatts = generator.continuousWatts,
   appMode = 'advanced',
+  globalSettings,
 }: GeneratorCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const isCustom = generator.model === 'custom';
   const isBasic = appMode === 'basic';
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
     generator.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
+  
+  const derateDescriptions = globalSettings ? generateDerateDescriptions(generator, globalSettings) : null;
 
   const handleModelChange = (model: string) => {
     const preset = presets[model];
@@ -267,18 +272,19 @@ export default function GeneratorCard({
                   <span className="text-muted-foreground">Rated:</span>
                   <span>{generator.continuousWatts}W</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Temp:</span>
-                  <span>{(derates.temp * 100).toFixed(0)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Alt:</span>
-                  <span>{(derates.altitude * 100).toFixed(0)}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">User:</span>
-                  <span>{(derates.user * 100).toFixed(0)}%</span>
-                </div>
+                {derateDescriptions && (
+                  <>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                      {derateDescriptions.temp}
+                    </div>
+                    <div className="text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+                      {derateDescriptions.altitude}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {derateDescriptions.user}
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between border-t pt-0.5 mt-0.5 font-medium">
                   <span>Eff:</span>
                   <span>{effectiveWatts.toFixed(0)}W</span>

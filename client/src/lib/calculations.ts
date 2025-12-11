@@ -22,6 +22,33 @@ export function calculateAltitudeDerate(altitudeMeters: number): number {
   return Math.max(0, 1 - (deratePercent / 100));
 }
 
+export function generateDerateDescriptions(
+  generator: Generator,
+  settings: GlobalSettings
+): { temp: string; altitude: string; user: string } {
+  const tempDerate = calculateTemperatureDerate(settings.ambientTemperature);
+  const tempLoss = (1 - tempDerate) * 100;
+  const tempOverBase = Math.max(0, settings.ambientTemperature - 40);
+  
+  const altitudeDerate = calculateAltitudeDerate(settings.altitude);
+  const altLoss = (1 - altitudeDerate) * 100;
+  const altitudeFeet = settings.altitude * 3.28084;
+  
+  const userDerate = 1 - (generator.userDerate / 100);
+  
+  const tempDesc = tempOverBase > 0
+    ? `Temp: ${tempLoss.toFixed(2)}% (+${tempOverBase.toFixed(0)}°C over 40°C @ 2%/°C)`
+    : 'Temp: 0% (≤40°C)';
+  
+  const altDesc = altitudeFeet > 0
+    ? `Alt: ${altLoss.toFixed(2)}% (+${(altitudeFeet / 1000).toFixed(1)}k ft @ 4%/1k ft)`
+    : 'Alt: 0% (sea level)';
+  
+  const userDesc = `User: ${((1 - userDerate) * 100).toFixed(1)}%`;
+  
+  return { temp: tempDesc, altitude: altDesc, user: userDesc };
+}
+
 export function calculateGeneratorEffectiveWatts(
   generator: Generator,
   settings: GlobalSettings

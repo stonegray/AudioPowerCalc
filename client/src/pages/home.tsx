@@ -335,6 +335,7 @@ export default function Home() {
                     derates={gen.derates}
                     effectiveWatts={gen.effectiveWatts}
                     appMode={state.globalSettings.appMode}
+                    globalSettings={state.globalSettings}
                   />
                 ))}
                 <AddEquipmentButton
