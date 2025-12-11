@@ -220,3 +220,43 @@ export function recalculateSpeakers(
     };
   });
 }
+
+export function calculateDistroChannelLoad(
+  distroChannelId: string,
+  amplifiers: Amplifier[],
+  connections: Connection[]
+): number {
+  let totalLoadWatts = 0;
+  
+  for (const connection of connections) {
+    if (connection.sourceId === distroChannelId && connection.sourceType === 'distro' && connection.targetType === 'amp') {
+      const amplifier = amplifiers.find(amp => amp.id === connection.targetId);
+      if (amplifier) {
+        totalLoadWatts += amplifier.rmsWattsDrawn;
+      }
+    }
+  }
+  
+  return totalLoadWatts;
+}
+
+export function recalculateDistroChannels(
+  generators: Generator[],
+  amplifiers: Amplifier[],
+  connections: Connection[]
+): Generator[] {
+  return generators.map(gen => {
+    const updatedChannels = (gen.distroChannels || []).map(channel => {
+      const loadWatts = calculateDistroChannelLoad(channel.id, amplifiers, connections);
+      return {
+        ...channel,
+        loadWatts,
+      };
+    });
+    
+    return {
+      ...gen,
+      distroChannels: updatedChannels,
+    };
+  });
+}
