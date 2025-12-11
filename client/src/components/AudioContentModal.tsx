@@ -288,31 +288,31 @@ export default function AudioContentModal({
           </Select>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
-          {/* Left Column: Inputs and Warnings */}
+        {/* Warnings */}
+        {!isCustom && (
+          <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
+            <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+            <span>Formula is read-only for genre presets. Select "Custom" to modify.</span>
+          </div>
+        )}
+
+        {curveValidation.hasError && (
+          <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
+            <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+            <span>{curveValidation.errorMessage}</span>
+          </div>
+        )}
+
+        {curveValidation.hasWarning && !curveValidation.hasError && (
+          <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
+            <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+            <span>{curveValidation.warningMessage}</span>
+          </div>
+        )}
+
+        <div className={`grid grid-cols-2 gap-6 flex-1 overflow-hidden transition-opacity ${!isCustom ? 'opacity-50 pointer-events-none' : ''}`}>
+          {/* Left Column: Formula and Time Domain */}
           <div className="space-y-4 overflow-y-auto pr-4">
-            {/* Warnings */}
-            {!isCustom && (
-              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
-                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>Formula is read-only for genre presets. Select "Custom" to modify.</span>
-              </div>
-            )}
-
-            {curveValidation.hasError && (
-              <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
-                <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>{curveValidation.errorMessage}</span>
-              </div>
-            )}
-
-            {curveValidation.hasWarning && !curveValidation.hasError && (
-              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
-                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>{curveValidation.warningMessage}</span>
-              </div>
-            )}
-
             {/* Formula Input */}
             <div className="space-y-2">
               <Label htmlFor="formula-input">Curve Formula</Label>
@@ -344,39 +344,54 @@ export default function AudioContentModal({
               )}
             </div>
 
-            {isCustom && (
-              <Button 
-                onClick={handleApplyFormula}
-                disabled={!!formulaError}
-                className="w-full"
-                data-testid="button-apply-formula"
-              >
-                Apply Formula
-              </Button>
-            )}
+            <Button 
+              onClick={handleApplyFormula}
+              disabled={!!formulaError}
+              className="w-full"
+              data-testid="button-apply-formula"
+            >
+              Apply Formula
+            </Button>
 
-            {isCustom && (
-              <Tabs value="formula">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="formula">Formula Mode</TabsTrigger>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="inline-flex">
-                        <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
-                          Point Mode
-                        </TabsTrigger>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Coming Soon</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TabsList>
-              </Tabs>
-            )}
+            <Tabs value="formula">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="formula">Formula Mode</TabsTrigger>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="inline-flex">
+                      <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
+                        Point Mode
+                      </TabsTrigger>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Coming Soon</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TabsList>
+            </Tabs>
+
+            {/* Time Domain */}
+            <div className="space-y-2">
+              <Label htmlFor="time-formula">Time Domain</Label>
+              <div className="flex items-start gap-2">
+                <span className="text-sm font-mono text-muted-foreground pt-2">C(t) =</span>
+                <Textarea
+                  id="time-formula"
+                  value={timeFormula}
+                  onChange={(e) => setTimeFormula(e.target.value)}
+                  className="font-mono text-sm resize-none flex-1"
+                  placeholder="e.g., 4 + 4 * cos(2 * pi * f * t)"
+                  data-testid="input-time-formula"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Use: t (time), f (frequency), pi, cos(), sin(), exp()
+              </p>
+            </div>
           </div>
 
-          {/* Right Column: Graph and Time Domain */}
+          {/* Right Column: Graph */}
           <div className="space-y-4 flex flex-col overflow-hidden">
             {/* Graph */}
             <div className="space-y-2 flex-1 flex flex-col overflow-hidden">
@@ -494,33 +509,8 @@ export default function AudioContentModal({
 
               </svg>
               </div>
-              {isCustom ? (
-                <p className="text-xs text-muted-foreground text-center">
-                  Edit the formula to shape the curve
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center">
-                  Select "Custom" to edit
-                </p>
-              )}
-            </div>
-
-            {/* Time Domain */}
-            <div className="space-y-2">
-              <Label htmlFor="time-formula">Time Domain</Label>
-              <div className="flex items-start gap-2">
-                <span className="text-sm font-mono text-muted-foreground pt-2">C(t) =</span>
-                <Textarea
-                  id="time-formula"
-                  value={timeFormula}
-                  onChange={(e) => setTimeFormula(e.target.value)}
-                  className="font-mono text-sm resize-none flex-1"
-                  placeholder="e.g., 4 + 4 * cos(2 * pi * f * t)"
-                  data-testid="input-time-formula"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Use: t (time), f (frequency), pi, cos(), sin(), exp()
+              <p className="text-xs text-muted-foreground text-center">
+                Edit the formula to shape the curve
               </p>
             </div>
           </div>
