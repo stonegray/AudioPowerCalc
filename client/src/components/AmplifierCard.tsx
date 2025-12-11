@@ -53,20 +53,26 @@ export default function AmplifierCard({
   const handleModelChange = (model: string) => {
     const preset = presets[model];
     if (preset) {
+      const newChannelCount = preset.channelCount || 2;
+      
+      // Preserve existing channel IDs to maintain connections
       const channels: AmpChannel[] = Array.from(
-        { length: preset.channelCount || 2 }, 
-        (_, i) => ({
-          id: `ch_${Date.now()}_${i}`,
-          enabled: true,
-          bridged: false,
-          hpf: i < 2 ? 30 : 80,
-          lpf: i < 2 ? 100 : 16000,
-          loadOhms: 8,
-          energyWatts: 0,
-          musicPowerWatts: 0,
-          gain: 0,
-          effectiveZ: 8,
-        })
+        { length: newChannelCount }, 
+        (_, i) => {
+          const existingChannel = amplifier.channels[i];
+          return {
+            id: existingChannel?.id || `ch_${Date.now()}_${i}`,
+            enabled: true,
+            bridged: false,
+            hpf: i < 2 ? 30 : 80,
+            lpf: i < 2 ? 100 : 16000,
+            loadOhms: existingChannel?.loadOhms || 8,
+            energyWatts: 0,
+            musicPowerWatts: 0,
+            gain: 0,
+            effectiveZ: 8,
+          };
+        }
       );
       onUpdate({
         model,
@@ -77,7 +83,7 @@ export default function AmplifierCard({
         parasiticDraw: preset.parasiticDraw || 50,
         powerFactor: preset.powerFactor || 0.95,
         supportsBridging: preset.supportsBridging || false,
-        channelCount: preset.channelCount || 2,
+        channelCount: newChannelCount,
         channels,
       });
     } else {
