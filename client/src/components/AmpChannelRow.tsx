@@ -15,6 +15,7 @@ interface AmpChannelRowProps {
   bridgePartnerDisabled: boolean;
   supportsBridging: boolean;
   minImpedance?: number;
+  channelPmax?: number;
   onUpdate: (updates: Partial<AmpChannel>) => void;
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
@@ -28,6 +29,7 @@ export default function AmpChannelRow({
   bridgePartnerDisabled,
   supportsBridging,
   minImpedance = 4,
+  channelPmax = 0,
   onUpdate,
   onNodeClick,
   connectionColor,
@@ -37,6 +39,7 @@ export default function AmpChannelRow({
   const channelNum = index + 1;
   const isBasic = appMode === 'basic';
   const impedanceWarning = channel.effectiveZ < minImpedance;
+  const effectivePmax = channel.bridged ? channelPmax * 2 : channelPmax;
 
   const utilizationPercent = (channel.energyWatts / Math.max(channel.musicPowerWatts, 1)) * 100;
 
@@ -68,6 +71,11 @@ export default function AmpChannelRow({
                 data-testid={`switch-channel-enabled-${index}`}
               />
               <span className="text-xs font-medium">Ch{channelNum}</span>
+              {effectivePmax > 0 && (
+                <Badge variant="outline" className="font-mono text-xs ml-1">
+                  {effectivePmax.toFixed(0)}W
+                </Badge>
+              )}
             </div>
 
             {canBridge && supportsBridging && !isBasic && (

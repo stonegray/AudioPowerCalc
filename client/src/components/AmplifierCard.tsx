@@ -325,6 +325,7 @@ export default function AmplifierCard({
                 bridgePartnerDisabled={bridgePartnerDisabled}
                 supportsBridging={amplifier.supportsBridging}
                 minImpedance={amplifier.minImpedance}
+                channelPmax={amplifier.pmax / amplifier.channelCount}
                 onUpdate={(updates) => handleChannelUpdate(channel.id, updates)}
                 onNodeClick={onOutputNodeClick}
                 connectionColor={getOutputConnectionColor?.(channel.id)}
