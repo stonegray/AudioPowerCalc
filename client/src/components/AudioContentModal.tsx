@@ -1,9 +1,11 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus, Trash2, AlertCircle } from 'lucide-react';
 import type { MusicGenre, CrestCurvePoint } from '@/lib/types';
 import { GENRE_CREST_PRESETS } from '@/lib/types';
 
@@ -60,6 +62,54 @@ const formatFreq = (f: number): string => {
   return `${f}`;
 };
 
+const PRESET_FORMULAS: Record<MusicGenre, string> = {
+  bass_dubstep: '3 + 3.3 * log10(f / 10)',
+  rock: '6 + 2 * log10(f / 10)',
+  acoustic: '10 + 2.5 * log10(f / 10)',
+  custom: '6 + 2 * log10(f / 10)',
+};
+
+const safeEval = (formula: string, f: number): number | null => {
+  try {
+    const sanitized = formula
+      .replace(/log10/g, 'Math.log10')
+      .replace(/log/g, 'Math.log')
+      .replace(/ln/g, 'Math.log')
+      .replace(/sqrt/g, 'Math.sqrt')
+      .replace(/abs/g, 'Math.abs')
+      .replace(/pow/g, 'Math.pow')
+      .replace(/sin/g, 'Math.sin')
+      .replace(/cos/g, 'Math.cos')
+      .replace(/exp/g, 'Math.exp')
+      .replace(/pi/gi, 'Math.PI')
+      .replace(/\^/g, '**');
+    
+    const func = new Function('f', `return ${sanitized}`);
+    const result = func(f);
+    
+    if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
+      return null;
+    }
+    return Math.max(MIN_CREST, Math.min(MAX_CREST, result));
+  } catch {
+    return null;
+  }
+};
+
+const generateCurveFromFormula = (formula: string): CrestCurvePoint[] => {
+  const points: CrestCurvePoint[] = [];
+  const frequencies = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+  
+  for (const freq of frequencies) {
+    const crest = safeEval(formula, freq);
+    if (crest !== null) {
+      points.push({ frequency: freq, crestFactor: Math.round(crest * 10) / 10 });
+    }
+  }
+  
+  return points;
+};
+
 export default function AudioContentModal({
   open,
   onOpenChange,
@@ -71,24 +121,88 @@ export default function AudioContentModal({
   const svgRef = useRef<SVGSVGElement>(null);
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [formula, setFormula] = useState(PRESET_FORMULAS[genre]);
+  const [formulaError, setFormulaError] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState<'points' | 'formula'>('formula');
 
   const isCustom = genre === 'custom';
   const sortedCurve = [...(crestCurve || [])].sort((a, b) => a.frequency - b.frequency);
 
+  useEffect(() => {
+    if (genre !== 'custom') {
+      setFormula(PRESET_FORMULAS[genre]);
+    }
+  }, [genre]);
+
+  const formulaCurvePoints = useMemo(() => {
+    const points: { x: number; y: number }[] = [];
+    const numPoints = 100;
+    
+    for (let i = 0; i <= numPoints; i++) {
+      const ratio = i / numPoints;
+      const logMin = Math.log10(MIN_FREQ);
+      const logMax = Math.log10(MAX_FREQ);
+      const logFreq = logMin + ratio * (logMax - logMin);
+      const freq = Math.pow(10, logFreq);
+      
+      const crest = safeEval(formula, freq);
+      if (crest !== null) {
+        points.push({ x: freqToX(freq), y: crestToY(crest) });
+      }
+    }
+    
+    return points;
+  }, [formula]);
+
+  const formulaPath = useMemo(() => {
+    if (formulaCurvePoints.length < 2) return '';
+    return formulaCurvePoints.map((pt, i) => 
+      i === 0 ? `M ${pt.x} ${pt.y}` : `L ${pt.x} ${pt.y}`
+    ).join(' ');
+  }, [formulaCurvePoints]);
+
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
     onGenreChange(newGenre);
-    if (newGenre !== 'custom') {
-      onCrestCurveChange(GENRE_CREST_PRESETS[newGenre]);
-    }
+    setFormula(PRESET_FORMULAS[newGenre]);
+    onCrestCurveChange(GENRE_CREST_PRESETS[newGenre]);
   }, [onGenreChange, onCrestCurveChange]);
 
+  const handleFormulaChange = useCallback((newFormula: string) => {
+    setFormula(newFormula);
+    
+    const testResult = safeEval(newFormula, 1000);
+    if (testResult === null) {
+      setFormulaError('Invalid formula');
+      return;
+    }
+    
+    setFormulaError(null);
+    
+    if (isCustom) {
+      const newCurve = generateCurveFromFormula(newFormula);
+      if (newCurve.length > 0) {
+        onCrestCurveChange(newCurve);
+      }
+    }
+  }, [isCustom, onCrestCurveChange]);
+
+  const handleApplyFormula = useCallback(() => {
+    if (!isCustom) {
+      onGenreChange('custom');
+    }
+    const newCurve = generateCurveFromFormula(formula);
+    if (newCurve.length > 0) {
+      onCrestCurveChange(newCurve);
+    }
+  }, [formula, isCustom, onGenreChange, onCrestCurveChange]);
+
   const handleMouseDown = useCallback((e: React.MouseEvent, index: number) => {
-    if (!isCustom) return;
+    if (!isCustom || editMode !== 'points') return;
     e.preventDefault();
     e.stopPropagation();
     setDraggingIndex(index);
     setSelectedIndex(index);
-  }, [isCustom]);
+  }, [isCustom, editMode]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (draggingIndex === null || !svgRef.current || !isCustom) return;
@@ -114,7 +228,7 @@ export default function AudioContentModal({
   }, []);
 
   const handleAddPoint = useCallback((e: React.MouseEvent) => {
-    if (!isCustom || !svgRef.current) return;
+    if (!isCustom || editMode !== 'points' || !svgRef.current) return;
     
     const svg = svgRef.current;
     const rect = svg.getBoundingClientRect();
@@ -129,7 +243,7 @@ export default function AudioContentModal({
     
     const newCurve = [...sortedCurve, { frequency: newFreq, crestFactor: newCrest }];
     onCrestCurveChange(newCurve.sort((a, b) => a.frequency - b.frequency));
-  }, [isCustom, sortedCurve, onCrestCurveChange]);
+  }, [isCustom, editMode, sortedCurve, onCrestCurveChange]);
 
   const handleDeletePoint = useCallback(() => {
     if (selectedIndex === null || sortedCurve.length <= 2) return;
@@ -144,7 +258,7 @@ export default function AudioContentModal({
     return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
   }, []);
 
-  const pathD = sortedCurve.length > 1
+  const pointsPathD = sortedCurve.length > 1
     ? sortedCurve.map((pt, i) => {
         const x = freqToX(pt.frequency);
         const y = crestToY(pt.crestFactor);
@@ -156,7 +270,7 @@ export default function AudioContentModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[580px]">
         <DialogHeader>
-          <DialogTitle>Audio Content</DialogTitle>
+          <DialogTitle>Audio Content - Crest Curve</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -176,9 +290,57 @@ export default function AudioContentModal({
           </div>
 
           <div className="space-y-2">
+            <Label>Curve Formula</Label>
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-mono text-muted-foreground">C(f) =</span>
+                  <Input
+                    value={formula}
+                    onChange={(e) => handleFormulaChange(e.target.value)}
+                    className="font-mono text-sm flex-1"
+                    placeholder="e.g., 6 + 2 * log10(f / 10)"
+                    disabled={!isCustom}
+                    data-testid="input-formula"
+                  />
+                </div>
+                {formulaError && (
+                  <div className="flex items-center gap-1 text-destructive text-xs mt-1">
+                    <AlertCircle className="w-3 h-3" />
+                    {formulaError}
+                  </div>
+                )}
+              </div>
+              {isCustom && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleApplyFormula}
+                  disabled={!!formulaError}
+                  data-testid="button-apply-formula"
+                >
+                  Apply
+                </Button>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Use: f (frequency), log10(), sqrt(), pow(), sin(), cos(), exp(), pi, ^ for power
+            </p>
+          </div>
+
+          {isCustom && (
+            <Tabs value={editMode} onValueChange={(v) => setEditMode(v as 'points' | 'formula')}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="formula">Formula Mode</TabsTrigger>
+                <TabsTrigger value="points">Point Mode</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Crest Curve (Crest Factor vs Frequency)</Label>
-              {isCustom && selectedIndex !== null && sortedCurve.length > 2 && (
+              <Label>Crest Factor vs Frequency</Label>
+              {isCustom && editMode === 'points' && selectedIndex !== null && sortedCurve.length > 2 && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -195,10 +357,10 @@ export default function AudioContentModal({
                 ref={svgRef}
                 width={GRAPH_WIDTH}
                 height={GRAPH_HEIGHT}
-                className="cursor-crosshair select-none"
+                className={isCustom && editMode === 'points' ? "cursor-crosshair select-none" : "select-none"}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
-                onDoubleClick={isCustom ? handleAddPoint : undefined}
+                onDoubleClick={isCustom && editMode === 'points' ? handleAddPoint : undefined}
                 data-testid="svg-crest-graph"
               >
                 <defs>
@@ -207,8 +369,12 @@ export default function AudioContentModal({
                     <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.4" />
                   </linearGradient>
                   <linearGradient id="fillGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.2" />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.05" />
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.15" />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.02" />
+                  </linearGradient>
+                  <linearGradient id="formulaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity="1" />
+                    <stop offset="100%" stopColor="hsl(var(--chart-2))" stopOpacity="1" />
                   </linearGradient>
                 </defs>
 
@@ -284,16 +450,16 @@ export default function AudioContentModal({
                   Crest Factor (dB)
                 </text>
 
-                {sortedCurve.length > 1 && (
+                {formulaPath && (
                   <>
                     <path
-                      d={pathD + ` L ${freqToX(sortedCurve[sortedCurve.length - 1].frequency)} ${PADDING.top + PLOT_HEIGHT} L ${freqToX(sortedCurve[0].frequency)} ${PADDING.top + PLOT_HEIGHT} Z`}
+                      d={formulaPath + ` L ${formulaCurvePoints[formulaCurvePoints.length - 1]?.x || 0} ${PADDING.top + PLOT_HEIGHT} L ${formulaCurvePoints[0]?.x || 0} ${PADDING.top + PLOT_HEIGHT} Z`}
                       fill="url(#fillGradient)"
                     />
                     <path
-                      d={pathD}
+                      d={formulaPath}
                       fill="none"
-                      stroke="url(#curveGradient)"
+                      stroke="url(#formulaGradient)"
                       strokeWidth={2.5}
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -301,7 +467,7 @@ export default function AudioContentModal({
                   </>
                 )}
 
-                {sortedCurve.map((pt, i) => {
+                {editMode === 'points' && sortedCurve.map((pt, i) => {
                   const x = freqToX(pt.frequency);
                   const y = crestToY(pt.crestFactor);
                   const isSelected = selectedIndex === i;
@@ -335,9 +501,14 @@ export default function AudioContentModal({
                 })}
               </svg>
               
-              {isCustom && (
+              {isCustom && editMode === 'points' && (
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Double-click to add point. Drag points to adjust. Select and delete with button.
+                </p>
+              )}
+              {isCustom && editMode === 'formula' && (
+                <p className="text-xs text-muted-foreground mt-2 text-center">
+                  Edit the formula above to shape the curve. Click Apply to update.
                 </p>
               )}
               {!isCustom && (
