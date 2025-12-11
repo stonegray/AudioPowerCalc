@@ -82,7 +82,7 @@ export default function ConnectionNode({
     <div
       className={cn(
         'absolute top-1/2 -translate-y-1/2 flex items-center gap-2',
-        position === 'left' ? '-left-8' : '-right-8',
+        position === 'left' ? '-left-6' : '-right-6',
         position === 'left' ? 'flex-row-reverse' : 'flex-row'
       )}
       style={{ zIndex: 9999 }}
@@ -101,18 +101,19 @@ export default function ConnectionNode({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         className={cn(
-          'w-4 h-4 rounded-full border-2 transition-all duration-150',
-          'hover:scale-150 cursor-pointer',
+          'w-5 h-5 rounded-full border-3 transition-all duration-150',
+          'hover:scale-125 cursor-pointer',
           'focus:outline-none',
-          isPending && 'animate-pulse scale-125',
-          isHighlighted && 'scale-150',
+          isPending && 'animate-pulse scale-110',
+          isHighlighted && 'scale-125',
         )}
         style={{ 
           backgroundColor: connected ? nodeColor : 'hsl(var(--background))',
           borderColor: nodeColor,
+          borderWidth: '3px',
           boxShadow: isHighlighted 
             ? `0 0 12px 4px ${nodeColor}80, 0 0 0 2px ${nodeColor}40`
-            : `0 0 0 2px hsl(var(--background)), 0 2px 4px ${nodeColor}40`,
+            : `0 0 0 3px hsl(var(--background)), 0 2px 8px ${nodeColor}60`,
         }}
       />
     </div>

@@ -343,7 +343,7 @@ export default function Home() {
           <div className="space-y-4 overflow-visible relative px-4">
             <h2 className="text-lg font-medium text-muted-foreground">Amplification</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
-              <div className="space-y-4 pr-6 pl-2 overflow-visible">
+              <div className="space-y-4 pr-6 pl-8 overflow-visible">
                 {state.amplifiers.map(amp => (
                   <AmplifierCard
                     key={amp.id}
