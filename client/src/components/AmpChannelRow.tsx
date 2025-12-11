@@ -141,6 +141,12 @@ export default function AmpChannelRow({
               {channel.effectiveZ.toFixed(2)}Ω eff
             </Badge>
 
+            {appMode === 'engineering' && channel.averageCrest !== undefined && (
+              <Badge variant="outline" className="font-mono text-xs" data-testid={`badge-avg-crest-${index}`}>
+                {channel.averageCrest.toFixed(1)}dB CF
+              </Badge>
+            )}
+
             <div className="flex gap-2 text-xs font-mono text-muted-foreground ml-auto">
               <span>{channel.energyWatts.toFixed(0)}W AES</span>
               <span>{channel.musicPowerWatts.toFixed(0)}W AES pk</span>

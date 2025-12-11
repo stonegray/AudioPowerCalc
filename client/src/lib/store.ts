@@ -82,7 +82,8 @@ export function useSystemStore() {
     const amplifiers = Array.isArray(newState.amplifiers) ? newState.amplifiers : [];
     const generators = Array.isArray(newState.generators) ? newState.generators : [];
     
-    const recalculatedAmplifiers = recalculateAmplifiers(amplifiers, speakers, connections);
+    const crestCurve = newState.globalSettings?.crestCurve || [];
+    const recalculatedAmplifiers = recalculateAmplifiers(amplifiers, speakers, connections, crestCurve);
     const recalculatedSpeakers = recalculateSpeakers(speakers, recalculatedAmplifiers, connections);
     const recalculatedGenerators = recalculateDistroChannels(generators, recalculatedAmplifiers, connections);
     
