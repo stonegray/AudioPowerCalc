@@ -41,7 +41,7 @@ export default function AmpChannelRow({
   const impedanceWarning = channel.effectiveZ < minImpedance;
   const effectivePmax = channel.bridged ? channelPmax * 2 : channelPmax;
 
-  const utilizationPercent = (channel.energyWatts / Math.max(channel.musicPowerWatts, 1)) * 100;
+  const utilizationPercent = (channel.energyWatts / Math.max(effectivePmax, 1)) * 100;
 
   return (
     <div 
