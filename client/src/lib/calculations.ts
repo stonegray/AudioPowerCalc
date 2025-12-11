@@ -1,4 +1,4 @@
-import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel } from './types';
+import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel, CrestCurvePoint } from './types';
 import { AWG_RESISTANCE } from './types';
 
 export function calculateCableResistance(
@@ -167,10 +167,73 @@ export function calculateChannelEffectiveZ(
   return totalConductance > 0 ? 1 / totalConductance : 8;
 }
 
+// Interpolate crest factor at a specific frequency from the crest curve
+function interpolateCrest(crestCurve: CrestCurvePoint[], frequency: number): number {
+  if (crestCurve.length === 0) return 8; // Default crest factor
+  
+  // Sort by frequency
+  const sorted = [...crestCurve].sort((a, b) => a.frequency - b.frequency);
+  
+  // If frequency is below the lowest point, return the lowest crest
+  if (frequency <= sorted[0].frequency) {
+    return sorted[0].crestFactor;
+  }
+  
+  // If frequency is above the highest point, return the highest crest
+  if (frequency >= sorted[sorted.length - 1].frequency) {
+    return sorted[sorted.length - 1].crestFactor;
+  }
+  
+  // Find the two points to interpolate between
+  for (let i = 0; i < sorted.length - 1; i++) {
+    if (frequency >= sorted[i].frequency && frequency <= sorted[i + 1].frequency) {
+      const f1 = sorted[i].frequency;
+      const f2 = sorted[i + 1].frequency;
+      const c1 = sorted[i].crestFactor;
+      const c2 = sorted[i + 1].crestFactor;
+      
+      // Logarithmic interpolation for frequency
+      const logF = Math.log10(frequency);
+      const logF1 = Math.log10(f1);
+      const logF2 = Math.log10(f2);
+      const t = (logF - logF1) / (logF2 - logF1);
+      
+      return c1 + t * (c2 - c1);
+    }
+  }
+  
+  return 8;
+}
+
+// Calculate average crest factor between HPF and LPF frequencies
+export function calculateAverageCrest(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[]
+): number {
+  if (crestCurve.length === 0) return 8;
+  if (hpf >= lpf) return interpolateCrest(crestCurve, hpf);
+  
+  // Sample the curve at multiple points between HPF and LPF (logarithmic spacing)
+  const numSamples = 20;
+  const logHpf = Math.log10(Math.max(1, hpf));
+  const logLpf = Math.log10(Math.max(1, lpf));
+  
+  let sum = 0;
+  for (let i = 0; i <= numSamples; i++) {
+    const logFreq = logHpf + (i / numSamples) * (logLpf - logHpf);
+    const freq = Math.pow(10, logFreq);
+    sum += interpolateCrest(crestCurve, freq);
+  }
+  
+  return sum / (numSamples + 1);
+}
+
 export function calculateChannelEnergy(
   channel: AmpChannel,
   connectedSpeakers: Speaker[],
-  ampEfficiency: number
+  ampEfficiency: number,
+  averageCrest: number = 8
 ): number {
   if (!channel.enabled || connectedSpeakers.length === 0) {
     return 0;
@@ -181,7 +244,13 @@ export function calculateChannelEnergy(
   }, 0);
   
   const gainFactor = Math.pow(10, channel.gain / 10);
-  const channelEnergy = (totalSpeakerPmax * ampEfficiency) * gainFactor;
+  
+  // Apply crest factor: lower crest = more energy used
+  // Crest factor represents peak-to-average ratio in dB
+  // Convert to linear: crestLinear = 10^(crest/10)
+  // Energy = Pmax / crestLinear (since average power = peak / crest)
+  const crestLinear = Math.pow(10, averageCrest / 10);
+  const channelEnergy = (totalSpeakerPmax / crestLinear) * ampEfficiency * gainFactor;
   
   return Math.max(0, channelEnergy);
 }
@@ -189,7 +258,8 @@ export function calculateChannelEnergy(
 export function calculateAmplifierEnergy(
   amplifier: Amplifier,
   speakers: Speaker[],
-  connections: Connection[]
+  connections: Connection[],
+  crestCurve: CrestCurvePoint[] = []
 ): number {
   let totalChannelEnergy = 0;
   
@@ -203,10 +273,12 @@ export function calculateAmplifierEnergy(
       );
     });
     
+    const averageCrest = calculateAverageCrest(channel.hpf, channel.lpf, crestCurve);
     const channelEnergy = calculateChannelEnergy(
       channel,
       connectedSpeakers,
-      amplifier.efficiency
+      amplifier.efficiency,
+      averageCrest
     );
     
     totalChannelEnergy += channelEnergy;
@@ -218,14 +290,10 @@ export function calculateAmplifierEnergy(
 export function recalculateAmplifiers(
   amplifiers: Amplifier[],
   speakers: Speaker[],
-  connections: Connection[]
+  connections: Connection[],
+  crestCurve: CrestCurvePoint[] = []
 ): Amplifier[] {
   return amplifiers.map(amp => {
-    const energyWatts = calculateAmplifierEnergy(amp, speakers, connections);
-    const utilizationPercent = amp.pmax > 0 
-      ? (energyWatts / amp.pmax) * 100
-      : 0;
-    
     const updatedChannels = (amp.channels || []).map(channel => {
       const connectedSpeakers = speakers.filter(speaker => {
         return connections.some(conn => 
@@ -236,15 +304,22 @@ export function recalculateAmplifiers(
         );
       });
       
-      const channelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency);
+      const averageCrest = calculateAverageCrest(channel.hpf, channel.lpf, crestCurve);
+      const channelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency, averageCrest);
       const effectiveZ = calculateChannelEffectiveZ(connectedSpeakers);
       
       return {
         ...channel,
         energyWatts: channelEnergy,
         effectiveZ,
+        averageCrest,
       };
     });
+    
+    const energyWatts = updatedChannels.reduce((sum, ch) => sum + ch.energyWatts, 0) + amp.parasiticDraw;
+    const utilizationPercent = amp.pmax > 0 
+      ? (energyWatts / amp.pmax) * 100
+      : 0;
     
     return {
       ...amp,

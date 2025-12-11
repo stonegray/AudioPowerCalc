@@ -112,6 +112,7 @@ export interface AmpChannel {
   musicPowerWatts: number;
   gain: number;
   effectiveZ: number;
+  averageCrest?: number;
 }
 
 export interface Amplifier {
