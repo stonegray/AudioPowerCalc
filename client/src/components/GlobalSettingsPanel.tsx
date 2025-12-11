@@ -34,6 +34,20 @@ export default function GlobalSettingsPanel({
     <Card className="mb-4">
       <CardContent className="pt-3 pb-3">
         <div className="flex flex-wrap items-center gap-3">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">App Mode</Label>
+                <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm text-left">
+              This selects the visibility of advanced options. In Engineering mode, it allows bypassing some limits, modifying many fixed values, and extremely niche settings.
+              <br />
+              <br />
+              Note that on switching back to Basic, any advanced parameters are still saved just not visible
+            </TooltipContent>
+          </Tooltip>
           <Select
             value={settings.appMode}
             onValueChange={(v: AppMode) => onUpdate({ appMode: v })}
