@@ -297,7 +297,7 @@ export default function Home() {
   const generatorsWithCalculations = (state.generators || []).map(gen => {
     const { effectiveWatts, derates } = calculateGeneratorEffectiveWatts(gen, state.globalSettings);
     const totalDistroWatts = (gen.distroChannels || []).reduce((sum, ch) => sum + (ch.enabled ? ch.loadWatts : 0), 0);
-    const utilizationPercent = effectiveWatts > 0 ? Math.min(100, (totalDistroWatts / effectiveWatts) * 100) : 0;
+    const utilizationPercent = effectiveWatts > 0 ? (totalDistroWatts / effectiveWatts) * 100 : 0;
     return { ...gen, effectiveWatts, derates, utilizationPercent };
   });
 
