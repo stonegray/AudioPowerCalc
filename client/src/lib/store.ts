@@ -49,7 +49,15 @@ export function useSystemStore() {
     const saved = localStorage.getItem('audioSystemState');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return {
+          globalSettings: { ...DEFAULT_GLOBAL_SETTINGS, ...parsed.globalSettings },
+          generators: parsed.generators || [],
+          amplifiers: parsed.amplifiers || [],
+          speakers: parsed.speakers || [],
+          poweredSpeakers: parsed.poweredSpeakers || [],
+          connections: parsed.connections || [],
+        };
       } catch {
         // Fall through to default
       }
@@ -65,8 +73,16 @@ export function useSystemStore() {
   });
 
   const saveState = useCallback((newState: SystemState) => {
-    setState(newState);
-    localStorage.setItem('audioSystemState', JSON.stringify(newState));
+    const safeState: SystemState = {
+      globalSettings: { ...DEFAULT_GLOBAL_SETTINGS, ...newState.globalSettings },
+      generators: Array.isArray(newState.generators) ? newState.generators : [],
+      amplifiers: Array.isArray(newState.amplifiers) ? newState.amplifiers : [],
+      speakers: Array.isArray(newState.speakers) ? newState.speakers : [],
+      poweredSpeakers: Array.isArray(newState.poweredSpeakers) ? newState.poweredSpeakers : [],
+      connections: Array.isArray(newState.connections) ? newState.connections : [],
+    };
+    setState(safeState);
+    localStorage.setItem('audioSystemState', JSON.stringify(safeState));
   }, []);
 
   const updateGlobalSettings = useCallback((settings: Partial<GlobalSettings>) => {

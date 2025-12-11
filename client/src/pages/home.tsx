@@ -245,12 +245,12 @@ export default function Home() {
     toast({ title: 'Configuration deleted', description: name });
   }, [toast]);
 
-  const generatorsWithCalculations = state.generators.map(gen => {
+  const generatorsWithCalculations = (state.generators || []).map(gen => {
     const { effectiveWatts, derates } = calculateGeneratorEffectiveWatts(gen, state.globalSettings);
     return { ...gen, effectiveWatts, derates };
   });
 
-  const speakersWithSPL = state.speakers.map(spk => {
+  const speakersWithSPL = (state.speakers || []).map(spk => {
     const powerWatts = 100;
     const splOutput = calculateSPL(
       spk.sensitivity,
@@ -262,7 +262,7 @@ export default function Home() {
     return { ...spk, splOutput };
   });
 
-  const poweredSpeakersWithCalcs = state.poweredSpeakers.map(spk => {
+  const poweredSpeakersWithCalcs = (state.poweredSpeakers || []).map(spk => {
     const splOutput = calculateSPL(
       spk.sensitivity,
       spk.pmax * spk.efficiency,
