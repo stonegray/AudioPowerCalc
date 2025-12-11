@@ -11,7 +11,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Trash2 } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import type { DistroChannel, PhaseType, CableInputMode } from '@/lib/types';
+import { AWG_RESISTANCE } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { calculateCableResistance } from '@/lib/calculations';
 
 interface DistroChannelRowProps {
   channel: DistroChannel;
@@ -86,6 +88,31 @@ export default function DistroChannelRow({
   const utilizationColor = utilizationPercent > 90 ? 'text-destructive' : 
     utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-muted-foreground';
 
+  // Calculate voltage drop based on cable configuration
+  const calculateActualVoltage = (): number => {
+    let resistanceOhms = 0;
+    
+    if (channel.cable.mode === 'manual' && channel.cable.manualResistance) {
+      resistanceOhms = channel.cable.manualResistance / 1000;
+    } else if (channel.cable.mode === 'awg' && channel.cable.awg && channel.cable.length) {
+      resistanceOhms = calculateCableResistance(channel.cable.awg, channel.cable.length, AWG_RESISTANCE);
+    }
+    
+    if (resistanceOhms === 0 || channel.loadWatts === 0) {
+      return voltageForAmpacity;
+    }
+    
+    // Calculate current: for 3-phase, current = power / (voltage * sqrt(3))
+    const currentAmps = isLineToLine 
+      ? channel.loadWatts / (voltageForAmpacity * Math.sqrt(3))
+      : channel.loadWatts / voltageForAmpacity;
+    
+    const voltageDrop = currentAmps * resistanceOhms;
+    return Math.max(0, voltageForAmpacity - voltageDrop);
+  };
+
+  const actualVoltage = calculateActualVoltage();
+
   const getAvailablePhaseTypes = (): { value: PhaseType; label: string }[] => {
     const types: { value: PhaseType; label: string }[] = [
       { value: 'single', label: 'Single' },
@@ -118,7 +145,7 @@ export default function DistroChannelRow({
         </div>
         <div className="flex items-center gap-2 flex-1 justify-end">
           <Badge variant="outline" className="font-mono text-xs h-fit">
-            {voltageForAmpacity}V
+            {voltageForAmpacity}V ({actualVoltage.toFixed(2)}V)
           </Badge>
           <Tooltip>
             <TooltipTrigger asChild>
