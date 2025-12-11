@@ -39,6 +39,7 @@ export default function DistroChannelRow({
   appMode = 'advanced',
 }: DistroChannelRowProps) {
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const [cablePresetsOpen, setCablePresetsOpen] = useState(false);
 
   const DISTRO_PRESETS = [
     { label: '15A Single', ampacity: 15, outputType: 'single' as PhaseType },
@@ -49,6 +50,18 @@ export default function DistroChannelRow({
     { label: '50A 3-Phase', ampacity: 50, outputType: '3_wye' as PhaseType },
   ];
 
+  const CABLE_PRESETS = [
+    { label: '12 AWG @ 25 ft', awg: 12, length: 25 },
+    { label: '12 AWG @ 50 ft', awg: 12, length: 50 },
+    { label: '12 AWG @ 100 ft', awg: 12, length: 100 },
+    { label: '10 AWG @ 25 ft', awg: 10, length: 25 },
+    { label: '10 AWG @ 50 ft', awg: 10, length: 50 },
+    { label: '10 AWG @ 100 ft', awg: 10, length: 100 },
+    { label: '8 AWG @ 50 ft', awg: 8, length: 50 },
+    { label: '8 AWG @ 100 ft', awg: 8, length: 100 },
+    { label: '6 AWG @ 100 ft', awg: 6, length: 100 },
+  ];
+
   const handlePreset = (preset: typeof DISTRO_PRESETS[0]) => {
     const phaseSource = preset.outputType === '3_wye' ? 123 : 1;
     onUpdate({
@@ -57,6 +70,18 @@ export default function DistroChannelRow({
       phaseSource,
     });
     setPresetsOpen(false);
+  };
+
+  const handleCablePreset = (preset: typeof CABLE_PRESETS[0]) => {
+    onUpdate({
+      cable: {
+        ...channel.cable,
+        mode: 'awg',
+        awg: preset.awg,
+        length: preset.length,
+      },
+    });
+    setCablePresetsOpen(false);
   };
 
   const getPhaseOptions = (): { value: number; label: string }[] => {
@@ -283,6 +308,29 @@ export default function DistroChannelRow({
                   placeholder="ft"
                   data-testid={`input-cable-length-${index}`}
                 />
+                <Popover open={cablePresetsOpen} onOpenChange={setCablePresetsOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-7 text-xs" data-testid={`button-cable-presets-${index}`}>
+                      Cable
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-40 p-1" align="start">
+                    <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                      {CABLE_PRESETS.map((preset) => (
+                        <Button
+                          key={preset.label}
+                          variant="ghost"
+                          size="sm"
+                          className="w-full justify-start h-7 text-xs font-mono"
+                          onClick={() => handleCablePreset(preset)}
+                          data-testid={`button-cable-preset-${preset.label}`}
+                        >
+                          {preset.label}
+                        </Button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </>
             ) : (
               <Input
