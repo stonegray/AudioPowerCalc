@@ -106,7 +106,16 @@ export function calculateChannelEffectiveZ(
   
   let totalConductance = 0;
   for (const speaker of connectedSpeakers) {
-    totalConductance += speaker.quantity / speaker.impedance;
+    // Use actual impedance if set, otherwise use nominal
+    const speakerImpedance = speaker.actualImpedance !== undefined && speaker.actualImpedance > 0 
+      ? speaker.actualImpedance 
+      : speaker.nominalImpedance;
+    
+    // Add cable impedance (convert from milliohms to ohms)
+    const cableImpedanceOhms = speaker.cableImpedanceMilliohms / 1000;
+    const totalImpedance = speakerImpedance + cableImpedanceOhms;
+    
+    totalConductance += speaker.quantity / totalImpedance;
   }
   
   return totalConductance > 0 ? 1 / totalConductance : 8;

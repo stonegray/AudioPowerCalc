@@ -200,6 +200,8 @@ export function useSystemStore() {
       model: 'custom',
       pmaxAES: 1000,
       impedance: 8,
+      nominalImpedance: 8,
+      cableImpedanceMilliohms: 0,
       sensitivity: 100,
       quantity: 1,
       gain: 0,

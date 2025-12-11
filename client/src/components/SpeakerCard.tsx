@@ -51,12 +51,20 @@ export default function SpeakerCard({
         name: preset.name || 'Custom Speaker',
         pmaxAES: preset.pmaxAES || 1000,
         impedance: preset.impedance || 8,
+        nominalImpedance: preset.nominalImpedance || 8,
+        actualImpedance: undefined,
+        cableImpedanceMilliohms: preset.cableImpedanceMilliohms || 0,
         sensitivity: preset.sensitivity || 100,
       });
     } else {
       onUpdate({ model });
     }
   };
+
+  const effectiveImpedance = speaker.actualImpedance !== undefined && speaker.actualImpedance > 0 
+    ? speaker.actualImpedance 
+    : speaker.nominalImpedance;
+  const cableImpedanceOhms = speaker.cableImpedanceMilliohms / 1000;
 
   return (
     <Card className={cn("relative overflow-visible", isHighlighted && "ring-2 ring-primary/50")} style={{ zIndex: 10 }}>
@@ -167,20 +175,61 @@ export default function SpeakerCard({
               </div>
 
               <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground">Z</Label>
+                <Label className="text-xs text-muted-foreground">Z nom</Label>
                 <Input
                   type="text"
-                  inputMode="numeric"
-                  value={speaker.impedance}
+                  inputMode="decimal"
+                  value={speaker.nominalImpedance}
                   onChange={(e) => {
                     const num = Number(e.target.value);
-                    if (!isNaN(num)) onUpdate({ impedance: num });
+                    if (!isNaN(num)) onUpdate({ nominalImpedance: num, impedance: num });
                   }}
                   className="h-7 w-12 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                   disabled={!isCustom}
-                  data-testid={`input-speaker-impedance-${speaker.id}`}
+                  data-testid={`input-speaker-nominal-impedance-${speaker.id}`}
+                  title="Nominal (rated) impedance"
                 />
                 <span className="text-xs text-muted-foreground">Ω</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">Z act</Label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  value={speaker.actualImpedance ?? ''}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '') {
+                      onUpdate({ actualImpedance: undefined });
+                    } else {
+                      const num = Number(val);
+                      if (!isNaN(num)) onUpdate({ actualImpedance: num });
+                    }
+                  }}
+                  placeholder={speaker.nominalImpedance.toFixed(1)}
+                  className="h-7 w-12 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
+                  data-testid={`input-speaker-actual-impedance-${speaker.id}`}
+                  title="Actual impedance (optional, leave blank to use nominal)"
+                />
+                <span className="text-xs text-muted-foreground">Ω</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">Cable Z</Label>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={speaker.cableImpedanceMilliohms}
+                  onChange={(e) => {
+                    const num = Number(e.target.value);
+                    if (!isNaN(num)) onUpdate({ cableImpedanceMilliohms: Math.max(0, num) });
+                  }}
+                  className="h-7 w-16 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
+                  data-testid={`input-speaker-cable-impedance-${speaker.id}`}
+                  title="Cable impedance in milliohms"
+                />
+                <span className="text-xs text-muted-foreground">mΩ</span>
               </div>
 
               <div className="flex items-center gap-1">
@@ -205,7 +254,7 @@ export default function SpeakerCard({
 
         <div className="bg-muted/50 rounded-md px-2 py-1 text-xs font-mono">
           <span className="text-muted-foreground">Eff Z: </span>
-          <span>{(speaker.impedance / speaker.quantity).toFixed(1)}Ω</span>
+          <span>{((effectiveImpedance + cableImpedanceOhms) / speaker.quantity).toFixed(1)}Ω</span>
         </div>
       </CardContent>
     </Card>

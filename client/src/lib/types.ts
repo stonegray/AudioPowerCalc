@@ -127,6 +127,9 @@ export interface Speaker {
   model: string;
   pmaxAES: number;
   impedance: number;
+  nominalImpedance: number;
+  actualImpedance?: number;
+  cableImpedanceMilliohms: number;
   sensitivity: number;
   quantity: number;
   gain: number;
@@ -280,25 +283,33 @@ export const SPEAKER_PRESETS: Record<string, Partial<Speaker>> = {
     name: 'L-Acoustics KS28',
     pmaxAES: 2800,
     impedance: 4,
+    nominalImpedance: 4,
     sensitivity: 103,
+    cableImpedanceMilliohms: 0,
   },
   'la_k2': {
     name: 'L-Acoustics K2',
     pmaxAES: 1400,
     impedance: 8,
+    nominalImpedance: 8,
     sensitivity: 141,
+    cableImpedanceMilliohms: 0,
   },
   'jbl_vtx_s28': {
     name: 'JBL VTX S28',
     pmaxAES: 2000,
     impedance: 4,
+    nominalImpedance: 4,
     sensitivity: 101,
+    cableImpedanceMilliohms: 0,
   },
   'custom': {
     name: 'Custom Speaker',
     pmaxAES: 1000,
     impedance: 8,
+    nominalImpedance: 8,
     sensitivity: 100,
+    cableImpedanceMilliohms: 0,
   },
 };
 
