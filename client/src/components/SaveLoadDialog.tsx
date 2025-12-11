@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Trash2, FolderOpen } from 'lucide-react';
+import { Trash2, FolderOpen, Download, Upload } from 'lucide-react';
 
 interface SaveLoadDialogProps {
   open: boolean;
@@ -14,6 +14,8 @@ interface SaveLoadDialogProps {
   onSave: (name: string) => void;
   onLoad: (name: string) => void;
   onDelete: (name: string) => void;
+  onExport: () => void;
+  onImport: (file: File) => void;
 }
 
 export default function SaveLoadDialog({
@@ -24,8 +26,11 @@ export default function SaveLoadDialog({
   onSave,
   onLoad,
   onDelete,
+  onExport,
+  onImport,
 }: SaveLoadDialogProps) {
   const [saveName, setSaveName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     if (saveName.trim()) {
@@ -40,9 +45,33 @@ export default function SaveLoadDialog({
     onOpenChange(false);
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.name.endsWith('.json')) {
+      onImport(file);
+      onOpenChange(false);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleFileSelect}
+        className="hidden"
+        data-testid="input-import-file"
+      />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
             {mode === 'save' ? 'Save Configuration' : 'Load Configuration'}
@@ -79,6 +108,15 @@ export default function SaveLoadDialog({
                 </ScrollArea>
               </div>
             )}
+
+            <div className="space-y-2 pt-2 border-t">
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={onExport} className="flex-1" data-testid="button-export-json">
+                  <Download className="w-3 h-3 mr-1" />
+                  Export JSON
+                </Button>
+              </div>
+            </div>
 
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -129,6 +167,19 @@ export default function SaveLoadDialog({
               </ScrollArea>
             )}
 
+            <div className="space-y-2 pt-2 border-t">
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleImportClick} className="flex-1" data-testid="button-import-json">
+                  <Upload className="w-3 h-3 mr-1" />
+                  Import JSON
+                </Button>
+                <Button variant="outline" size="sm" onClick={onExport} className="flex-1" data-testid="button-export-json">
+                  <Download className="w-3 h-3 mr-1" />
+                  Export JSON
+                </Button>
+              </div>
+            </div>
+
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Close
@@ -138,5 +189,6 @@ export default function SaveLoadDialog({
         )}
       </DialogContent>
     </Dialog>
+    </>
   );
 }

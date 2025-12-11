@@ -247,6 +247,53 @@ export default function Home() {
     toast({ title: 'Configuration deleted', description: name });
   }, [toast]);
 
+  const handleExportJSON = useCallback(() => {
+    const dataStr = JSON.stringify(state, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `audio-system-config-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({ title: 'Configuration exported', description: 'JSON file downloaded' });
+  }, [state, toast]);
+
+  const handleImportJSON = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target?.result as string);
+        if (imported.globalSettings && (imported.generators || imported.amplifiers || imported.speakers)) {
+          const merged = {
+            globalSettings: { ...state.globalSettings, ...imported.globalSettings },
+            generators: imported.generators || [],
+            amplifiers: imported.amplifiers || [],
+            speakers: imported.speakers || [],
+            poweredSpeakers: imported.poweredSpeakers || [],
+            connections: imported.connections || [],
+          };
+          Object.entries(merged).forEach(([key, value]) => {
+            if (key === 'globalSettings') updateGlobalSettings(value as any);
+          });
+          // Re-save full state
+          const configs = JSON.parse(localStorage.getItem('savedConfigs') || '{}');
+          configs['Imported Config'] = merged;
+          localStorage.setItem('savedConfigs', JSON.stringify(configs));
+          loadConfiguration('Imported Config');
+          toast({ title: 'Configuration imported', description: 'JSON file loaded successfully' });
+        } else {
+          toast({ title: 'Invalid file', description: 'JSON structure not recognized', variant: 'destructive' });
+        }
+      } catch (err) {
+        toast({ title: 'Import failed', description: 'Error parsing JSON file', variant: 'destructive' });
+      }
+    };
+    reader.readAsText(file);
+  }, [state, updateGlobalSettings, loadConfiguration, toast]);
+
   const generatorsWithCalculations = (state.generators || []).map(gen => {
     const { effectiveWatts, derates } = calculateGeneratorEffectiveWatts(gen, state.globalSettings);
     const totalDistroWatts = (gen.distroChannels || []).reduce((sum, ch) => sum + (ch.enabled ? ch.loadWatts : 0), 0);
@@ -451,6 +498,8 @@ export default function Home() {
         onSave={handleSaveConfig}
         onLoad={handleLoadConfig}
         onDelete={handleDeleteConfig}
+        onExport={handleExportJSON}
+        onImport={handleImportJSON}
       />
 
       <SaveLoadDialog
@@ -461,6 +510,8 @@ export default function Home() {
         onSave={handleSaveConfig}
         onLoad={handleLoadConfig}
         onDelete={handleDeleteConfig}
+        onExport={handleExportJSON}
+        onImport={handleImportJSON}
       />
 
       <AudioContentModal
