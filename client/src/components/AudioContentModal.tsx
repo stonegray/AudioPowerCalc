@@ -64,10 +64,10 @@ const formatFreq = (f: number): string => {
 };
 
 const PRESET_FORMULAS: Record<MusicGenre, string> = {
-  bass_dubstep: '3 + 3.3 * log10(f / 10)',
-  rock: '6 + 2 * log10(f / 10)',
+  bass_dubstep: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
+  rock: '8',
   acoustic: '10 + 2.5 * log10(f / 10)',
-  custom: '6 + 2 * log10(f / 10)',
+  custom: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
 };
 
 const safeEvalRaw = (formula: string, f: number): number | null => {
