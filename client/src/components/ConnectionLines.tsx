@@ -10,9 +10,26 @@ interface NodePosition {
 interface ConnectionLinesProps {
   connections: Connection[];
   containerRef: React.RefObject<HTMLDivElement | null>;
+  hoveredConnectionId?: string | null;
+  dragState?: {
+    sourceId: string;
+    sourceX: number;
+    sourceY: number;
+    currentX: number;
+    currentY: number;
+  } | null;
+  onConnectionHover?: (connectionId: string | null) => void;
+  onConnectionClick?: (connectionId: string) => void;
 }
 
-export default function ConnectionLines({ connections, containerRef }: ConnectionLinesProps) {
+export default function ConnectionLines({ 
+  connections, 
+  containerRef, 
+  hoveredConnectionId,
+  dragState,
+  onConnectionHover,
+  onConnectionClick,
+}: ConnectionLinesProps) {
   const [nodePositions, setNodePositions] = useState<Map<string, NodePosition>>(new Map());
 
   const updateNodePositions = useCallback(() => {
@@ -57,24 +74,59 @@ export default function ConnectionLines({ connections, containerRef }: Connectio
     
     window.addEventListener('scroll', updateNodePositions, true);
     
+    const interval = setInterval(updateNodePositions, 100);
+    
     return () => {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
       window.removeEventListener('scroll', updateNodePositions, true);
+      clearInterval(interval);
     };
   }, [updateNodePositions, containerRef]);
 
-  const createBezierPath = (start: NodePosition, end: NodePosition): string => {
-    const dx = end.x - start.x;
-    const controlOffset = Math.min(Math.abs(dx) * 0.5, 100);
+  const createBezierPath = (startX: number, startY: number, endX: number, endY: number): string => {
+    const dx = endX - startX;
+    const controlOffset = Math.min(Math.abs(dx) * 0.4, 150);
     
-    return `M ${start.x} ${start.y} C ${start.x + controlOffset} ${start.y}, ${end.x - controlOffset} ${end.y}, ${end.x} ${end.y}`;
+    return `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
+  };
+
+  const getConnectedIds = (connectionId: string): Set<string> => {
+    const conn = connections.find(c => c.id === connectionId);
+    if (!conn) return new Set();
+    
+    const ids = new Set<string>();
+    ids.add(conn.sourceId);
+    ids.add(conn.targetId);
+    
+    connections.forEach(c => {
+      if (c.sourceId === conn.sourceId || c.targetId === conn.sourceId ||
+          c.sourceId === conn.targetId || c.targetId === conn.targetId) {
+        ids.add(c.sourceId);
+        ids.add(c.targetId);
+      }
+    });
+    
+    return ids;
+  };
+
+  const isConnectionHighlighted = (conn: Connection): boolean => {
+    if (!hoveredConnectionId) return false;
+    if (conn.id === hoveredConnectionId) return true;
+    
+    const hoveredConn = connections.find(c => c.id === hoveredConnectionId);
+    if (!hoveredConn) return false;
+    
+    return conn.sourceId === hoveredConn.sourceId || 
+           conn.targetId === hoveredConn.targetId ||
+           conn.sourceId === hoveredConn.targetId ||
+           conn.targetId === hoveredConn.sourceId;
   };
 
   return (
     <svg
-      className="absolute inset-0 w-full h-full pointer-events-none z-10"
-      style={{ overflow: 'visible' }}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ overflow: 'visible', zIndex: 1 }}
     >
       <defs>
         {connections.map((conn) => (
@@ -86,10 +138,18 @@ export default function ConnectionLines({ connections, containerRef }: Connectio
             x2="100%"
             y2="0%"
           >
-            <stop offset="0%" stopColor={conn.color} stopOpacity="0.8" />
-            <stop offset="100%" stopColor={conn.color} stopOpacity="1" />
+            <stop offset="0%" stopColor={conn.color} stopOpacity="0.6" />
+            <stop offset="50%" stopColor={conn.color} stopOpacity="0.9" />
+            <stop offset="100%" stopColor={conn.color} stopOpacity="0.6" />
           </linearGradient>
         ))}
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
       
       {connections.map((conn) => {
@@ -98,15 +158,27 @@ export default function ConnectionLines({ connections, containerRef }: Connectio
         
         if (!startPos || !endPos) return null;
         
-        const path = createBezierPath(startPos, endPos);
+        const path = createBezierPath(startPos.x, startPos.y, endPos.x, endPos.y);
+        const isHighlighted = isConnectionHighlighted(conn);
         
         return (
           <g key={conn.id}>
+            {isHighlighted && (
+              <path
+                d={path}
+                fill="none"
+                stroke={conn.color}
+                strokeWidth="8"
+                strokeLinecap="round"
+                opacity="0.3"
+                filter="url(#glow)"
+              />
+            )}
             <path
               d={path}
               fill="none"
               stroke={`url(#gradient-${conn.id})`}
-              strokeWidth="2"
+              strokeWidth={isHighlighted ? "4" : "3"}
               strokeLinecap="round"
               className="transition-all duration-150"
             />
@@ -114,14 +186,29 @@ export default function ConnectionLines({ connections, containerRef }: Connectio
               d={path}
               fill="none"
               stroke="transparent"
-              strokeWidth="10"
+              strokeWidth="16"
               strokeLinecap="round"
-              className="pointer-events-auto cursor-pointer hover:stroke-destructive/20"
+              className="pointer-events-auto cursor-pointer"
+              onMouseEnter={() => onConnectionHover?.(conn.id)}
+              onMouseLeave={() => onConnectionHover?.(null)}
+              onClick={() => onConnectionClick?.(conn.id)}
               data-testid={`connection-line-${conn.id}`}
             />
           </g>
         );
       })}
+      
+      {dragState && (
+        <path
+          d={createBezierPath(dragState.sourceX, dragState.sourceY, dragState.currentX, dragState.currentY)}
+          fill="none"
+          stroke="hsl(var(--primary))"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeDasharray="8 4"
+          opacity="0.7"
+        />
+      )}
     </svg>
   );
 }
