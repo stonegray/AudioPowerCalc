@@ -100,7 +100,7 @@ export default function SpeakerCard({
       onUpdate({
         model,
         name: preset.name || 'Custom Speaker',
-        pmaxAES: preset.pmaxAES || 1000,
+        pmax: preset.pmax || 1000,
         impedance: preset.impedance || 8,
         nominalImpedance: preset.nominalImpedance || 8,
         actualImpedance: undefined,
@@ -173,8 +173,7 @@ export default function SpeakerCard({
               </span>
               <span className="text-xs text-muted-foreground">util</span>
               <span className="text-xs text-muted-foreground">-</span>
-              <span className="text-sm font-mono">{(speaker.utilizationPercent / 100 * speaker.pmaxAES).toFixed(0)}W</span>
-              <span className="text-xs text-muted-foreground">AES</span>
+              <span className="text-sm font-mono">{(speaker.utilizationPercent / 100 * speaker.pmax).toFixed(0)}W</span>
             </div>
             <Progress value={speaker.utilizationPercent} className="h-1.5" />
           </div>
@@ -195,7 +194,7 @@ export default function SpeakerCard({
             value={speaker.model}
             onValueChange={handleModelChange}
             options={presets}
-            formatData={(preset) => `${preset.pmaxAES}W AES`}
+            formatData={(preset) => `${preset.pmax}W`}
             testId={`select-speaker-model-${speaker.id}`}
           />
         </div>
@@ -219,14 +218,14 @@ export default function SpeakerCard({
           {!isBasic && (
             <>
               <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground whitespace-nowrap">Pmax(AES)</Label>
+                <Label className="text-xs text-muted-foreground whitespace-nowrap">Pmax</Label>
                 <Input
                   type="text"
                   inputMode="numeric"
-                  value={speaker.pmaxAES}
+                  value={speaker.pmax}
                   onChange={(e) => {
                     const num = Number(e.target.value);
-                    if (!isNaN(num)) onUpdate({ pmaxAES: num });
+                    if (!isNaN(num)) onUpdate({ pmax: num });
                   }}
                   className="h-7 w-20 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                   disabled={!isCustom}

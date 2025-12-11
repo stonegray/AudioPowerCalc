@@ -8,7 +8,7 @@ export default function SpeakerCardExample() {
     id: 'spk_1',
     name: 'Subs L',
     model: 'la_ks28',
-    pmaxAES: 2800,
+    pmax: 2800,
     impedance: 4,
     sensitivity: 103,
     quantity: 2,

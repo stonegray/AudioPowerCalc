@@ -238,7 +238,7 @@ export function calculateChannelAudioPower(
   }
   
   const totalSpeakerPmax = connectedSpeakers.reduce((sum, speaker) => {
-    return sum + (speaker.pmaxAES * speaker.quantity);
+    return sum + (speaker.pmax * speaker.quantity);
   }, 0);
   
   const gainFactor = Math.pow(10, channel.gain / 10);
@@ -368,8 +368,8 @@ export function recalculateSpeakers(
       }
     }
     
-    const utilizationPercent = speaker.pmaxAES > 0
-      ? (incomingAudioPower / speaker.pmaxAES) * 100
+    const utilizationPercent = speaker.pmax > 0
+      ? (incomingAudioPower / speaker.pmax) * 100
       : 0;
     
     return {

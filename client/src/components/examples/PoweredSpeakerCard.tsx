@@ -7,7 +7,7 @@ export default function PoweredSpeakerCardExample() {
     id: 'pwspk_1',
     name: 'QSC KW181',
     model: 'custom',
-    pmaxAES: 1000,
+    pmax: 1000,
     impedance: 8,
     sensitivity: 100,
     quantity: 2,
