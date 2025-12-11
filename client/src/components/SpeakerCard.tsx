@@ -93,7 +93,7 @@ export default function SpeakerCard({
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Model</Label>
           <Select value={speaker.model} onValueChange={handleModelChange}>
-            <SelectTrigger className="h-7 w-32 text-xs" data-testid={`select-speaker-model-${speaker.id}`}>
+            <SelectTrigger className="h-7 w-full text-xs" data-testid={`select-speaker-model-${speaker.id}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

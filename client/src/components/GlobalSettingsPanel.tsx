@@ -38,7 +38,7 @@ export default function GlobalSettingsPanel({
             value={settings.appMode}
             onValueChange={(v: AppMode) => onUpdate({ appMode: v })}
           >
-            <SelectTrigger className="w-28 h-8" data-testid="select-app-mode">
+            <SelectTrigger className="w-36 h-8" data-testid="select-app-mode">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -54,7 +54,7 @@ export default function GlobalSettingsPanel({
               value={settings.musicGenre}
               onValueChange={(v: MusicGenre) => onUpdate({ musicGenre: v })}
             >
-              <SelectTrigger className="w-28 h-8" data-testid="select-music-genre">
+              <SelectTrigger className="w-40 h-8" data-testid="select-music-genre">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

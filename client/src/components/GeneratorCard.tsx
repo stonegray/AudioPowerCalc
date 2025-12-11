@@ -100,21 +100,21 @@ export default function GeneratorCard({
       </CardHeader>
 
       <CardContent className="space-y-2 px-3 pb-3">
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1">
-            <Label className="text-xs text-muted-foreground">Model</Label>
-            <Select value={generator.model} onValueChange={handleModelChange}>
-              <SelectTrigger className="h-7 w-32 text-xs" data-testid={`select-generator-model-${generator.id}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(presets).map(([key, preset]) => (
-                  <SelectItem key={key} value={key}>{preset.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground">Model</Label>
+          <Select value={generator.model} onValueChange={handleModelChange}>
+            <SelectTrigger className="h-7 w-full text-xs" data-testid={`select-generator-model-${generator.id}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(presets).map(([key, preset]) => (
+                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
+        <div className="flex flex-wrap gap-2">
           {!isBasic && (
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">Type</Label>

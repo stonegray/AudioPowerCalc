@@ -139,21 +139,21 @@ export default function AmplifierCard({
       </CardHeader>
 
       <CardContent className="space-y-2 px-3 pb-3">
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1">
-            <Label className="text-xs text-muted-foreground">Model</Label>
-            <Select value={amplifier.model} onValueChange={handleModelChange}>
-              <SelectTrigger className="h-7 w-36 text-xs" data-testid={`select-amp-model-${amplifier.id}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(presets).map(([key, preset]) => (
-                  <SelectItem key={key} value={key}>{preset.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground">Model</Label>
+          <Select value={amplifier.model} onValueChange={handleModelChange}>
+            <SelectTrigger className="h-7 w-full text-xs" data-testid={`select-amp-model-${amplifier.id}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(presets).map(([key, preset]) => (
+                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
+        <div className="flex flex-wrap gap-2">
           {!isBasic && (
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">PF</Label>
