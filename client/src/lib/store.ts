@@ -255,7 +255,16 @@ export function useSystemStore() {
   const loadConfiguration = useCallback((name: string) => {
     const configs = JSON.parse(localStorage.getItem('savedConfigs') || '{}');
     if (configs[name]) {
-      saveState(configs[name]);
+      const loaded = configs[name];
+      const merged: SystemState = {
+        globalSettings: { ...DEFAULT_GLOBAL_SETTINGS, ...loaded.globalSettings },
+        generators: loaded.generators || [],
+        amplifiers: loaded.amplifiers || [],
+        speakers: loaded.speakers || [],
+        poweredSpeakers: loaded.poweredSpeakers || [],
+        connections: loaded.connections || [],
+      };
+      saveState(merged);
     }
   }, [saveState]);
 
