@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import GainKnob from './GainKnob';
-import type { PoweredSpeaker, AppMode, Units } from '@/lib/types';
+import type { PoweredSpeaker, AppMode, Units, Generator } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface PoweredSpeakerCardProps {
@@ -19,6 +19,8 @@ interface PoweredSpeakerCardProps {
   connectionColor?: string;
   appMode?: AppMode;
   units?: Units;
+  generators?: Generator[];
+  connections?: any[];
 }
 
 const getDisplayDistance = (distance: string, units: Units = 'metric'): string => {
@@ -32,6 +34,25 @@ const getDisplayDistance = (distance: string, units: Units = 'metric'): string =
   return conversions[distance] || distance;
 };
 
+const isUpstreamEnabled = (
+  speakerId: string,
+  connections: any[],
+  generators: Generator[]
+): boolean => {
+  // Find connection to this powered speaker
+  const connection = connections.find(c => c.targetId === speakerId && c.targetType === 'poweredSpeaker');
+  if (!connection) return false;
+
+  // Find the distro channel
+  const distroChannel = generators
+    .flatMap(g => g.distroChannels)
+    .find(dc => dc.id === connection.sourceId);
+  
+  if (!distroChannel || !distroChannel.enabled) return false;
+
+  return true;
+};
+
 export default function PoweredSpeakerCard({
   speaker,
   splDistance,
@@ -41,11 +62,16 @@ export default function PoweredSpeakerCard({
   connectionColor,
   appMode = 'advanced',
   units = 'metric',
+  generators = [],
+  connections = [],
 }: PoweredSpeakerCardProps) {
   const isBasic = appMode === 'basic';
   const utilizationPercent = (speaker.rmsWattsDrawn / speaker.pmax) * 100;
   const utilizationColor = utilizationPercent > 90 ? 'text-destructive' : 
     utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
+  
+  const hasConnection = connections.some(c => c.targetId === speaker.id && c.targetType === 'poweredSpeaker');
+  const isPowered = hasConnection && isUpstreamEnabled(speaker.id, connections, generators);
 
   return (
     <Card className="relative">
@@ -63,6 +89,11 @@ export default function PoweredSpeakerCard({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
+            {!isPowered && (
+              <Badge variant="destructive" className="bg-orange-500 hover:bg-orange-600 text-xs">
+                Disconnected
+              </Badge>
+            )}
             <Speaker className="w-5 h-5 text-purple-500" />
             <Input
               value={speaker.name}

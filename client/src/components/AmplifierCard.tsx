@@ -11,7 +11,7 @@ import { ChevronDown, Trash2, Volume2 } from 'lucide-react';
 import AmpChannelRow from './AmpChannelRow';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode, Connection } from '@/lib/types';
+import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode, Connection, Generator } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface AmplifierCardProps {
@@ -29,6 +29,7 @@ interface AmplifierCardProps {
   isPendingConnection?: boolean;
   isHighlighted?: boolean;
   connections?: Connection[];
+  generators?: Generator[];
 }
 
 export default function AmplifierCard({
@@ -46,11 +47,21 @@ export default function AmplifierCard({
   isPendingConnection = false,
   isHighlighted = false,
   connections = [],
+  generators = [],
 }: AmplifierCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const isCustom = amplifier.model === 'custom';
   const isBasic = appMode === 'basic';
-  const isPowered = connections.some(c => c.targetId === amplifier.id && c.targetType === 'amp');
+  
+  // Check if amp has a connection and if the distro channel is enabled
+  const hasConnection = connections.some(c => c.targetId === amplifier.id && c.targetType === 'amp');
+  const isPowered = hasConnection && (() => {
+    if (!amplifier.connectedDistroId) return false;
+    const distroChannel = generators
+      .flatMap(g => g.distroChannels)
+      .find(dc => dc.id === amplifier.connectedDistroId);
+    return distroChannel?.enabled ?? false;
+  })();
   const utilizationColor = amplifier.utilizationPercent > 90 ? 'text-destructive' : 
     amplifier.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
 

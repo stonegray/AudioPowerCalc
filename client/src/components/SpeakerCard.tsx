@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode, Connection, Units } from '@/lib/types';
+import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode, Connection, Units, Amplifier, Generator } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface SpeakerCardProps {
@@ -25,6 +25,8 @@ interface SpeakerCardProps {
   isHighlighted?: boolean;
   connections?: Connection[];
   units?: Units;
+  amplifiers?: Amplifier[];
+  generators?: Generator[];
 }
 
 const getDisplayDistance = (distance: string, units: Units = 'metric'): string => {
@@ -36,6 +38,36 @@ const getDisplayDistance = (distance: string, units: Units = 'metric'): string =
     '50m': '164 ft'
   };
   return conversions[distance] || distance;
+};
+
+const isUpstreamEnabled = (
+  speakerId: string,
+  connections: Connection[],
+  amplifiers: Amplifier[],
+  generators: Generator[]
+): boolean => {
+  // Find connection to this speaker
+  const connection = connections.find(c => c.targetId === speakerId && c.targetType === 'speaker');
+  if (!connection) return false;
+
+  // Find the connected amp channel
+  const amp = amplifiers.find(a => a.channels.some(ch => ch.id === connection.sourceId));
+  if (!amp) return false;
+
+  const channel = amp.channels.find(ch => ch.id === connection.sourceId);
+  if (!channel || !channel.enabled) return false;
+
+  // Find the generator that powers this amp
+  const generator = generators.find(g => 
+    g.distroChannels.some(dc => dc.id === amp.connectedDistroId)
+  );
+  if (!generator) return false;
+
+  // Find the distro channel
+  const distroChannel = generator.distroChannels.find(dc => dc.id === amp.connectedDistroId);
+  if (!distroChannel || !distroChannel.enabled) return false;
+
+  return true;
 };
 
 export default function SpeakerCard({
@@ -52,10 +84,13 @@ export default function SpeakerCard({
   isHighlighted = false,
   connections = [],
   units = 'metric',
+  amplifiers = [],
+  generators = [],
 }: SpeakerCardProps) {
   const isCustom = speaker.model === 'custom';
   const isBasic = appMode === 'basic';
-  const isPowered = connections.some(c => c.targetId === speaker.id && c.targetType === 'speaker');
+  const hasConnection = connections.some(c => c.targetId === speaker.id && c.targetType === 'speaker');
+  const isPowered = hasConnection && isUpstreamEnabled(speaker.id, connections, amplifiers, generators);
   const utilizationColor = speaker.utilizationPercent > 90 ? 'text-destructive' : 
     speaker.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
 

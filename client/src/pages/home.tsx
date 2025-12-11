@@ -372,6 +372,7 @@ export default function Home() {
                     isPendingConnection={pendingConnection?.sourceType === 'distro'}
                     isHighlighted={isNodeHighlighted(amp.id)}
                     connections={state.connections}
+                    generators={state.generators}
                   />
                 ))}
                 {poweredSpeakersWithCalcs.map(spk => (
@@ -385,6 +386,8 @@ export default function Home() {
                     connectionColor={getConnectionColor(spk.id)}
                     appMode={state.globalSettings.appMode}
                     units={state.globalSettings.units}
+                    generators={state.generators}
+                    connections={state.connections}
                   />
                 ))}
                 <div className="space-y-2">
@@ -425,6 +428,8 @@ export default function Home() {
                     isHighlighted={isNodeHighlighted(spk.id)}
                     connections={state.connections}
                     units={state.globalSettings.units}
+                    amplifiers={state.amplifiers}
+                    generators={state.generators}
                   />
                 ))}
                 <AddEquipmentButton
