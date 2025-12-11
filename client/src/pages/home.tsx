@@ -454,6 +454,8 @@ export default function Home() {
         onOpenChange={setAudioContentModalOpen}
         genre={state.globalSettings.musicGenre}
         onGenreChange={(genre) => updateGlobalSettings({ musicGenre: genre })}
+        crestCurve={state.globalSettings.crestCurve || []}
+        onCrestCurveChange={(curve) => updateGlobalSettings({ crestCurve: curve })}
       />
     </div>
   );

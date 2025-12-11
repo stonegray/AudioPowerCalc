@@ -10,6 +10,7 @@ import type {
   DistroChannel,
   AmpChannel 
 } from './types';
+import { GENRE_CREST_PRESETS } from './types';
 
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   musicGenre: 'rock',
@@ -19,6 +20,7 @@ const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   splDistance: '1m',
   arraySummationFactor: 0.91,
   appMode: 'advanced',
+  crestCurve: GENRE_CREST_PRESETS.rock,
 };
 
 const createDefaultDistroChannel = (id: string): DistroChannel => ({

@@ -6,6 +6,11 @@ export type SPLDistance = '1m' | '10m' | '50m';
 export type CableInputMode = 'awg' | 'manual';
 export type AppMode = 'basic' | 'advanced' | 'engineering';
 
+export interface CrestCurvePoint {
+  frequency: number;
+  crestFactor: number;
+}
+
 export interface GlobalSettings {
   musicGenre: MusicGenre;
   ambientTemperature: number;
@@ -14,7 +19,43 @@ export interface GlobalSettings {
   splDistance: SPLDistance;
   arraySummationFactor: number;
   appMode: AppMode;
+  crestCurve: CrestCurvePoint[];
 }
+
+export const GENRE_CREST_PRESETS: Record<MusicGenre, CrestCurvePoint[]> = {
+  bass_dubstep: [
+    { frequency: 20, crestFactor: 3 },
+    { frequency: 60, crestFactor: 4 },
+    { frequency: 120, crestFactor: 6 },
+    { frequency: 500, crestFactor: 8 },
+    { frequency: 2000, crestFactor: 10 },
+    { frequency: 8000, crestFactor: 12 },
+    { frequency: 20000, crestFactor: 14 },
+  ],
+  rock: [
+    { frequency: 20, crestFactor: 6 },
+    { frequency: 100, crestFactor: 8 },
+    { frequency: 500, crestFactor: 10 },
+    { frequency: 2000, crestFactor: 12 },
+    { frequency: 8000, crestFactor: 12 },
+    { frequency: 20000, crestFactor: 10 },
+  ],
+  acoustic: [
+    { frequency: 20, crestFactor: 10 },
+    { frequency: 100, crestFactor: 12 },
+    { frequency: 500, crestFactor: 14 },
+    { frequency: 2000, crestFactor: 16 },
+    { frequency: 8000, crestFactor: 18 },
+    { frequency: 20000, crestFactor: 18 },
+  ],
+  custom: [
+    { frequency: 20, crestFactor: 6 },
+    { frequency: 100, crestFactor: 8 },
+    { frequency: 1000, crestFactor: 10 },
+    { frequency: 10000, crestFactor: 12 },
+    { frequency: 20000, crestFactor: 12 },
+  ],
+};
 
 export interface CableConfig {
   mode: CableInputMode;
