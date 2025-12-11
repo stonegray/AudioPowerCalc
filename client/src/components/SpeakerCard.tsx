@@ -173,7 +173,7 @@ export default function SpeakerCard({
               </span>
               <span className="text-xs text-muted-foreground">util</span>
               <span className="text-xs text-muted-foreground">-</span>
-              <span className="text-sm font-mono">{((speaker.utilizationPercent / 100) * speaker.pmaxAES).toFixed(0)}W</span>
+              <span className="text-sm font-mono">{(speaker.utilizationPercent / 100 * speaker.pmaxAES).toFixed(0)}W</span>
               <span className="text-xs text-muted-foreground">AES</span>
             </div>
             <Progress value={speaker.utilizationPercent} className="h-1.5" />

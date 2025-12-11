@@ -350,7 +350,7 @@ export function recalculateSpeakers(
   connections: Connection[]
 ): Speaker[] {
   return speakers.map(speaker => {
-    let incomingPower = 0;
+    let incomingAudioPower = 0;
     
     for (const connection of connections) {
       if (connection.targetId === speaker.id && connection.sourceType === 'ampChannel') {
@@ -361,16 +361,15 @@ export function recalculateSpeakers(
         if (amplifier) {
           const channel = amplifier.channels.find(ch => ch.id === connection.sourceId);
           if (channel) {
-            incomingPower = channel.energyWatts;
+            incomingAudioPower = channel.musicPowerWatts;
             break;
           }
         }
       }
     }
     
-    const totalPmax = speaker.pmaxAES * speaker.quantity;
-    const utilizationPercent = totalPmax > 0
-      ? (incomingPower / totalPmax) * 100
+    const utilizationPercent = speaker.pmaxAES > 0
+      ? (incomingAudioPower / speaker.pmaxAES) * 100
       : 0;
     
     return {
