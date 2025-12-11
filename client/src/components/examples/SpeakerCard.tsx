@@ -10,9 +10,13 @@ export default function SpeakerCardExample() {
     model: 'la_ks28',
     pmax: 2800,
     impedance: 4,
+    nominalImpedance: 4,
+    cableImpedanceMilliohms: 0,
     sensitivity: 103,
     quantity: 2,
+    gain: 0,
     splOutput: 139.5,
+    utilizationPercent: 0,
   });
 
   return (

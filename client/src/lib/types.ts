@@ -1,10 +1,10 @@
-export type MusicGenre = 'bass_dubstep' | 'rock' | 'acoustic' | 'custom';
-export type GeneratorType = 'inverter' | 'standard' | 'shore';
-export type PhaseType = 'single' | 'split' | '3_delta' | '3_wye';
-export type Units = 'metric' | 'imperial';
-export type SPLDistance = '1m' | '10m' | '50m';
-export type CableInputMode = 'awg' | 'manual';
-export type AppMode = 'basic' | 'advanced' | 'engineering';
+export type MusicGenre = "bass_dubstep" | "rock" | "acoustic" | "custom";
+export type GeneratorType = "inverter" | "standard" | "shore";
+export type PhaseType = "single" | "split" | "3_delta" | "3_wye";
+export type Units = "metric" | "imperial";
+export type SPLDistance = "1m" | "10m" | "50m";
+export type CableInputMode = "awg" | "manual";
+export type AppMode = "basic" | "advanced" | "engineering";
 
 export interface CrestCurvePoint {
   frequency: number;
@@ -172,9 +172,9 @@ export interface PoweredSpeaker {
 export interface Connection {
   id: string;
   sourceId: string;
-  sourceType: 'distro' | 'ampChannel';
+  sourceType: "distro" | "ampChannel";
   targetId: string;
-  targetType: 'amp' | 'poweredSpeaker' | 'speaker';
+  targetType: "amp" | "poweredSpeaker" | "speaker";
   color: string;
 }
 
@@ -188,106 +188,109 @@ export interface SystemState {
 }
 
 export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
-  'honda_3000i': {
-    name: 'Honda EU3000i',
-    type: 'inverter',
+  honda_3000i: {
+    name: "Honda EU3000i",
+    type: "inverter",
     continuousWatts: 2800,
     peakWatts: 3000,
     phaseCount: 1,
-    phaseType: 'single',
+    phaseType: "single",
     voltage: 120,
   },
-  'honda_7000i': {
-    name: 'Honda EU7000i',
-    type: 'inverter',
+  honda_7000i: {
+    name: "Honda EU7000i",
+    type: "inverter",
     continuousWatts: 5500,
     peakWatts: 7000,
     phaseCount: 1,
-    phaseType: 'single',
+    phaseType: "single",
     voltage: 120,
   },
-  'shore_power': {
-    name: 'Shore Power',
-    type: 'shore',
+  shore_power: {
+    name: "Shore Power",
+    type: "shore",
     continuousWatts: 12000,
     peakWatts: 15000,
     phaseCount: 1,
-    phaseType: 'single',
+    phaseType: "single",
     voltage: 120,
   },
-  'trailer_50k_3ph': {
-    name: 'Trailer 50kW 3-Phase',
-    type: 'standard',
+  trailer_50k_3ph: {
+    name: "Trailer 50kW 3-Phase",
+    type: "standard",
     continuousWatts: 50000,
     peakWatts: 55000,
     phaseCount: 3,
-    phaseType: '3_wye',
+    phaseType: "3_wye",
     voltage: 208,
   },
-  'custom': {
-    name: 'Custom Generator',
-    type: 'standard',
+  custom: {
+    name: "Custom Generator",
+    type: "standard",
     continuousWatts: 5000,
     peakWatts: 6000,
     phaseCount: 1,
-    phaseType: 'single',
+    phaseType: "single",
     voltage: 120,
   },
 };
 
 export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
-  'la_la12x': {
-    name: 'L-Acoustics LA12X',
-    pmax: 3300,
-    efficiency: 0.85,
-    parasiticDraw: 50,
-    powerFactor: 0.95,
+  powersoft_x4: {
+    name: "Powersoft X4",
+    // pmax = max per channel @ 4Ω (manufacturer spec)
+    pmax: 3000,
+    // Efficiency and PF are typical for modern Class-D/PFC touring amps (estimated)
+    efficiency: 0.92, // estimate (Powersoft advertises very high Class-D efficiency)
+    parasiticDraw: 100, // idle <100 W (manufacturer lists "Idle <100 W")
+    powerFactor: 0.95, // has active PFC (estimated)
     supportsBridging: true,
     channelCount: 4,
     minImpedance: 2,
   },
-  'powersoft_x4': {
-    name: 'Powersoft X4',
-    pmax: 2000,
-    efficiency: 0.90,
+
+  labgruppen_fp10000q: {
+    name: "Lab.Gruppen FP 10000Q",
+    // pmax = typical published per-channel @ 4Ω
+    pmax: 2100,
+    // Class-TD (Lab.Gruppen) gives good efficiency; exact % not published — estimated.
+    efficiency: 0.88, // estimate for Class-TD (Class-D like efficiency)
+    parasiticDraw: 70, // measured/technical-doc tables show relatively low idle thermal loss (~table values -> ~68 W)
+    powerFactor: 0.95, // R.SMPS with good power handling (estimated)
+    supportsBridging: true,
+    channelCount: 4,
+    minImpedance: 2,
+  },
+
+  qsc_cxd4_3: {
+    name: "QSC CXD4.3",
+    // pmax = published per-channel @ 4Ω (model CXD4.3)
+    pmax: 1400,
+    // QSC CXD is Class-D with PFC and multi-stage sleep modes; efficiency high.
+    efficiency: 0.9, // estimate (QSC advertises "very high efficiency")
+    // QSC manual provides idle thermal-loss = 225 BTU/hr -> ≈ 66 W idle parasitic heat
+    parasiticDraw: 66,
+    powerFactor: 0.95, // CXD4.3 includes PFC (manufacturer)
+    supportsBridging: true,
+    channelCount: 4,
+    minImpedance: 2,
+  },
+
+  crown_xli2500: {
+    name: "Crown XLi 2500",
+    // pmax = published per-channel @ 4Ω
+    pmax: 750,
+    // older Class-AB topology, lower efficiency than Class-D
+    efficiency: 0.6, // estimate for Class-AB touring amp
+    // Crown publishes AC power-draw/thermal tables — idle figures cluster ~35–60 W depending on mains; use 40W as a conservative typical idle.
     parasiticDraw: 40,
-    powerFactor: 0.92,
-    supportsBridging: true,
-    channelCount: 4,
-    minImpedance: 2,
-  },
-  'crown_dci': {
-    name: 'Crown DCi 4|1250N',
-    pmax: 1250,
-    efficiency: 0.80,
-    parasiticDraw: 60,
-    powerFactor: 0.90,
-    supportsBridging: true,
-    channelCount: 4,
-    minImpedance: 4,
-  },
-  'crown_dva2': {
-    name: 'Crown CDi 2|600',
-    pmax: 600,
-    efficiency: 0.82,
-    parasiticDraw: 35,
-    powerFactor: 0.92,
+    powerFactor: 0.8, // typical non-PFC older design (estimate)
     supportsBridging: true,
     channelCount: 2,
     minImpedance: 4,
   },
-  'behringer_2ch': {
-    name: 'Behringer NX2000 2-Channel',
-    pmax: 500,
-    efficiency: 0.78,
-    parasiticDraw: 30,
-    powerFactor: 0.90,
-    supportsBridging: false,
-    channelCount: 2,
-    minImpedance: 4,
-  },
-  'custom': {
-    name: 'Custom Amplifier',
+  custom: {
+    name: "Custom Amplifier",
     pmax: 1000,
     efficiency: 0.85,
     parasiticDraw: 50,
@@ -299,32 +302,32 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
 };
 
 export const SPEAKER_PRESETS: Record<string, Partial<Speaker>> = {
-  'la_ks28': {
-    name: 'L-Acoustics KS28',
+  la_ks28: {
+    name: "L-Acoustics KS28",
     pmax: 2800,
     impedance: 4,
     nominalImpedance: 4,
     sensitivity: 103,
     cableImpedanceMilliohms: 0,
   },
-  'la_k2': {
-    name: 'L-Acoustics K2',
+  la_k2: {
+    name: "L-Acoustics K2",
     pmax: 1400,
     impedance: 8,
     nominalImpedance: 8,
     sensitivity: 141,
     cableImpedanceMilliohms: 0,
   },
-  'jbl_vtx_s28': {
-    name: 'JBL VTX S28',
+  jbl_vtx_s28: {
+    name: "JBL VTX S28",
     pmax: 2000,
     impedance: 4,
     nominalImpedance: 4,
     sensitivity: 101,
     cableImpedanceMilliohms: 0,
   },
-  'custom': {
-    name: 'Custom Speaker',
+  custom: {
+    name: "Custom Speaker",
     pmax: 1000,
     impedance: 8,
     nominalImpedance: 8,
@@ -334,14 +337,14 @@ export const SPEAKER_PRESETS: Record<string, Partial<Speaker>> = {
 };
 
 export const CONNECTION_COLORS = [
-  '#3b82f6', // blue
-  '#10b981', // emerald
-  '#f59e0b', // amber
-  '#ef4444', // red
-  '#8b5cf6', // violet
-  '#ec4899', // pink
-  '#06b6d4', // cyan
-  '#84cc16', // lime
+  "#3b82f6", // blue
+  "#10b981", // emerald
+  "#f59e0b", // amber
+  "#ef4444", // red
+  "#8b5cf6", // violet
+  "#ec4899", // pink
+  "#06b6d4", // cyan
+  "#84cc16", // lime
 ];
 
 export const AWG_RESISTANCE: Record<number, number> = {
