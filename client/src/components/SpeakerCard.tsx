@@ -61,10 +61,12 @@ export default function SpeakerCard({
     }
   };
 
+  const nominalZ = speaker.nominalImpedance ?? speaker.impedance ?? 8;
+  const cableZ = speaker.cableImpedanceMilliohms ?? 0;
   const effectiveImpedance = speaker.actualImpedance !== undefined && speaker.actualImpedance > 0 
     ? speaker.actualImpedance 
-    : speaker.nominalImpedance;
-  const cableImpedanceOhms = speaker.cableImpedanceMilliohms / 1000;
+    : nominalZ;
+  const cableImpedanceOhms = cableZ / 1000;
 
   return (
     <Card className={cn("relative overflow-visible", isHighlighted && "ring-2 ring-primary/50")} style={{ zIndex: 10 }}>
@@ -179,7 +181,7 @@ export default function SpeakerCard({
                 <Input
                   type="text"
                   inputMode="decimal"
-                  value={speaker.nominalImpedance}
+                  value={nominalZ}
                   onChange={(e) => {
                     const num = Number(e.target.value);
                     if (!isNaN(num)) onUpdate({ nominalImpedance: num, impedance: num });
@@ -207,7 +209,7 @@ export default function SpeakerCard({
                       if (!isNaN(num)) onUpdate({ actualImpedance: num });
                     }
                   }}
-                  placeholder={speaker.nominalImpedance.toFixed(1)}
+                  placeholder={nominalZ.toFixed(1)}
                   className="h-7 w-12 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                   data-testid={`input-speaker-actual-impedance-${speaker.id}`}
                   title="Actual impedance (optional, leave blank to use nominal)"
@@ -220,7 +222,7 @@ export default function SpeakerCard({
                 <Input
                   type="text"
                   inputMode="numeric"
-                  value={speaker.cableImpedanceMilliohms}
+                  value={cableZ}
                   onChange={(e) => {
                     const num = Number(e.target.value);
                     if (!isNaN(num)) onUpdate({ cableImpedanceMilliohms: Math.max(0, num) });
