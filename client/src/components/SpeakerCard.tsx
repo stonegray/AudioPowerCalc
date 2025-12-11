@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode, Connection } from '@/lib/types';
+import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode, Connection, Units } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface SpeakerCardProps {
@@ -24,7 +24,19 @@ interface SpeakerCardProps {
   isPendingConnection?: boolean;
   isHighlighted?: boolean;
   connections?: Connection[];
+  units?: Units;
 }
+
+const getDisplayDistance = (distance: string, units: Units = 'metric'): string => {
+  if (units === 'metric') return distance;
+  // Convert to feet: 1m ≈ 3ft, 10m ≈ 33ft, 50m ≈ 164ft
+  const conversions: Record<string, string> = {
+    '1m': '3 ft',
+    '10m': '33 ft',
+    '50m': '164 ft'
+  };
+  return conversions[distance] || distance;
+};
 
 export default function SpeakerCard({
   speaker,
@@ -39,6 +51,7 @@ export default function SpeakerCard({
   isPendingConnection = false,
   isHighlighted = false,
   connections = [],
+  units = 'metric',
 }: SpeakerCardProps) {
   const isCustom = speaker.model === 'custom';
   const isBasic = appMode === 'basic';
@@ -114,7 +127,7 @@ export default function SpeakerCard({
           <span className="text-xl font-mono font-semibold">
             {speaker.splOutput.toFixed(1)}
           </span>
-          <span className="text-xs text-muted-foreground">dB SPL @ {splDistance}</span>
+          <span className="text-xs text-muted-foreground">dB SPL @ {getDisplayDistance(splDistance, units)}</span>
         </div>
         
         <div className="flex items-center justify-between gap-3 mt-1.5">

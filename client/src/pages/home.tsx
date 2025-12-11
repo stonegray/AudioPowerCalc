@@ -382,6 +382,7 @@ export default function Home() {
                     onNodeClick={handlePoweredSpeakerNodeClick}
                     connectionColor={getConnectionColor(spk.id)}
                     appMode={state.globalSettings.appMode}
+                    units={state.globalSettings.units}
                   />
                 ))}
                 <div className="space-y-2">
@@ -421,6 +422,7 @@ export default function Home() {
                     isPendingConnection={pendingConnection?.sourceType === 'ampChannel'}
                     isHighlighted={isNodeHighlighted(spk.id)}
                     connections={state.connections}
+                    units={state.globalSettings.units}
                   />
                 ))}
                 <AddEquipmentButton

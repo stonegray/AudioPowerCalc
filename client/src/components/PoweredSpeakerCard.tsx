@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import GainKnob from './GainKnob';
-import type { PoweredSpeaker, AppMode } from '@/lib/types';
+import type { PoweredSpeaker, AppMode, Units } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface PoweredSpeakerCardProps {
@@ -18,7 +18,19 @@ interface PoweredSpeakerCardProps {
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
   appMode?: AppMode;
+  units?: Units;
 }
+
+const getDisplayDistance = (distance: string, units: Units = 'metric'): string => {
+  if (units === 'metric') return distance;
+  // Convert to feet: 1m ≈ 3ft, 10m ≈ 33ft, 50m ≈ 164ft
+  const conversions: Record<string, string> = {
+    '1m': '3 ft',
+    '10m': '33 ft',
+    '50m': '164 ft'
+  };
+  return conversions[distance] || distance;
+};
 
 export default function PoweredSpeakerCard({
   speaker,
@@ -28,6 +40,7 @@ export default function PoweredSpeakerCard({
   onNodeClick,
   connectionColor,
   appMode = 'advanced',
+  units = 'metric',
 }: PoweredSpeakerCardProps) {
   const isBasic = appMode === 'basic';
   const utilizationPercent = (speaker.rmsWattsDrawn / speaker.pmax) * 100;
@@ -76,7 +89,7 @@ export default function PoweredSpeakerCard({
           </div>
           <div className="text-right">
             <div className="text-lg font-mono">{speaker.splOutput.toFixed(1)} dB</div>
-            <div className="text-xs text-muted-foreground">SPL @ {splDistance}</div>
+            <div className="text-xs text-muted-foreground">SPL @ {getDisplayDistance(splDistance, units)}</div>
           </div>
           <GainKnob
             value={speaker.gain}
