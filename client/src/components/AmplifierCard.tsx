@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { ChevronDown, Trash2, Volume2 } from 'lucide-react';
 import AmpChannelRow from './AmpChannelRow';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode } from '@/lib/types';
+import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode, Connection } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface AmplifierCardProps {
@@ -27,6 +28,7 @@ interface AmplifierCardProps {
   powerPath?: string;
   isPendingConnection?: boolean;
   isHighlighted?: boolean;
+  connections?: Connection[];
 }
 
 export default function AmplifierCard({
@@ -43,10 +45,12 @@ export default function AmplifierCard({
   powerPath,
   isPendingConnection = false,
   isHighlighted = false,
+  connections = [],
 }: AmplifierCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const isCustom = amplifier.model === 'custom';
   const isBasic = appMode === 'basic';
+  const isPowered = connections.some(c => c.targetId === amplifier.id && c.targetType === 'amp');
   const utilizationColor = amplifier.utilizationPercent > 90 ? 'text-destructive' : 
     amplifier.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
 
@@ -123,6 +127,11 @@ export default function AmplifierCard({
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
+            {!isPowered && (
+              <Badge variant="destructive" className="bg-orange-500 hover:bg-orange-600 text-xs">
+                Disconnected
+              </Badge>
+            )}
             <Volume2 className="w-4 h-4 text-blue-500" />
             <Input
               value={amplifier.name}

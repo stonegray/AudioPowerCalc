@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
-import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode } from '@/lib/types';
+import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode, Connection } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface SpeakerCardProps {
@@ -23,6 +23,7 @@ interface SpeakerCardProps {
   powerPath?: string;
   isPendingConnection?: boolean;
   isHighlighted?: boolean;
+  connections?: Connection[];
 }
 
 export default function SpeakerCard({
@@ -37,9 +38,11 @@ export default function SpeakerCard({
   powerPath,
   isPendingConnection = false,
   isHighlighted = false,
+  connections = [],
 }: SpeakerCardProps) {
   const isCustom = speaker.model === 'custom';
   const isBasic = appMode === 'basic';
+  const isPowered = connections.some(c => c.targetId === speaker.id && c.targetType === 'speaker');
   const utilizationColor = speaker.utilizationPercent > 90 ? 'text-destructive' : 
     speaker.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
 
@@ -84,6 +87,11 @@ export default function SpeakerCard({
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
+            {!isPowered && (
+              <Badge variant="destructive" className="bg-orange-500 hover:bg-orange-600 text-xs">
+                Disconnected
+              </Badge>
+            )}
             <Speaker className="w-4 h-4 text-green-500" />
             <Input
               value={speaker.name}

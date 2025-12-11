@@ -369,6 +369,7 @@ export default function Home() {
                     powerPath={getAmpPath(amp.id)}
                     isPendingConnection={pendingConnection?.sourceType === 'distro'}
                     isHighlighted={isNodeHighlighted(amp.id)}
+                    connections={state.connections}
                   />
                 ))}
                 {poweredSpeakersWithCalcs.map(spk => (
@@ -419,6 +420,7 @@ export default function Home() {
                     powerPath={getSpeakerPath(spk.id)}
                     isPendingConnection={pendingConnection?.sourceType === 'ampChannel'}
                     isHighlighted={isNodeHighlighted(spk.id)}
+                    connections={state.connections}
                   />
                 ))}
                 <AddEquipmentButton
