@@ -72,14 +72,28 @@ export default function ConnectionLines({
       });
     }
     
-    window.addEventListener('scroll', updateNodePositions, true);
+    const handleScroll = () => updateNodePositions();
+    window.addEventListener('scroll', handleScroll, true);
     
-    const interval = setInterval(updateNodePositions, 100);
+    if (containerRef.current) {
+      const scrollables = containerRef.current.querySelectorAll('[data-radix-scroll-area-viewport]');
+      scrollables.forEach(el => {
+        el.addEventListener('scroll', handleScroll);
+      });
+    }
+    
+    const interval = setInterval(updateNodePositions, 50);
     
     return () => {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
-      window.removeEventListener('scroll', updateNodePositions, true);
+      window.removeEventListener('scroll', handleScroll, true);
+      if (containerRef.current) {
+        const scrollables = containerRef.current.querySelectorAll('[data-radix-scroll-area-viewport]');
+        scrollables.forEach(el => {
+          el.removeEventListener('scroll', handleScroll);
+        });
+      }
       clearInterval(interval);
     };
   }, [updateNodePositions, containerRef]);
@@ -126,7 +140,7 @@ export default function ConnectionLines({
   return (
     <svg
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ overflow: 'visible', zIndex: 1 }}
+      style={{ overflow: 'visible', zIndex: 0 }}
     >
       <defs>
         {connections.map((conn) => (
