@@ -90,29 +90,32 @@ export default function SpeakerCard({
       </CardHeader>
 
       <CardContent className="space-y-2 px-3 pb-3">
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1">
-            <Label className="text-xs text-muted-foreground">Model</Label>
-            <Select value={speaker.model} onValueChange={handleModelChange}>
-              <SelectTrigger className="h-7 w-28 text-xs" data-testid={`select-speaker-model-${speaker.id}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(presets).map(([key, preset]) => (
-                  <SelectItem key={key} value={key}>{preset.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground">Model</Label>
+          <Select value={speaker.model} onValueChange={handleModelChange}>
+            <SelectTrigger className="h-7 w-32 text-xs" data-testid={`select-speaker-model-${speaker.id}`}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(presets).map(([key, preset]) => (
+                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
+        <div className="flex flex-wrap gap-2">
           <div className="flex items-center gap-1">
             <Label className="text-xs text-muted-foreground">Qty</Label>
             <Input
-              type="number"
-              min="1"
+              type="text"
+              inputMode="numeric"
               value={speaker.quantity}
-              onChange={(e) => onUpdate({ quantity: Math.max(1, Number(e.target.value)) })}
-              className="h-7 w-12 font-mono text-right text-xs"
+              onChange={(e) => {
+                const num = Number(e.target.value);
+                if (!isNaN(num)) onUpdate({ quantity: Math.max(1, num) });
+              }}
+              className="h-7 w-12 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
               data-testid={`input-speaker-quantity-${speaker.id}`}
             />
           </div>
@@ -122,22 +125,31 @@ export default function SpeakerCard({
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">Pmax</Label>
                 <Input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={speaker.pmaxAES}
-                  onChange={(e) => onUpdate({ pmaxAES: Number(e.target.value) })}
-                  className="h-7 w-16 font-mono text-right text-xs"
+                  onChange={(e) => {
+                    const num = Number(e.target.value);
+                    if (!isNaN(num)) onUpdate({ pmaxAES: num });
+                  }}
+                  className="h-7 w-20 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                   disabled={!isCustom}
                   data-testid={`input-speaker-pmax-${speaker.id}`}
                 />
+                <span className="text-xs text-muted-foreground">W</span>
               </div>
 
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">Z</Label>
                 <Input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={speaker.impedance}
-                  onChange={(e) => onUpdate({ impedance: Number(e.target.value) })}
-                  className="h-7 w-12 font-mono text-right text-xs"
+                  onChange={(e) => {
+                    const num = Number(e.target.value);
+                    if (!isNaN(num)) onUpdate({ impedance: num });
+                  }}
+                  className="h-7 w-12 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                   disabled={!isCustom}
                   data-testid={`input-speaker-impedance-${speaker.id}`}
                 />
@@ -147,13 +159,18 @@ export default function SpeakerCard({
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">Sens</Label>
                 <Input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
                   value={speaker.sensitivity}
-                  onChange={(e) => onUpdate({ sensitivity: Number(e.target.value) })}
-                  className="h-7 w-14 font-mono text-right text-xs"
+                  onChange={(e) => {
+                    const num = Number(e.target.value);
+                    if (!isNaN(num)) onUpdate({ sensitivity: num });
+                  }}
+                  className="h-7 w-14 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                   disabled={!isCustom}
                   data-testid={`input-speaker-sensitivity-${speaker.id}`}
                 />
+                <span className="text-xs text-muted-foreground">dB</span>
               </div>
             </>
           )}

@@ -158,13 +158,14 @@ export default function AmplifierCard({
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">PF</Label>
               <Input
-                type="number"
-                step="0.01"
-                min="0"
-                max="1"
+                type="text"
+                inputMode="decimal"
                 value={amplifier.powerFactor}
-                onChange={(e) => onUpdate({ powerFactor: Number(e.target.value) })}
-                className="h-7 w-14 font-mono text-right text-xs"
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  if (!isNaN(num)) onUpdate({ powerFactor: Math.max(0, Math.min(1, num)) });
+                }}
+                className="h-7 w-14 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                 disabled={!isCustom}
                 data-testid={`input-power-factor-${amplifier.id}`}
               />
@@ -177,35 +178,46 @@ export default function AmplifierCard({
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">Pmax</Label>
               <Input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={amplifier.pmax}
-                onChange={(e) => onUpdate({ pmax: Number(e.target.value) })}
-                className="h-7 w-16 font-mono text-right text-xs"
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  if (!isNaN(num)) onUpdate({ pmax: num });
+                }}
+                className="h-7 w-24 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                 data-testid={`input-pmax-${amplifier.id}`}
               />
+              <span className="text-xs text-muted-foreground">W</span>
             </div>
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">Eff</Label>
               <Input
-                type="number"
-                step="0.01"
-                min="0"
-                max="1"
+                type="text"
+                inputMode="decimal"
                 value={amplifier.efficiency}
-                onChange={(e) => onUpdate({ efficiency: Number(e.target.value) })}
-                className="h-7 w-14 font-mono text-right text-xs"
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  if (!isNaN(num)) onUpdate({ efficiency: Math.max(0, Math.min(1, num)) });
+                }}
+                className="h-7 w-14 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                 data-testid={`input-efficiency-${amplifier.id}`}
               />
             </div>
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">Para</Label>
               <Input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 value={amplifier.parasiticDraw}
-                onChange={(e) => onUpdate({ parasiticDraw: Number(e.target.value) })}
-                className="h-7 w-14 font-mono text-right text-xs"
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  if (!isNaN(num)) onUpdate({ parasiticDraw: num });
+                }}
+                className="h-7 w-14 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
                 data-testid={`input-parasitic-${amplifier.id}`}
               />
+              <span className="text-xs text-muted-foreground">W</span>
             </div>
             <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">Ch</Label>
@@ -229,7 +241,7 @@ export default function AmplifierCard({
                   onUpdate({ channelCount: count, channels });
                 }}
               >
-                <SelectTrigger className="h-7 w-12 text-xs" data-testid={`select-channel-count-${amplifier.id}`}>
+                <SelectTrigger className="h-7 w-16 text-xs" data-testid={`select-channel-count-${amplifier.id}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
