@@ -9,28 +9,25 @@ export function calculateCableResistance(
   return (resistancePerKft * lengthFeet) / 1000;
 }
 
-export function calculateTemperatureDerate(ambientTemp: number, units: 'metric' | 'imperial'): number {
-  const tempC = units === 'imperial' ? (ambientTemp - 32) * 5/9 : ambientTemp;
-  if (tempC <= 25) return 1.0;
-  if (tempC <= 35) return 0.95;
-  if (tempC <= 45) return 0.85;
-  return 0.75;
+export function calculateTemperatureDerate(ambientTempC: number): number {
+  if (ambientTempC <= 40) return 1.0;
+  const deratePercent = (ambientTempC - 40) * 2;
+  return Math.max(0, 1 - (deratePercent / 100));
 }
 
-export function calculateAltitudeDerate(altitude: number, units: 'metric' | 'imperial'): number {
-  const altitudeM = units === 'imperial' ? altitude * 0.3048 : altitude;
-  if (altitudeM <= 1000) return 1.0;
-  if (altitudeM <= 2000) return 0.93;
-  if (altitudeM <= 3000) return 0.86;
-  return 0.80;
+export function calculateAltitudeDerate(altitudeMeters: number): number {
+  if (altitudeMeters <= 0) return 1.0;
+  const altitudeFeet = altitudeMeters * 3.28084;
+  const deratePercent = (altitudeFeet / 1000) * 4;
+  return Math.max(0, 1 - (deratePercent / 100));
 }
 
 export function calculateGeneratorEffectiveWatts(
   generator: Generator,
   settings: GlobalSettings
 ): { effectiveWatts: number; derates: { temp: number; altitude: number; user: number } } {
-  const tempDerate = calculateTemperatureDerate(settings.ambientTemperature, settings.units);
-  const altitudeDerate = calculateAltitudeDerate(settings.altitude, settings.units);
+  const tempDerate = calculateTemperatureDerate(settings.ambientTemperature);
+  const altitudeDerate = calculateAltitudeDerate(settings.altitude);
   const userDerate = 1 - (generator.userDerate / 100);
   
   const effectiveWatts = generator.continuousWatts * tempDerate * altitudeDerate * userDerate;

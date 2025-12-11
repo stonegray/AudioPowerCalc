@@ -30,6 +30,28 @@ export default function GlobalSettingsPanel({
   const altUnit = settings.units === 'metric' ? 'm' : 'ft';
   const isBasic = settings.appMode === 'basic';
 
+  const displayTemp = settings.units === 'imperial' 
+    ? Math.round((settings.ambientTemperature * 9/5) + 32) 
+    : settings.ambientTemperature;
+  
+  const displayAlt = settings.units === 'imperial'
+    ? Math.round(settings.altitude * 3.28084)
+    : settings.altitude;
+
+  const handleTempChange = (displayValue: number) => {
+    const metricValue = settings.units === 'imperial'
+      ? (displayValue - 32) * 5/9
+      : displayValue;
+    onUpdate({ ambientTemperature: metricValue });
+  };
+
+  const handleAltChange = (displayValue: number) => {
+    const metricValue = settings.units === 'imperial'
+      ? displayValue / 3.28084
+      : displayValue;
+    onUpdate({ altitude: metricValue });
+  };
+
   return (
     <Card className="mb-4">
       <CardContent className="pt-3 pb-3">
@@ -85,9 +107,10 @@ export default function GlobalSettingsPanel({
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">Temp</Label>
                 <Input
-                  type="number"
-                  value={settings.ambientTemperature}
-                  onChange={(e) => onUpdate({ ambientTemperature: Number(e.target.value) })}
+                  type="text"
+                  inputMode="numeric"
+                  value={displayTemp}
+                  onChange={(e) => handleTempChange(Number(e.target.value))}
                   className="w-16 h-8 font-mono text-right text-sm"
                   data-testid="input-temperature"
                 />
@@ -97,9 +120,10 @@ export default function GlobalSettingsPanel({
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">Alt</Label>
                 <Input
-                  type="number"
-                  value={settings.altitude}
-                  onChange={(e) => onUpdate({ altitude: Number(e.target.value) })}
+                  type="text"
+                  inputMode="numeric"
+                  value={displayAlt}
+                  onChange={(e) => handleAltChange(Number(e.target.value))}
                   className="w-20 h-8 font-mono text-right text-sm"
                   data-testid="input-altitude"
                 />
