@@ -189,15 +189,15 @@ export default function AudioContentModal({
   crestCurve,
   onCrestCurveChange,
 }: AudioContentModalProps) {
-  const [formula, setFormula] = useState(PRESET_FORMULAS[genre]);
+  const [formula, setFormula] = useState(() => PRESET_FORMULAS[genre] || PRESET_FORMULAS.rock);
   const [formulaError, setFormulaError] = useState<string | null>(null);
 
   const isCustom = genre === 'custom';
 
   useEffect(() => {
-    if (genre !== 'custom') {
-      setFormula(PRESET_FORMULAS[genre]);
-    }
+    const newFormula = PRESET_FORMULAS[genre] || PRESET_FORMULAS.rock;
+    setFormula(newFormula);
+    setFormulaError(null);
   }, [genre]);
 
   const formulaCurvePoints = useMemo(() => {
