@@ -86,10 +86,10 @@ export function generateDerateDescriptions(
   
   const feederLosses = calculateFeederLosses(generator, totalLoadWatts);
   const feederDesc = feederLosses.powerLossWatts > 0
-    ? `Feeder: ${feederLosses.powerLossWatts.toFixed(0)}W loss (${feederLosses.currentAmps.toFixed(1)}A, ${feederLosses.voltageDrop.toFixed(1)}V drop)`
+    ? `Feeder: ${feederLosses.powerLossWatts.toFixed(0)}W loss (${feederLosses.currentAmps.toFixed(1)}A, ${feederLosses.voltageDrop.toFixed(2)}V drop)`
     : 'Feeder: 0W loss (no load)';
   
-  const voltageDesc = `Distro: ${feederLosses.voltageAtDistro.toFixed(0)}V`;
+  const voltageDesc = `Distro: ${feederLosses.voltageAtDistro.toFixed(2)}V`;
   
   return { temp: tempDesc, altitude: altDesc, user: userDesc, feeder: feederDesc, voltageAtDistro: voltageDesc };
 }
