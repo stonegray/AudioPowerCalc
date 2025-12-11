@@ -32,7 +32,7 @@ export default function GlobalSettingsPanel({
 
   const displayTemp = settings.units === 'imperial' 
     ? Math.round((settings.ambientTemperature * 9/5) + 32) 
-    : settings.ambientTemperature;
+    : Math.round(settings.ambientTemperature);
   
   const displayAlt = settings.units === 'imperial'
     ? Math.round(settings.altitude * 3.28084)
