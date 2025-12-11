@@ -8,6 +8,7 @@ import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
 import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface SpeakerCardProps {
   speaker: SpeakerType;
@@ -18,6 +19,9 @@ interface SpeakerCardProps {
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
   appMode?: AppMode;
+  powerPath?: string;
+  isPendingConnection?: boolean;
+  isHighlighted?: boolean;
 }
 
 export default function SpeakerCard({
@@ -29,6 +33,9 @@ export default function SpeakerCard({
   onNodeClick,
   connectionColor,
   appMode = 'advanced',
+  powerPath,
+  isPendingConnection = false,
+  isHighlighted = false,
 }: SpeakerCardProps) {
   const isCustom = speaker.model === 'custom';
   const isBasic = appMode === 'basic';
@@ -49,7 +56,7 @@ export default function SpeakerCard({
   };
 
   return (
-    <Card className="relative">
+    <Card className={cn("relative", isHighlighted && "ring-2 ring-primary/50")}>
       <ConnectionNode
         id={speaker.id}
         type="input"
@@ -57,7 +64,17 @@ export default function SpeakerCard({
         connected={!!connectionColor}
         color={connectionColor}
         onClick={() => onNodeClick?.(speaker.id)}
+        isPending={isPendingConnection}
+        isHighlighted={isHighlighted}
       />
+      
+      {powerPath && (
+        <div className="absolute -top-6 left-0 right-0 text-center">
+          <span className="text-xs text-muted-foreground bg-background/90 px-2 py-0.5 rounded-full border shadow-sm">
+            {powerPath}
+          </span>
+        </div>
+      )}
 
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">

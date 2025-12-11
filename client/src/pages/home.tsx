@@ -21,6 +21,7 @@ import {
   type AmpChannel,
 } from '@/lib/types';
 import { calculateGeneratorEffectiveWatts, calculateSPL, calculateParallelImpedance } from '@/lib/calculations';
+import { getAmpPowerPath, getSpeakerPowerPath } from '@/lib/powerPath';
 
 export default function Home() {
   const { toast } = useToast();
@@ -31,6 +32,7 @@ export default function Home() {
     sourceId: string;
     sourceType: 'distro' | 'ampChannel';
   } | null>(null);
+  const [hoveredConnectionId, setHoveredConnectionId] = useState<string | null>(null);
 
   const {
     state,
@@ -73,6 +75,23 @@ export default function Home() {
     const conn = state.connections.find(c => c.sourceId === nodeId || c.targetId === nodeId);
     return conn?.color;
   }, [state.connections]);
+
+  const isNodeHighlighted = useCallback((nodeId: string): boolean => {
+    if (!hoveredConnectionId) return false;
+    const hoveredConn = state.connections.find(c => c.id === hoveredConnectionId);
+    if (!hoveredConn) return false;
+    return hoveredConn.sourceId === nodeId || hoveredConn.targetId === nodeId;
+  }, [hoveredConnectionId, state.connections]);
+
+  const getAmpPath = useCallback((ampId: string): string | undefined => {
+    const path = getAmpPowerPath(ampId, state.connections, state.generators);
+    return path?.fullPath;
+  }, [state.connections, state.generators]);
+
+  const getSpeakerPath = useCallback((speakerId: string): string | undefined => {
+    const path = getSpeakerPowerPath(speakerId, state.connections, state.generators, state.amplifiers);
+    return path?.fullPath;
+  }, [state.connections, state.generators, state.amplifiers]);
 
   const handleNodeClick = useCallback((nodeId: string, nodeType: 'distro' | 'ampChannel' | 'amp' | 'poweredSpeaker' | 'speaker') => {
     if (nodeType === 'distro' || nodeType === 'ampChannel') {
@@ -277,7 +296,19 @@ export default function Home() {
           ref={containerRef}
           className="relative grid grid-cols-1 lg:grid-cols-3 gap-y-6 gap-x-12 lg:gap-x-16 px-4"
         >
-          <ConnectionLines connections={state.connections} containerRef={containerRef} />
+          <ConnectionLines 
+            connections={state.connections} 
+            containerRef={containerRef} 
+            hoveredConnectionId={hoveredConnectionId}
+            onConnectionHover={setHoveredConnectionId}
+            onConnectionClick={(connId) => {
+              const conn = state.connections.find(c => c.id === connId);
+              if (conn) {
+                removeConnection(connId);
+                toast({ title: 'Connection removed' });
+              }
+            }}
+          />
 
           <div className="space-y-4 overflow-visible relative z-10">
             <h2 className="text-lg font-medium text-muted-foreground">Power Sources</h2>
@@ -326,6 +357,9 @@ export default function Home() {
                     inputConnectionColor={getConnectionColor(amp.id)}
                     getOutputConnectionColor={getConnectionColor}
                     appMode={state.globalSettings.appMode}
+                    powerPath={getAmpPath(amp.id)}
+                    isPendingConnection={pendingConnection?.sourceType === 'distro'}
+                    isHighlighted={isNodeHighlighted(amp.id)}
                   />
                 ))}
                 {poweredSpeakersWithCalcs.map(spk => (
@@ -373,6 +407,9 @@ export default function Home() {
                     onNodeClick={handleSpeakerNodeClick}
                     connectionColor={getConnectionColor(spk.id)}
                     appMode={state.globalSettings.appMode}
+                    powerPath={getSpeakerPath(spk.id)}
+                    isPendingConnection={pendingConnection?.sourceType === 'ampChannel'}
+                    isHighlighted={isNodeHighlighted(spk.id)}
                   />
                 ))}
                 <AddEquipmentButton

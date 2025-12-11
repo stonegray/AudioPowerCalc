@@ -24,6 +24,9 @@ interface AmplifierCardProps {
   inputConnectionColor?: string;
   getOutputConnectionColor?: (channelId: string) => string | undefined;
   appMode?: AppMode;
+  powerPath?: string;
+  isPendingConnection?: boolean;
+  isHighlighted?: boolean;
 }
 
 export default function AmplifierCard({
@@ -37,6 +40,9 @@ export default function AmplifierCard({
   inputConnectionColor,
   getOutputConnectionColor,
   appMode = 'advanced',
+  powerPath,
+  isPendingConnection = false,
+  isHighlighted = false,
 }: AmplifierCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const isCustom = amplifier.model === 'custom';
@@ -94,7 +100,7 @@ export default function AmplifierCard({
   };
 
   return (
-    <Card className="relative">
+    <Card className={cn("relative", isHighlighted && "ring-2 ring-primary/50")}>
       <ConnectionNode
         id={amplifier.id}
         type="input"
@@ -102,7 +108,17 @@ export default function AmplifierCard({
         connected={!!inputConnectionColor}
         color={inputConnectionColor}
         onClick={() => onInputNodeClick?.(amplifier.id)}
+        isPending={isPendingConnection}
+        isHighlighted={isHighlighted}
       />
+      
+      {powerPath && (
+        <div className="absolute -top-6 left-0 right-0 text-center">
+          <span className="text-xs text-muted-foreground bg-background/90 px-2 py-0.5 rounded-full border shadow-sm">
+            {powerPath}
+          </span>
+        </div>
+      )}
 
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
