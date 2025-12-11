@@ -34,21 +34,28 @@ export default function DistroChannelRow({
   appMode = 'advanced',
 }: DistroChannelRowProps) {
   const getPhaseOptions = (): { value: number; label: string }[] => {
-    if (generatorPhaseType === '3_wye' && maxPhases >= 3) {
-      return [
-        { value: 1, label: 'L12' },
-        { value: 2, label: 'L23' },
-        { value: 3, label: 'L31' },
-      ];
+    const options: { value: number; label: string }[] = [];
+    
+    // Add single phase line-to-neutral options (L1, L2, L3)
+    for (let i = 1; i <= maxPhases; i++) {
+      options.push({ value: i, label: `L${i}` });
     }
-    return Array.from({ length: maxPhases }, (_, i) => ({
-      value: i + 1,
-      label: `L${i + 1}`,
-    }));
+    
+    // Add 3-phase line-to-line options if Wye generator
+    if (generatorPhaseType === '3_wye' && maxPhases >= 3) {
+      options.push(
+        { value: 12, label: 'L12' },
+        { value: 23, label: 'L23' },
+        { value: 31, label: 'L31' }
+      );
+    }
+    
+    return options;
   };
 
   const phaseOptions = getPhaseOptions();
-  const voltageForAmpacity = generatorPhaseType === '3_wye' ? 208 : 120;
+  const isLineToLine = channel.phaseSource >= 12;
+  const voltageForAmpacity = isLineToLine ? 208 : 120;
   const maxWatts = channel.ampacity * voltageForAmpacity;
   const utilizationPercent = maxWatts > 0 ? (channel.loadWatts / maxWatts) * 100 : 0;
   const utilizationColor = utilizationPercent > 90 ? 'text-destructive' : 
