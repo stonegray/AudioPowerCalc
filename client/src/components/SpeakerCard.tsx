@@ -50,16 +50,14 @@ export default function SpeakerCard({
 
   return (
     <Card className="relative">
-      <div className="absolute left-0 top-1/2 -translate-y-1/2">
-        <ConnectionNode
-          id={speaker.id}
-          type="input"
-          position="left"
-          connected={!!connectionColor}
-          color={connectionColor}
-          onClick={() => onNodeClick?.(speaker.id)}
-        />
-      </div>
+      <ConnectionNode
+        id={speaker.id}
+        type="input"
+        position="left"
+        connected={!!connectionColor}
+        color={connectionColor}
+        onClick={() => onNodeClick?.(speaker.id)}
+      />
 
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">

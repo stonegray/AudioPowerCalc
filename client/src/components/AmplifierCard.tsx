@@ -95,16 +95,14 @@ export default function AmplifierCard({
 
   return (
     <Card className="relative">
-      <div className="absolute left-0 top-1/2 -translate-y-1/2">
-        <ConnectionNode
-          id={amplifier.id}
-          type="input"
-          position="left"
-          connected={!!inputConnectionColor}
-          color={inputConnectionColor}
-          onClick={() => onInputNodeClick?.(amplifier.id)}
-        />
-      </div>
+      <ConnectionNode
+        id={amplifier.id}
+        type="input"
+        position="left"
+        connected={!!inputConnectionColor}
+        color={inputConnectionColor}
+        onClick={() => onInputNodeClick?.(amplifier.id)}
+      />
 
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
