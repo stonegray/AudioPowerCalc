@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
-import { ChevronDown, Plus, Trash2, Zap } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ChevronDown, Plus, Trash2, Zap, Info } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
 import SearchableModelSelect from './SearchableModelSelect';
 import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode, GlobalSettings } from '@/lib/types';
@@ -170,17 +171,25 @@ export default function GeneratorCard({
                 />
               </div>
 
-              <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground">Derate</Label>
-                <Input
-                  type="number"
-                  value={generator.userDerate}
-                  onChange={(e) => onUpdate({ userDerate: Number(e.target.value) })}
-                  className="h-7 w-12 font-mono text-right text-xs"
-                  data-testid={`input-user-derate-${generator.id}`}
-                />
-                <span className="text-xs text-muted-foreground">%</span>
-              </div>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 cursor-help">
+                    <Label className="text-xs text-muted-foreground">Derate</Label>
+                    <Info className="w-3 h-3 text-muted-foreground hover:text-foreground transition-colors" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-sm">
+                  <p className="text-xs">Additional user-defined derate. Note that altitude and temperature derates are already factored in. See the Derate Breakdown (visible in Advanced mode) for more info.</p>
+                </TooltipContent>
+              </Tooltip>
+              <Input
+                type="number"
+                value={generator.userDerate}
+                onChange={(e) => onUpdate({ userDerate: Number(e.target.value) })}
+                className="h-7 w-12 font-mono text-right text-xs"
+                data-testid={`input-user-derate-${generator.id}`}
+              />
+              <span className="text-xs text-muted-foreground">%</span>
             </>
           )}
         </div>
