@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Trash2, AlertCircle } from 'lucide-react';
+import { Trash2, AlertCircle, AlertTriangle } from 'lucide-react';
 import type { MusicGenre, CrestCurvePoint } from '@/lib/types';
 import { GENRE_CREST_PRESETS } from '@/lib/types';
 
@@ -69,7 +69,7 @@ const PRESET_FORMULAS: Record<MusicGenre, string> = {
   custom: '6 + 2 * log10(f / 10)',
 };
 
-const safeEval = (formula: string, f: number): number | null => {
+const safeEvalRaw = (formula: string, f: number): number | null => {
   try {
     const sanitized = formula
       .replace(/log10/g, 'Math.log10')
@@ -90,10 +90,80 @@ const safeEval = (formula: string, f: number): number | null => {
     if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
       return null;
     }
-    return Math.max(MIN_CREST, Math.min(MAX_CREST, result));
+    return result;
   } catch {
     return null;
   }
+};
+
+const safeEval = (formula: string, f: number): number | null => {
+  const result = safeEvalRaw(formula, f);
+  if (result === null) return null;
+  return Math.max(MIN_CREST, Math.min(MAX_CREST, result));
+};
+
+interface CurveValidation {
+  hasError: boolean;
+  hasWarning: boolean;
+  errorMessage: string | null;
+  warningMessage: string | null;
+  errorFrequencies: number[];
+  warningFrequencies: number[];
+}
+
+const validateFormula = (formula: string): CurveValidation => {
+  const result: CurveValidation = {
+    hasError: false,
+    hasWarning: false,
+    errorMessage: null,
+    warningMessage: null,
+    errorFrequencies: [],
+    warningFrequencies: [],
+  };
+  
+  const testFrequencies: number[] = [];
+  for (let i = 0; i <= 100; i++) {
+    const logMin = Math.log10(1);
+    const logMax = Math.log10(30000);
+    const logFreq = logMin + (i / 100) * (logMax - logMin);
+    testFrequencies.push(Math.pow(10, logFreq));
+  }
+  
+  for (const freq of testFrequencies) {
+    const crest = safeEvalRaw(formula, freq);
+    if (crest !== null) {
+      if (crest < 0) {
+        result.hasError = true;
+        result.errorFrequencies.push(freq);
+      }
+      if (crest > 20) {
+        result.hasWarning = true;
+        result.warningFrequencies.push(freq);
+      }
+    }
+  }
+  
+  if (result.hasError) {
+    const minFreq = Math.min(...result.errorFrequencies);
+    const maxFreq = Math.max(...result.errorFrequencies);
+    if (minFreq === maxFreq) {
+      result.errorMessage = `Crest factor below 0dB at ${formatFreq(Math.round(minFreq))}Hz`;
+    } else {
+      result.errorMessage = `Crest factor below 0dB between ${formatFreq(Math.round(minFreq))}Hz - ${formatFreq(Math.round(maxFreq))}Hz`;
+    }
+  }
+  
+  if (result.hasWarning) {
+    const minFreq = Math.min(...result.warningFrequencies);
+    const maxFreq = Math.max(...result.warningFrequencies);
+    if (minFreq === maxFreq) {
+      result.warningMessage = `Crest factor exceeds 20dB at ${formatFreq(Math.round(minFreq))}Hz`;
+    } else {
+      result.warningMessage = `Crest factor exceeds 20dB between ${formatFreq(Math.round(minFreq))}Hz - ${formatFreq(Math.round(maxFreq))}Hz`;
+    }
+  }
+  
+  return result;
 };
 
 const generateCurveFromFormula = (formula: string): CrestCurvePoint[] => {
@@ -160,6 +230,8 @@ export default function AudioContentModal({
       i === 0 ? `M ${pt.x} ${pt.y}` : `L ${pt.x} ${pt.y}`
     ).join(' ');
   }, [formulaCurvePoints]);
+
+  const curveValidation = useMemo(() => validateFormula(formula), [formula]);
 
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
     onGenreChange(newGenre);
@@ -326,6 +398,20 @@ export default function AudioContentModal({
             <p className="text-xs text-muted-foreground">
               Use: f (frequency), log10(), sqrt(), pow(), sin(), cos(), exp(), pi, ^ for power
             </p>
+            
+            {curveValidation.hasError && (
+              <div className="flex items-center gap-2 text-destructive text-sm mt-2 p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{curveValidation.errorMessage}</span>
+              </div>
+            )}
+            
+            {curveValidation.hasWarning && !curveValidation.hasError && (
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-500 text-sm mt-2 p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>{curveValidation.warningMessage}</span>
+              </div>
+            )}
           </div>
 
           {isCustom && (
