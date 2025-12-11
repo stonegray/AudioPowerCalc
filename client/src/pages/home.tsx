@@ -272,14 +272,14 @@ export default function Home() {
 
         <div 
           ref={containerRef}
-          className="relative grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="relative grid grid-cols-1 lg:grid-cols-3 gap-y-6 gap-x-12 lg:gap-x-16 px-4"
         >
           <ConnectionLines connections={state.connections} containerRef={containerRef} />
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-visible relative z-10">
             <h2 className="text-lg font-medium text-muted-foreground">Power Sources</h2>
-            <ScrollArea className="h-[calc(100vh-320px)]">
-              <div className="space-y-4 pr-4">
+            <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
+              <div className="space-y-4 pr-6 overflow-visible">
                 {generatorsWithCalculations.map(gen => (
                   <GeneratorCard
                     key={gen.id}
@@ -305,10 +305,10 @@ export default function Home() {
             </ScrollArea>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-visible relative z-20 px-4">
             <h2 className="text-lg font-medium text-muted-foreground">Amplification</h2>
-            <ScrollArea className="h-[calc(100vh-320px)]">
-              <div className="space-y-4 pr-4">
+            <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
+              <div className="space-y-4 pr-6 pl-2 overflow-visible">
                 {state.amplifiers.map(amp => (
                   <AmplifierCard
                     key={amp.id}
@@ -352,10 +352,10 @@ export default function Home() {
             </ScrollArea>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-visible relative z-10 pl-4">
             <h2 className="text-lg font-medium text-muted-foreground">Speakers</h2>
-            <ScrollArea className="h-[calc(100vh-320px)]">
-              <div className="space-y-4 pr-4">
+            <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
+              <div className="space-y-4 pr-4 pl-2 overflow-visible">
                 {speakersWithSPL.map(spk => (
                   <SpeakerCard
                     key={spk.id}
