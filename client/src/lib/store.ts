@@ -11,6 +11,7 @@ import type {
   AmpChannel 
 } from './types';
 import { GENRE_CREST_PRESETS } from './types';
+import { recalculateAmplifiers } from './calculations';
 
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   musicGenre: 'rock',
@@ -75,13 +76,19 @@ export function useSystemStore() {
   });
 
   const saveState = useCallback((newState: SystemState) => {
+    const speakers = Array.isArray(newState.speakers) ? newState.speakers : [];
+    const connections = Array.isArray(newState.connections) ? newState.connections : [];
+    const amplifiers = Array.isArray(newState.amplifiers) ? newState.amplifiers : [];
+    
+    const recalculatedAmplifiers = recalculateAmplifiers(amplifiers, speakers, connections);
+    
     const safeState: SystemState = {
       globalSettings: { ...DEFAULT_GLOBAL_SETTINGS, ...newState.globalSettings },
       generators: Array.isArray(newState.generators) ? newState.generators : [],
-      amplifiers: Array.isArray(newState.amplifiers) ? newState.amplifiers : [],
-      speakers: Array.isArray(newState.speakers) ? newState.speakers : [],
+      amplifiers: recalculatedAmplifiers,
+      speakers,
       poweredSpeakers: Array.isArray(newState.poweredSpeakers) ? newState.poweredSpeakers : [],
-      connections: Array.isArray(newState.connections) ? newState.connections : [],
+      connections,
     };
     setState(safeState);
     localStorage.setItem('audioSystemState', JSON.stringify(safeState));
