@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trash2 } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import type { DistroChannel, PhaseType, CableInputMode } from '@/lib/types';
@@ -70,11 +71,19 @@ export default function DistroChannelRow({
           <span className="text-xs font-medium">D{index + 1}</span>
         </div>
         <div className="flex items-center gap-2 flex-1 justify-end">
-          <div className="flex items-center gap-1 min-w-[100px]">
-            <span className={cn('text-xs font-mono', utilizationColor)}>
-              {channel.loadWatts.toFixed(0)}W/{maxWatts}W
-            </span>
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1 min-w-[100px] cursor-help">
+                <span className={cn('text-xs font-mono', utilizationColor)}>
+                  {channel.loadWatts.toFixed(0)}W/{maxWatts}W
+                </span>
+                <span className="text-xs text-muted-foreground">breaker</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              <p>Breaker capacity can exceed the generator's rated capacity. Verify total system power draw doesn't overload the generator.</p>
+            </TooltipContent>
+          </Tooltip>
           <Progress value={utilizationPercent} className="h-1.5 w-16" />
           <Button 
             variant="ghost" 
