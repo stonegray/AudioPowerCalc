@@ -56,7 +56,7 @@ export default function SpeakerCard({
   };
 
   return (
-    <Card className={cn("relative", isHighlighted && "ring-2 ring-primary/50")}>
+    <Card className={cn("relative overflow-visible", isHighlighted && "ring-2 ring-primary/50")} style={{ zIndex: 10 }}>
       <ConnectionNode
         id={speaker.id}
         type="input"

@@ -66,7 +66,7 @@ export default function GeneratorCard({
   };
 
   return (
-    <Card className="relative">
+    <Card className="relative overflow-visible" style={{ zIndex: 10 }}>
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">

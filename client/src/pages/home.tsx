@@ -310,7 +310,7 @@ export default function Home() {
             }}
           />
 
-          <div className="space-y-4 overflow-visible relative z-10">
+          <div className="space-y-4 overflow-visible relative">
             <h2 className="text-lg font-medium text-muted-foreground">Power Sources</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
               <div className="space-y-4 pr-6 overflow-visible">
@@ -340,7 +340,7 @@ export default function Home() {
             </ScrollArea>
           </div>
 
-          <div className="space-y-4 overflow-visible relative z-20 px-4">
+          <div className="space-y-4 overflow-visible relative px-4">
             <h2 className="text-lg font-medium text-muted-foreground">Amplification</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
               <div className="space-y-4 pr-6 pl-2 overflow-visible">
@@ -392,7 +392,7 @@ export default function Home() {
             </ScrollArea>
           </div>
 
-          <div className="space-y-4 overflow-visible relative z-10 pl-4">
+          <div className="space-y-4 overflow-visible relative pl-4">
             <h2 className="text-lg font-medium text-muted-foreground">Speakers</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
               <div className="space-y-4 pr-4 pl-2 overflow-visible">
