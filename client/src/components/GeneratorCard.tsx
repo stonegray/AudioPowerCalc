@@ -299,14 +299,14 @@ export default function GeneratorCard({
                   type="number"
                   value={generator.feederCable.awg || 10}
                   onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, awg: Number(e.target.value) } })}
-                  className="h-7 w-12 font-mono text-right text-xs"
+                  className="h-7 w-16 font-mono text-right text-xs"
                   data-testid={`input-feeder-awg-${generator.id}`}
                 />
                 <Input
                   type="number"
                   value={generator.feederCable.length || 25}
                   onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, length: Number(e.target.value) } })}
-                  className="h-7 w-14 font-mono text-right text-xs"
+                  className="h-7 w-16 font-mono text-right text-xs"
                   placeholder="ft"
                   data-testid={`input-feeder-length-${generator.id}`}
                 />

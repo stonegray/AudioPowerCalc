@@ -170,14 +170,14 @@ export default function DistroChannelRow({
                   type="number"
                   value={channel.cable.awg || 12}
                   onChange={(e) => onUpdate({ cable: { ...channel.cable, awg: Number(e.target.value) } })}
-                  className="h-7 w-10 font-mono text-right text-xs"
+                  className="h-7 w-16 font-mono text-right text-xs"
                   data-testid={`input-cable-awg-${index}`}
                 />
                 <Input
                   type="number"
                   value={channel.cable.length || 50}
                   onChange={(e) => onUpdate({ cable: { ...channel.cable, length: Number(e.target.value) } })}
-                  className="h-7 w-12 font-mono text-right text-xs"
+                  className="h-7 w-16 font-mono text-right text-xs"
                   placeholder="ft"
                   data-testid={`input-cable-length-${index}`}
                 />
