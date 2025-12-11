@@ -337,6 +337,7 @@ export default function Home() {
                     onRemove={() => removePoweredSpeaker(spk.id)}
                     onNodeClick={handlePoweredSpeakerNodeClick}
                     connectionColor={getConnectionColor(spk.id)}
+                    appMode={state.globalSettings.appMode}
                   />
                 ))}
                 <div className="space-y-2">

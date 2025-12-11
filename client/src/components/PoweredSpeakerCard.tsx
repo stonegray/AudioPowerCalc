@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import GainKnob from './GainKnob';
-import type { PoweredSpeaker } from '@/lib/types';
+import type { PoweredSpeaker, AppMode } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface PoweredSpeakerCardProps {
@@ -17,6 +17,7 @@ interface PoweredSpeakerCardProps {
   onRemove: () => void;
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
+  appMode?: AppMode;
 }
 
 export default function PoweredSpeakerCard({
@@ -26,7 +27,9 @@ export default function PoweredSpeakerCard({
   onRemove,
   onNodeClick,
   connectionColor,
+  appMode = 'advanced',
 }: PoweredSpeakerCardProps) {
+  const isBasic = appMode === 'basic';
   const utilizationPercent = (speaker.rmsWattsDrawn / speaker.pmax) * 100;
   const utilizationColor = utilizationPercent > 90 ? 'text-destructive' : 
     utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
