@@ -204,6 +204,15 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     phaseType: 'single',
     voltage: 120,
   },
+  'trailer_50k_3ph': {
+    name: 'Trailer 50kW 3-Phase',
+    type: 'standard',
+    continuousWatts: 50000,
+    peakWatts: 55000,
+    phaseCount: 3,
+    phaseType: '3_wye',
+    voltage: 208,
+  },
   'custom': {
     name: 'Custom Generator',
     type: 'standard',
