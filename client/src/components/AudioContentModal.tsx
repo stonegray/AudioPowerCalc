@@ -273,21 +273,6 @@ export default function AudioContentModal({
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="genre">Genre Preset</Label>
-            <Select value={genre} onValueChange={(v: MusicGenre) => handleGenreChange(v)}>
-              <SelectTrigger id="genre" data-testid="select-content-genre">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
-                <SelectItem value="rock">Rock</SelectItem>
-                <SelectItem value="acoustic">Acoustic</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label>Curve Formula</Label>
             <div className="flex gap-2">
               <div className="flex-1 relative">
