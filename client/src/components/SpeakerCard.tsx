@@ -210,6 +210,11 @@ export default function SpeakerCard({
                 const num = Number(e.target.value);
                 if (!isNaN(num)) onUpdate({ quantity: Math.max(1, num) });
               }}
+              onWheel={(e) => {
+                e.preventDefault();
+                const delta = (e as any).deltaY > 0 ? -1 : 1;
+                onUpdate({ quantity: Math.max(1, speaker.quantity + delta) });
+              }}
               className="h-7 w-12 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
               data-testid={`input-speaker-quantity-${speaker.id}`}
             />
