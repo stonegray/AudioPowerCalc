@@ -147,9 +147,8 @@ export default function AmpChannelRow({
               </Badge>
             )}
 
-            <div className="flex gap-2 text-xs font-mono text-muted-foreground ml-auto">
-              <span>{channel.energyWatts.toFixed(0)}W RMS</span>
-              <span>{channel.musicPowerWatts.toFixed(0)}W AES audio</span>
+            <div className="text-xs font-mono text-muted-foreground ml-auto">
+              <span>{channel.musicPowerWatts.toFixed(0)}W audio ({channel.energyWatts.toFixed(0)}W energy)</span>
             </div>
 
             <div className="w-16 flex-shrink-0">
