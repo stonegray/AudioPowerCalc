@@ -8,8 +8,10 @@ import PoweredSpeakerCard from '@/components/PoweredSpeakerCard';
 import AddEquipmentButton from '@/components/AddEquipmentButton';
 import ConnectionLines from '@/components/ConnectionLines';
 import SaveLoadDialog from '@/components/SaveLoadDialog';
+import AudioContentModal from '@/components/AudioContentModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import { useSystemStore } from '@/lib/store';
 import { 
   GENERATOR_PRESETS, 
@@ -33,6 +35,7 @@ export default function Home() {
     sourceType: 'distro' | 'ampChannel';
   } | null>(null);
   const [hoveredConnectionId, setHoveredConnectionId] = useState<string | null>(null);
+  const [audioContentModalOpen, setAudioContentModalOpen] = useState(false);
 
   const {
     state,
@@ -276,6 +279,9 @@ export default function Home() {
         <div className="w-full px-4 py-2 flex items-center justify-between gap-4">
           <h1 className="text-lg font-semibold">Audio System Power Calculator</h1>
           <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={() => setAudioContentModalOpen(true)} data-testid="button-audio-content">
+              Audio Content
+            </Button>
             <ThemeToggle />
           </div>
         </div>
@@ -441,6 +447,13 @@ export default function Home() {
         onSave={handleSaveConfig}
         onLoad={handleLoadConfig}
         onDelete={handleDeleteConfig}
+      />
+
+      <AudioContentModal
+        open={audioContentModalOpen}
+        onOpenChange={setAudioContentModalOpen}
+        genre={state.globalSettings.musicGenre}
+        onGenreChange={(genre) => updateGlobalSettings({ musicGenre: genre })}
       />
     </div>
   );
