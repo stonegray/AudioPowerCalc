@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Trash2 } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import type { DistroChannel, PhaseType, CableInputMode } from '@/lib/types';
@@ -34,6 +36,27 @@ export default function DistroChannelRow({
   connectionColor,
   appMode = 'advanced',
 }: DistroChannelRowProps) {
+  const [presetsOpen, setPresetsOpen] = useState(false);
+
+  const DISTRO_PRESETS = [
+    { label: '15A Single', ampacity: 15, outputType: 'single' as PhaseType },
+    { label: '20A Single', ampacity: 20, outputType: 'single' as PhaseType },
+    { label: '30A Single', ampacity: 30, outputType: 'single' as PhaseType },
+    { label: '50A Single', ampacity: 50, outputType: 'single' as PhaseType },
+    { label: '30A 3-Phase', ampacity: 30, outputType: '3_wye' as PhaseType },
+    { label: '50A 3-Phase', ampacity: 50, outputType: '3_wye' as PhaseType },
+  ];
+
+  const handlePreset = (preset: typeof DISTRO_PRESETS[0]) => {
+    const phaseSource = preset.outputType === '3_wye' ? 123 : 1;
+    onUpdate({
+      ampacity: preset.ampacity,
+      outputType: preset.outputType,
+      phaseSource,
+    });
+    setPresetsOpen(false);
+  };
+
   const getPhaseOptions = (): { value: number; label: string }[] => {
     const options: { value: number; label: string }[] = [];
     
@@ -47,7 +70,8 @@ export default function DistroChannelRow({
       options.push(
         { value: 12, label: 'L12' },
         { value: 23, label: 'L23' },
-        { value: 31, label: 'L31' }
+        { value: 31, label: 'L31' },
+        { value: 123, label: 'L123' }
       );
     }
     
@@ -157,6 +181,32 @@ export default function DistroChannelRow({
             </SelectContent>
           </Select>
         </div>
+
+        {!isBasic && (
+          <Popover open={presetsOpen} onOpenChange={setPresetsOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 text-xs" data-testid={`button-distro-presets-${index}`}>
+                Presets
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-40 p-1" align="start">
+              <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                {DISTRO_PRESETS.map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start h-7 text-xs font-mono"
+                    onClick={() => handlePreset(preset)}
+                    data-testid={`button-distro-preset-${preset.label}`}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
 
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Type</Label>
