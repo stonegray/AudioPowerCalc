@@ -344,15 +344,6 @@ export default function AudioContentModal({
               )}
             </div>
 
-            <Button 
-              onClick={handleApplyFormula}
-              disabled={!!formulaError}
-              className="w-full"
-              data-testid="button-apply-formula"
-            >
-              Apply Formula
-            </Button>
-
             <Tabs value="formula">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="formula">Formula Mode</TabsTrigger>
@@ -389,6 +380,15 @@ export default function AudioContentModal({
                 Use: t (time), f (frequency), pi, cos(), sin(), exp()
               </p>
             </div>
+
+            <Button 
+              onClick={handleApplyFormula}
+              disabled={!!formulaError}
+              className="w-full mt-auto"
+              data-testid="button-apply-formula"
+            >
+              Apply Formula
+            </Button>
           </div>
 
           {/* Right Column: Graph */}
