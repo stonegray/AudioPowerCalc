@@ -272,24 +272,46 @@ export default function AudioContentModal({
           <DialogTitle>Audio Content - Crest Curve</DialogTitle>
         </DialogHeader>
 
+        {/* Genre Selector */}
+        <div className="space-y-2">
+          <Label htmlFor="genre-select">Genre</Label>
+          <Select value={genre} onValueChange={handleGenreChange}>
+            <SelectTrigger id="genre-select" data-testid="select-genre">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
+              <SelectItem value="rock">Rock</SelectItem>
+              <SelectItem value="acoustic">Acoustic</SelectItem>
+              <SelectItem value="custom">Custom</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
           {/* Left Column: Inputs and Warnings */}
           <div className="space-y-4 overflow-y-auto pr-4">
-            {/* Genre Selector */}
-            <div className="space-y-2">
-              <Label htmlFor="genre-select">Genre</Label>
-              <Select value={genre} onValueChange={handleGenreChange}>
-                <SelectTrigger id="genre-select" data-testid="select-genre">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
-                  <SelectItem value="rock">Rock</SelectItem>
-                  <SelectItem value="acoustic">Acoustic</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Warnings */}
+            {!isCustom && (
+              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
+                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                <span>Formula is read-only for genre presets. Select "Custom" to modify.</span>
+              </div>
+            )}
+
+            {curveValidation.hasError && (
+              <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
+                <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                <span>{curveValidation.errorMessage}</span>
+              </div>
+            )}
+
+            {curveValidation.hasWarning && !curveValidation.hasError && (
+              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
+                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+                <span>{curveValidation.warningMessage}</span>
+              </div>
+            )}
 
             {/* Formula Input */}
             <div className="space-y-2">
@@ -321,27 +343,6 @@ export default function AudioContentModal({
                 </div>
               )}
             </div>
-
-            {!isCustom && (
-              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="formula-preset-warning">
-                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>Formula is read-only for genre presets. Select "Custom" to modify.</span>
-              </div>
-            )}
-
-            {curveValidation.hasError && (
-              <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md" data-testid="curve-error">
-                <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>{curveValidation.errorMessage}</span>
-              </div>
-            )}
-
-            {curveValidation.hasWarning && !curveValidation.hasError && (
-              <div className="flex items-start gap-2 text-amber-600 dark:text-amber-500 text-xs p-2 bg-amber-500/10 rounded-md" data-testid="curve-warning">
-                <AlertTriangle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                <span>{curveValidation.warningMessage}</span>
-              </div>
-            )}
 
             {isCustom && (
               <Button 
