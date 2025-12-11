@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
+import SearchableModelSelect from './SearchableModelSelect';
 import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode } from '@/lib/types';
 
 interface SpeakerCardProps {
@@ -92,16 +93,12 @@ export default function SpeakerCard({
       <CardContent className="space-y-2 px-3 pb-3">
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Model</Label>
-          <Select value={speaker.model} onValueChange={handleModelChange}>
-            <SelectTrigger className="h-7 w-full text-xs" data-testid={`select-speaker-model-${speaker.id}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(presets).map(([key, preset]) => (
-                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableModelSelect
+            value={speaker.model}
+            onValueChange={handleModelChange}
+            options={presets}
+            testId={`select-speaker-model-${speaker.id}`}
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">

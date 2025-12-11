@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import { ChevronDown, Plus, Trash2, Zap } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
+import SearchableModelSelect from './SearchableModelSelect';
 import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -102,16 +103,12 @@ export default function GeneratorCard({
       <CardContent className="space-y-2 px-3 pb-3">
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Model</Label>
-          <Select value={generator.model} onValueChange={handleModelChange}>
-            <SelectTrigger className="h-7 w-full text-xs" data-testid={`select-generator-model-${generator.id}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(presets).map(([key, preset]) => (
-                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableModelSelect
+            value={generator.model}
+            onValueChange={handleModelChange}
+            options={presets}
+            testId={`select-generator-model-${generator.id}`}
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">

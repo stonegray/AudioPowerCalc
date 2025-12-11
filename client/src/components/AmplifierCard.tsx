@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { ChevronDown, Trash2, Volume2 } from 'lucide-react';
 import AmpChannelRow from './AmpChannelRow';
 import ConnectionNode from './ConnectionNode';
+import SearchableModelSelect from './SearchableModelSelect';
 import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -141,16 +142,12 @@ export default function AmplifierCard({
       <CardContent className="space-y-2 px-3 pb-3">
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Model</Label>
-          <Select value={amplifier.model} onValueChange={handleModelChange}>
-            <SelectTrigger className="h-7 w-full text-xs" data-testid={`select-amp-model-${amplifier.id}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(presets).map(([key, preset]) => (
-                <SelectItem key={key} value={key}>{preset.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SearchableModelSelect
+            value={amplifier.model}
+            onValueChange={handleModelChange}
+            options={presets}
+            testId={`select-amp-model-${amplifier.id}`}
+          />
         </div>
 
         <div className="flex flex-wrap gap-2">
