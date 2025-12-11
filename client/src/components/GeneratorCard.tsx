@@ -299,14 +299,14 @@ export default function GeneratorCard({
                   type="number"
                   value={generator.feederCable.awg || 10}
                   onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, awg: Number(e.target.value) } })}
-                  className="h-7 w-16 font-mono text-right text-xs"
+                  className="h-7 w-20 font-mono text-right text-xs"
                   data-testid={`input-feeder-awg-${generator.id}`}
                 />
                 <Input
                   type="number"
                   value={generator.feederCable.length || 25}
                   onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, length: Number(e.target.value) } })}
-                  className="h-7 w-16 font-mono text-right text-xs"
+                  className="h-7 w-20 font-mono text-right text-xs"
                   placeholder="ft"
                   data-testid={`input-feeder-length-${generator.id}`}
                 />
@@ -316,7 +316,7 @@ export default function GeneratorCard({
                 type="number"
                 value={generator.feederCable.manualResistance || 0}
                 onChange={(e) => onUpdate({ feederCable: { ...generator.feederCable, manualResistance: Number(e.target.value) } })}
-                className="h-7 w-16 font-mono text-right text-xs"
+                className="h-7 w-20 font-mono text-right text-xs"
                 placeholder="mΩ"
                 data-testid={`input-feeder-resistance-${generator.id}`}
               />

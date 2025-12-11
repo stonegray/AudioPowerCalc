@@ -126,7 +126,7 @@ export default function DistroChannelRow({
             value={String(channel.phaseSource)}
             onValueChange={(v) => onUpdate({ phaseSource: Number(v) })}
           >
-            <SelectTrigger className="h-7 w-14 text-xs" data-testid={`select-phase-${index}`}>
+            <SelectTrigger className="h-7 w-20 text-xs" data-testid={`select-phase-${index}`}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -196,14 +196,14 @@ export default function DistroChannelRow({
                   type="number"
                   value={channel.cable.awg || 12}
                   onChange={(e) => onUpdate({ cable: { ...channel.cable, awg: Number(e.target.value) } })}
-                  className="h-7 w-16 font-mono text-right text-xs"
+                  className="h-7 w-20 font-mono text-right text-xs"
                   data-testid={`input-cable-awg-${index}`}
                 />
                 <Input
                   type="number"
                   value={channel.cable.length || 50}
                   onChange={(e) => onUpdate({ cable: { ...channel.cable, length: Number(e.target.value) } })}
-                  className="h-7 w-16 font-mono text-right text-xs"
+                  className="h-7 w-20 font-mono text-right text-xs"
                   placeholder="ft"
                   data-testid={`input-cable-length-${index}`}
                 />
@@ -213,7 +213,7 @@ export default function DistroChannelRow({
                 type="number"
                 value={channel.cable.manualResistance || 0}
                 onChange={(e) => onUpdate({ cable: { ...channel.cable, manualResistance: Number(e.target.value) } })}
-                className="h-7 w-16 font-mono text-right text-xs"
+                className="h-7 w-20 font-mono text-right text-xs"
                 placeholder="mΩ"
                 data-testid={`input-cable-resistance-${index}`}
               />
