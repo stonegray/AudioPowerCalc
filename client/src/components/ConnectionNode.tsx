@@ -26,13 +26,13 @@ export default function ConnectionNode({
   return (
     <div
       className={cn(
-        'absolute top-1/2 -translate-y-1/2 flex items-center gap-1',
-        position === 'left' ? '-left-3' : '-right-3',
+        'absolute top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-50',
+        position === 'left' ? '-left-4' : '-right-4',
         position === 'left' ? 'flex-row-reverse' : 'flex-row'
       )}
     >
       {label && (
-        <span className="text-xs text-muted-foreground whitespace-nowrap">
+        <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">
           {label}
         </span>
       )}
@@ -44,11 +44,12 @@ export default function ConnectionNode({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         className={cn(
-          'w-3 h-3 rounded-full border-2 transition-all duration-150',
-          'hover:scale-125 hover:shadow-md',
+          'w-4 h-4 rounded-full border-2 transition-all duration-150',
+          'hover:scale-125 hover:shadow-lg',
+          'ring-2 ring-background shadow-sm',
           connected
             ? 'border-transparent'
-            : 'border-muted-foreground/50 bg-background hover:border-primary',
+            : 'border-muted-foreground bg-background hover:border-primary hover:bg-primary/10',
         )}
         style={connected && color ? { backgroundColor: color, borderColor: color } : undefined}
       />
