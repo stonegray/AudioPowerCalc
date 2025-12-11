@@ -275,9 +275,9 @@ export default function AudioContentModal({
         {/* Genre Selector */}
         <div className="space-y-2">
           <Label htmlFor="genre-select">Genre</Label>
-          <Select value={genre} onValueChange={handleGenreChange}>
+          <Select key={genre} value={genre} onValueChange={handleGenreChange}>
             <SelectTrigger id="genre-select" data-testid="select-genre">
-              <SelectValue />
+              <SelectValue placeholder="Select genre" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
