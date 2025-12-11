@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trash2 } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
@@ -153,6 +154,10 @@ export default function DistroChannelRow({
             </SelectContent>
           </Select>
         </div>
+
+        <Badge variant="outline" className="font-mono text-xs h-fit">
+          {voltageForAmpacity}V
+        </Badge>
 
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Type</Label>
