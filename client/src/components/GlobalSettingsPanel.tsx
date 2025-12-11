@@ -4,7 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Save, FolderOpen, AlertTriangle, Play } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Save, FolderOpen, AlertTriangle, Play, Info } from 'lucide-react';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode } from '@/lib/types';
 
 interface GlobalSettingsPanelProps {
@@ -122,7 +123,17 @@ export default function GlobalSettingsPanel({
 
           {!isBasic && (
             <div className="flex items-center gap-1">
-              <Label className="text-xs text-muted-foreground">Array</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 cursor-help">
+                    <Label className="text-xs text-muted-foreground">Array</Label>
+                    <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs">
+                  <p className="text-xs">Used to create accurate SPL estimates by correcting for imperfect summation of arrayed drivers.</p>
+                </TooltipContent>
+              </Tooltip>
               <Input
                 type="number"
                 step="0.01"
