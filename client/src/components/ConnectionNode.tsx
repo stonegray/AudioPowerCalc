@@ -33,7 +33,7 @@ export default function ConnectionNode({
   return (
     <div
       className={cn(
-        'absolute top-1/2 -translate-y-1/2 flex items-center gap-2 z-[1000]',
+        'absolute top-1/2 -translate-y-1/2 flex items-center gap-2 z-[9999]',
         position === 'left' ? '-left-32' : '-right-10',
         position === 'left' ? 'flex-row-reverse' : 'flex-row'
       )}
