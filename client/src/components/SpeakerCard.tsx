@@ -68,14 +68,6 @@ export default function SpeakerCard({
         isHighlighted={isHighlighted}
       />
       
-      {powerPath && (
-        <div className="absolute -top-6 left-0 right-0 text-center">
-          <span className="text-xs text-muted-foreground bg-background/90 px-2 py-0.5 rounded-full border shadow-sm">
-            {powerPath}
-          </span>
-        </div>
-      )}
-
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -106,6 +98,13 @@ export default function SpeakerCard({
       </CardHeader>
 
       <CardContent className="space-y-2 px-3 pb-3">
+        {powerPath && (
+          <div className="text-center pb-1">
+            <span className="text-xs text-muted-foreground bg-background/90 px-2 py-0.5 rounded-full border shadow-sm">
+              {powerPath}
+            </span>
+          </div>
+        )}
         <div className="flex items-center gap-1">
           <Label className="text-xs text-muted-foreground">Model</Label>
           <SearchableModelSelect
