@@ -14,6 +14,7 @@ interface AmpChannelRowProps {
   canBridge: boolean;
   bridgePartnerDisabled: boolean;
   supportsBridging: boolean;
+  minImpedance?: number;
   onUpdate: (updates: Partial<AmpChannel>) => void;
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
@@ -26,6 +27,7 @@ export default function AmpChannelRow({
   canBridge,
   bridgePartnerDisabled,
   supportsBridging,
+  minImpedance = 4,
   onUpdate,
   onNodeClick,
   connectionColor,
@@ -34,6 +36,7 @@ export default function AmpChannelRow({
   const isDisabled = bridgePartnerDisabled;
   const channelNum = index + 1;
   const isBasic = appMode === 'basic';
+  const impedanceWarning = channel.effectiveZ < minImpedance;
 
   const utilizationPercent = (channel.energyWatts / Math.max(channel.musicPowerWatts, 1)) * 100;
 
@@ -110,7 +113,12 @@ export default function AmpChannelRow({
             {channel.loadOhms.toFixed(1)}Ω
           </Badge>
           
-          <Badge variant="secondary" className="font-mono text-xs" data-testid={`badge-effective-z-${index}`}>
+          <Badge 
+            variant={impedanceWarning ? "destructive" : "secondary"} 
+            className="font-mono text-xs" 
+            data-testid={`badge-effective-z-${index}`}
+            title={impedanceWarning ? `Effective Z (${channel.effectiveZ.toFixed(1)}Ω) below minimum (${minImpedance}Ω)` : undefined}
+          >
             {channel.effectiveZ.toFixed(1)}Ω eff
           </Badge>
 

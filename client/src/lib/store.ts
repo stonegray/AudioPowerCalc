@@ -170,6 +170,7 @@ export function useSystemStore() {
       channels,
       rmsWattsDrawn: 0,
       utilizationPercent: 0,
+      minImpedance: 4,
     };
     saveState({ ...state, amplifiers: [...state.amplifiers, newAmplifier] });
   }, [state, saveState]);

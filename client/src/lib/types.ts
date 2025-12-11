@@ -117,6 +117,7 @@ export interface Amplifier {
   channels: AmpChannel[];
   rmsWattsDrawn: number;
   utilizationPercent: number;
+  minImpedance: number;
   connectedDistroId?: string;
 }
 
@@ -220,6 +221,7 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
     powerFactor: 0.95,
     supportsBridging: true,
     channelCount: 4,
+    minImpedance: 2,
   },
   'powersoft_x4': {
     name: 'Powersoft X4',
@@ -229,6 +231,7 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
     powerFactor: 0.92,
     supportsBridging: true,
     channelCount: 4,
+    minImpedance: 2,
   },
   'crown_dci': {
     name: 'Crown DCi 4|1250N',
@@ -238,6 +241,7 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
     powerFactor: 0.90,
     supportsBridging: true,
     channelCount: 4,
+    minImpedance: 4,
   },
   'crown_dva2': {
     name: 'Crown CDi 2|600',
@@ -247,6 +251,7 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
     powerFactor: 0.92,
     supportsBridging: true,
     channelCount: 2,
+    minImpedance: 4,
   },
   'behringer_2ch': {
     name: 'Behringer NX2000 2-Channel',
@@ -256,6 +261,7 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
     powerFactor: 0.90,
     supportsBridging: false,
     channelCount: 2,
+    minImpedance: 4,
   },
   'custom': {
     name: 'Custom Amplifier',
@@ -265,6 +271,7 @@ export const AMPLIFIER_PRESETS: Record<string, Partial<Amplifier>> = {
     powerFactor: 0.95,
     supportsBridging: false,
     channelCount: 2,
+    minImpedance: 4,
   },
 };
 

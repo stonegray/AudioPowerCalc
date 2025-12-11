@@ -72,6 +72,7 @@ export default function AmplifierCard({
         model,
         name: preset.name || 'Custom Amplifier',
         pmax: preset.pmax || 1000,
+        minImpedance: preset.minImpedance || 4,
         efficiency: preset.efficiency || 0.85,
         parasiticDraw: preset.parasiticDraw || 50,
         powerFactor: preset.powerFactor || 0.95,
@@ -232,6 +233,21 @@ export default function AmplifierCard({
               <span className="text-xs text-muted-foreground">W</span>
             </div>
             <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">Min Z</Label>
+              <Input
+                type="text"
+                inputMode="decimal"
+                value={amplifier.minImpedance}
+                onChange={(e) => {
+                  const num = Number(e.target.value);
+                  if (!isNaN(num)) onUpdate({ minImpedance: Math.max(0.5, num) });
+                }}
+                className="h-7 w-14 font-mono text-right text-xs [&::-webkit-outer-spin-button]:hidden [&::-webkit-inner-spin-button]:hidden"
+                data-testid={`input-min-impedance-${amplifier.id}`}
+              />
+              <span className="text-xs text-muted-foreground">Ω</span>
+            </div>
+            <div className="flex items-center gap-1">
               <Label className="text-xs text-muted-foreground">Ch</Label>
               <Select
                 value={String(amplifier.channelCount)}
@@ -308,6 +324,7 @@ export default function AmplifierCard({
                 canBridge={canBridge}
                 bridgePartnerDisabled={bridgePartnerDisabled}
                 supportsBridging={amplifier.supportsBridging}
+                minImpedance={amplifier.minImpedance}
                 onUpdate={(updates) => handleChannelUpdate(channel.id, updates)}
                 onNodeClick={onOutputNodeClick}
                 connectionColor={getOutputConnectionColor?.(channel.id)}
