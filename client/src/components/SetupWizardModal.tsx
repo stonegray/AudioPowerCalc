@@ -166,7 +166,7 @@ export default function SetupWizardModal({
     );
 
   const handleNext = () => {
-    if (page < 4) {
+    if (page < 5) {
       setPage(page + 1);
     } else {
       const genPreset = selectedGenerator ? GENERATOR_PRESETS[selectedGenerator] : null;
@@ -239,6 +239,12 @@ export default function SetupWizardModal({
               </>
             )}
             {page === 4 && (
+              <>
+                <BadgeCheck className="w-5 h-5" />
+                Free vs Pro
+              </>
+            )}
+            {page === 5 && (
               <>
                 <Check className="w-5 h-5" />
                 Setup Complete
@@ -569,6 +575,77 @@ export default function SetupWizardModal({
           )}
 
           {page === 4 && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-medium">Free vs Pro Features</h3>
+                <p className="text-sm text-muted-foreground">
+                  Here's what you get with the free version versus upgrading to Pro:
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3 font-medium">Feature</th>
+                      <th className="text-center p-3 font-medium">Free</th>
+                      <th className="text-center p-3 font-medium">Pro</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    <tr>
+                      <td className="text-left p-3">Basic Power Calculations</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr>
+                      <td className="text-left p-3">SPL Calculations</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr>
+                      <td className="text-left p-3">Equipment Presets</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr>
+                      <td className="text-left p-3">JSON Import/Export</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr>
+                      <td className="text-left p-3">Multiple Complexity Modes</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr className="bg-muted/30">
+                      <td className="text-left p-3 font-medium">Custom Equipment Library</td>
+                      <td className="text-center p-3 text-muted-foreground">—</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr className="bg-muted/30">
+                      <td className="text-left p-3 font-medium">Saved Equipment Sets</td>
+                      <td className="text-center p-3 text-muted-foreground">—</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                    <tr className="bg-muted/30">
+                      <td className="text-left p-3 font-medium">Cloud Sync & Backup</td>
+                      <td className="text-center p-3 text-muted-foreground">—</td>
+                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-4 border">
+                <p className="text-sm text-muted-foreground">
+                  The free version includes everything you need to design professional audio systems. Pro features are available for teams and advanced users who need custom equipment management and cloud collaboration.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {page === 5 && (
             <div className="space-y-6 text-center py-4">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
                 <Check className="w-8 h-8 text-primary" />
@@ -598,7 +675,7 @@ export default function SetupWizardModal({
 
         <DialogFooter className="flex justify-between gap-2">
           <div className="flex gap-2">
-            {page > 1 && page < 4 && (
+            {page > 1 && page < 5 && (
               <Button variant="outline" onClick={handleBack} data-testid="button-back">
                 Back
               </Button>
@@ -611,7 +688,7 @@ export default function SetupWizardModal({
           </div>
           <div className="flex gap-2">
             <div className="flex items-center gap-1 text-sm text-muted-foreground mr-4">
-              {[1, 2, 3, 4].map((p) => (
+              {[1, 2, 3, 4, 5].map((p) => (
                 <div
                   key={p}
                   className={`w-2 h-2 rounded-full ${
@@ -621,7 +698,7 @@ export default function SetupWizardModal({
               ))}
             </div>
             <Button onClick={handleNext} data-testid="button-next">
-              {page === 4 ? "Close" : "Next"}
+              {page === 5 ? "Close" : "Next"}
             </Button>
           </div>
         </DialogFooter>
