@@ -204,6 +204,7 @@ export interface PoweredSpeaker {
   splOutput: number;
   rmsWattsDrawn: number;
   connectedDistroId?: string;
+  verified?: boolean;
 }
 
 export interface Connection {
@@ -227,10 +228,12 @@ export interface SystemState {
 import { getGenerators } from '@/lib/databases/generatorPresets';
 import { getAmplifiers } from '@/lib/databases/amplifierPresets';
 import { getSpeakers } from '@/lib/databases/speakerPresets';
+import { getPoweredSpeakers } from '@/lib/databases/poweredSpeakerPresets';
 
 export const GENERATOR_PRESETS = getGenerators();
 export const AMPLIFIER_PRESETS = getAmplifiers();
 export const SPEAKER_PRESETS = getSpeakers();
+export const POWERED_SPEAKER_PRESETS = getPoweredSpeakers();
 
 export const CONNECTION_COLORS = [
   "#3b82f6", // blue
