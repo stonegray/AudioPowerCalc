@@ -127,6 +127,8 @@ export function useSystemStore() {
       distroChannels: [createDefaultDistroChannel(`distro_${Date.now()}`)],
       utilizationPercent: 0,
       peakUtilizationPercent: 0,
+      powerFactor: 0.95,
+      ratingType: 'watts',
     };
     saveState({ ...state, generators: [...state.generators, newGenerator] });
   }, [state, saveState]);

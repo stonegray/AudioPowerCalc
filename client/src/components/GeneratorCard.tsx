@@ -291,7 +291,7 @@ export default function GeneratorCard({
                   className="h-7 w-20 font-mono text-right text-xs"
                   data-testid={`input-continuous-watts-${generator.id}`}
                 />
-                <span className="text-xs text-muted-foreground">{generator.ratingType === 'kva' ? 'KVA' : 'W'}</span>
+                <span className="text-xs text-muted-foreground">{(generator.ratingType ?? 'watts') === 'kva' ? 'KVA' : 'W'}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">Peak</Label>
@@ -303,7 +303,7 @@ export default function GeneratorCard({
                   className="h-7 w-20 font-mono text-right text-xs"
                   data-testid={`input-peak-watts-${generator.id}`}
                 />
-                <span className="text-xs text-muted-foreground">{generator.ratingType === 'kva' ? 'KVA' : 'W'}</span>
+                <span className="text-xs text-muted-foreground">{(generator.ratingType ?? 'watts') === 'kva' ? 'KVA' : 'W'}</span>
               </div>
             </div>
             <div className="text-xs text-muted-foreground font-mono px-1">{getRatingDisplay()}</div>
@@ -433,8 +433,8 @@ export default function GeneratorCard({
                   { label: 'Generator Type', value: generator.type },
                   { label: 'Continuous Watts', value: generator.continuousWatts, unit: generator.ratingType === 'kva' ? 'KVA' : 'W' },
                   { label: 'Peak Watts', value: generator.peakWatts, unit: generator.ratingType === 'kva' ? 'KVA' : 'W' },
-                  { label: 'Power Factor', value: generator.powerFactor.toFixed(2), isCalculated: true },
-                  { label: 'Rating Type', value: generator.ratingType },
+                  { label: 'Power Factor', value: (generator.powerFactor ?? 0.95).toFixed(2), isCalculated: true },
+                  { label: 'Rating Type', value: generator.ratingType ?? 'watts' },
                   { label: 'Voltage', value: generator.voltage, unit: 'V' },
                   { label: 'Phase Type', value: generator.phaseType },
                   { label: 'Phase Count', value: generator.phaseCount },
