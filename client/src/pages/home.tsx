@@ -403,6 +403,12 @@ export default function Home() {
     });
   }, [updateGlobalSettings]);
 
+  const handleWizardModePreview = useCallback((mode: import('@/lib/types').AppMode) => {
+    updateGlobalSettings({
+      appMode: mode,
+    });
+  }, [updateGlobalSettings]);
+
   const handleWizardComplete = useCallback((config: {
     projectName: string;
     location: string;
@@ -703,6 +709,7 @@ export default function Home() {
         onGeneratorPreview={handleWizardGeneratorPreview}
         onLocationPreview={handleWizardLocationPreview}
         onGenrePreview={handleWizardGenrePreview}
+        onModePreview={handleWizardModePreview}
       />
 
       <EquipmentPresetModal

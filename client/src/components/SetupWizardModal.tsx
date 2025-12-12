@@ -44,6 +44,7 @@ interface SetupWizardModalProps {
   onGeneratorPreview?: (generator: Partial<Generator> | null) => void;
   onLocationPreview?: (temperature: number, altitude: number) => void;
   onGenrePreview?: (genre: MusicGenre) => void;
+  onModePreview?: (mode: import('@/lib/types').AppMode) => void;
 }
 
 const LOCATIONS = [
@@ -107,6 +108,7 @@ export default function SetupWizardModal({
   onGeneratorPreview,
   onLocationPreview,
   onGenrePreview,
+  onModePreview,
 }: SetupWizardModalProps) {
   const [page, setPage] = useState(1);
   const [projectName, setProjectName] = useState("New Project");
@@ -115,6 +117,7 @@ export default function SetupWizardModal({
   const [selectedGenerator, setSelectedGenerator] = useState<string | null>(null);
   const [generatorSearch, setGeneratorSearch] = useState("");
   const [locationSearch, setLocationSearch] = useState("");
+  const [appMode, setAppMode] = useState<import('@/lib/types').AppMode>("basic");
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
 
   const selectedLocation = LOCATIONS.find(l => l.id === location);
@@ -140,6 +143,13 @@ export default function SetupWizardModal({
       onGenrePreview(musicGenre);
     }
   }, [musicGenre, onGenrePreview]);
+
+  // Update preview when app mode changes
+  useEffect(() => {
+    if (onModePreview) {
+      onModePreview(appMode);
+    }
+  }, [appMode, onModePreview]);
   
   const filteredLocations = LOCATIONS.filter(loc =>
     loc.name.toLowerCase().includes(locationSearch.toLowerCase()) ||
@@ -153,7 +163,7 @@ export default function SetupWizardModal({
     );
 
   const handleNext = () => {
-    if (page < 3) {
+    if (page < 4) {
       setPage(page + 1);
     } else {
       const genPreset = selectedGenerator ? GENERATOR_PRESETS[selectedGenerator] : null;
@@ -182,6 +192,9 @@ export default function SetupWizardModal({
     setMusicGenre("bass_dubstep");
     setSelectedGenerator(null);
     setGeneratorSearch("");
+    setLocationSearch("");
+    setAppMode("basic");
+    setSkipConfirmOpen(false);
     onOpenChange(false);
   };
 
@@ -216,6 +229,12 @@ export default function SetupWizardModal({
               </>
             )}
             {page === 3 && (
+              <>
+                <Zap className="w-5 h-5" />
+                Choose Mode
+              </>
+            )}
+            {page === 4 && (
               <>
                 <Check className="w-5 h-5" />
                 Setup Complete
@@ -423,6 +442,91 @@ export default function SetupWizardModal({
           )}
 
           {page === 3 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>What's your experience level?</Label>
+                <p className="text-sm text-muted-foreground">
+                  Choose a mode that matches your needs. You can change this anytime in settings.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => setAppMode("basic")}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
+                    appMode === "basic"
+                      ? "border-primary bg-primary/5"
+                      : "border-muted hover:border-muted-foreground/50"
+                  }`}
+                  data-testid="button-mode-basic"
+                >
+                  <div className="font-medium">Basic Mode</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    <div className="font-semibold text-xs mb-2">Pros:</div>
+                    <div className="text-xs space-y-1">
+                      <div>• Clean, simple interface</div>
+                      <div>• Essential calculations only</div>
+                      <div>• Great for getting started</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <div className="font-semibold text-xs mb-1 text-destructive">Cons:</div>
+                    <div className="text-xs">Limited advanced controls</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setAppMode("advanced")}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
+                    appMode === "advanced"
+                      ? "border-primary bg-primary/5"
+                      : "border-muted hover:border-muted-foreground/50"
+                  }`}
+                  data-testid="button-mode-advanced"
+                >
+                  <div className="font-medium">Advanced Mode</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    <div className="font-semibold text-xs mb-2">Pros:</div>
+                    <div className="text-xs space-y-1">
+                      <div>• More controls and options</div>
+                      <div>• Professional-grade features</div>
+                      <div>• Flexible configurations</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <div className="font-semibold text-xs mb-1 text-destructive">Cons:</div>
+                    <div className="text-xs">More fields to configure</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setAppMode("engineering")}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
+                    appMode === "engineering"
+                      ? "border-primary bg-primary/5"
+                      : "border-muted hover:border-muted-foreground/50"
+                  }`}
+                  data-testid="button-mode-engineering"
+                >
+                  <div className="font-medium">Engineering Mode</div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    <div className="font-semibold text-xs mb-2">Pros:</div>
+                    <div className="text-xs space-y-1">
+                      <div>• All features unlocked</div>
+                      <div>• Debug panels visible</div>
+                      <div>• Complete transparency</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-2">
+                    <div className="font-semibold text-xs mb-1 text-destructive">Cons:</div>
+                    <div className="text-xs">Complex interface, steep learning curve</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {page === 4 && (
             <div className="space-y-6 text-center py-4">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
                 <Check className="w-8 h-8 text-primary" />
@@ -430,7 +534,7 @@ export default function SetupWizardModal({
               <div className="space-y-2">
                 <h3 className="text-lg font-medium">You're all set!</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your project "{projectName}" has been configured. You can now add amplifiers, 
+                  Your project "{projectName}" has been configured in <span className="font-medium capitalize">{appMode}</span> mode. You can now add amplifiers, 
                   speakers, and connect your audio system.
                 </p>
               </div>
@@ -452,7 +556,7 @@ export default function SetupWizardModal({
 
         <DialogFooter className="flex justify-between gap-2">
           <div className="flex gap-2">
-            {page > 1 && page < 3 && (
+            {page > 1 && page < 4 && (
               <Button variant="outline" onClick={handleBack} data-testid="button-back">
                 Back
               </Button>
@@ -465,7 +569,7 @@ export default function SetupWizardModal({
           </div>
           <div className="flex gap-2">
             <div className="flex items-center gap-1 text-sm text-muted-foreground mr-4">
-              {[1, 2, 3].map((p) => (
+              {[1, 2, 3, 4].map((p) => (
                 <div
                   key={p}
                   className={`w-2 h-2 rounded-full ${
@@ -475,7 +579,7 @@ export default function SetupWizardModal({
               ))}
             </div>
             <Button onClick={handleNext} data-testid="button-next">
-              {page === 3 ? "Close" : "Next"}
+              {page === 4 ? "Close" : "Next"}
             </Button>
           </div>
         </DialogFooter>
