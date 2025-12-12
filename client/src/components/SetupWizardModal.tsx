@@ -26,7 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, MapPin, Music, Zap, Check, Search } from "lucide-react";
+import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { MusicGenre, GlobalSettings, Generator } from "@/lib/types";
 import { GENERATOR_PRESETS } from "@/lib/types";
 
@@ -381,7 +382,19 @@ export default function SetupWizardModal({
                               onClick={() => setSelectedGenerator(key)}
                               data-testid={`button-generator-${key}`}
                             >
-                              <div className="font-medium text-sm">{preset.name}</div>
+                              <div className="font-medium text-sm flex items-center gap-1.5">
+                                {preset.name}
+                                {preset.verified && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <BadgeCheck className="w-3 h-3 text-green-600 dark:text-green-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs">
+                                      <p className="text-xs">This generator's preset has been verified against the manufacturer's documentation</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                               <div className="text-xs opacity-70">
                                 {preset.continuousWatts?.toLocaleString()}W
                               </div>
@@ -421,13 +434,25 @@ export default function SetupWizardModal({
                               key={key}
                               className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
                                 selectedGenerator === key 
-                                  ? "bg-primary text-primary-foreground" 
+                                  ? "bg-primary text-primary-foreground"
                                   : "hover-elevate"
                               }`}
                               onClick={() => setSelectedGenerator(key)}
                               data-testid={`button-generator-${key}`}
                             >
-                              <div className="font-medium text-sm">{preset.name}</div>
+                              <div className="font-medium text-sm flex items-center gap-1.5">
+                                {preset.name}
+                                {preset.verified && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <BadgeCheck className="w-3 h-3 text-green-600 dark:text-green-400 cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right" className="max-w-xs">
+                                      <p className="text-xs">This generator's preset has been verified against the manufacturer's documentation</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
                               <div className="text-xs opacity-70">
                                 {preset.continuousWatts?.toLocaleString()}W
                               </div>

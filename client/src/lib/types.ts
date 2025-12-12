@@ -130,7 +130,7 @@ export interface Generator {
   ratingType: 'watts' | 'kva';
   powerFactorDebug?: PowerFactorDebug;
   hideFeeder?: boolean;
-  readOnlyExceptDerate?: boolean;
+  readOnly?: boolean;
   verified?: boolean;
 }
 

@@ -280,7 +280,7 @@ export default function GeneratorCard({
           )}
         </div>
 
-        {isCustom && !isBasic && !generator.readOnlyExceptDerate && (
+        {isCustom && !isBasic && !generator.readOnly && (
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-1">

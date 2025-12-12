@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown, BadgeCheck } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 interface SearchableModelSelectProps {
@@ -11,7 +12,21 @@ interface SearchableModelSelectProps {
   options: Record<string, any>;
   formatData?: (preset: any) => string;
   testId?: string;
+  presetType?: 'generator' | 'amplifier' | 'speaker';
 }
+
+const getVerifiedMessage = (type?: string) => {
+  switch (type) {
+    case 'generator':
+      return "This generator's preset has been verified against the manufacturer's documentation";
+    case 'amplifier':
+      return "This amplifier's preset has been verified against the manufacturer's documentation";
+    case 'speaker':
+      return "This speaker's preset has been verified against the manufacturer's documentation";
+    default:
+      return "This preset has been verified against the manufacturer's documentation";
+  }
+};
 
 export default function SearchableModelSelect({
   value,
@@ -19,6 +34,7 @@ export default function SearchableModelSelect({
   options,
   formatData,
   testId,
+  presetType,
 }: SearchableModelSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -79,7 +95,14 @@ export default function SearchableModelSelect({
                     <div className="flex items-baseline gap-1.5">
                       <span>{preset.name}</span>
                       {preset.verified && (
-                        <BadgeCheck className="w-3 h-3 text-green-600 dark:text-green-400" />
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <BadgeCheck className="w-3 h-3 text-green-600 dark:text-green-400 cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent side="right" className="max-w-xs">
+                            <p className="text-xs">{getVerifiedMessage(presetType)}</p>
+                          </TooltipContent>
+                        </Tooltip>
                       )}
                       {dataDisplay && (
                         <span className="text-muted-foreground text-xs">
