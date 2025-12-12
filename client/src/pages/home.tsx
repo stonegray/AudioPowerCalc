@@ -355,8 +355,17 @@ export default function Home() {
           const newGen = gens[gens.length - 1];
           if (newGen && config.generator) {
             updateGenerator(newGen.id, {
-              ...config.generator,
               name: config.generator.name || 'Generator',
+              model: config.generator.model || config.generator.name || 'Generator',
+              type: config.generator.type || 'standard',
+              continuousWatts: config.generator.continuousWatts || 5000,
+              peakWatts: config.generator.peakWatts || 6000,
+              voltage: config.generator.voltage || 120,
+              phaseCount: config.generator.phaseCount || 1,
+              phaseType: config.generator.phaseType || 'single',
+              ratingType: config.generator.ratingType || 'watts',
+              powerFactor: config.generator.powerFactor || 0.95,
+              distroChannels: config.generator.distroChannels || [],
             });
           }
         }
