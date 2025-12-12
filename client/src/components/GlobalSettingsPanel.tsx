@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Save, FolderOpen, AlertTriangle, Play, Info } from 'lucide-react';
-import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode } from '@/lib/types';
+import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode, CrestAlgorithm } from '@/lib/types';
 import { GENRE_CREST_PRESETS } from '@/lib/types';
 
 interface GlobalSettingsPanelProps {
@@ -103,6 +103,40 @@ export default function GlobalSettingsPanel({
                 <SelectItem value="acoustic">Acoustic</SelectItem>
                 <SelectItem value="white_noise">White Noise</SelectItem>
                 <SelectItem value="custom">Custom</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1 cursor-help">
+                  <Label className="text-xs text-muted-foreground">Crest Algo</Label>
+                  <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground transition-colors" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <p className="text-xs font-medium mb-1">Crest Factor Algorithm:</p>
+                <ul className="text-xs space-y-1">
+                  <li><strong>Average:</strong> Arithmetic mean across HPF/LPF window</li>
+                  <li><strong>Minimum:</strong> Lowest crest (conservative, highest energy)</li>
+                  <li><strong>Maximum:</strong> Highest crest (optimistic, lowest energy)</li>
+                  <li><strong>RMS-Weighted:</strong> Weights lower frequencies more heavily</li>
+                </ul>
+              </TooltipContent>
+            </Tooltip>
+            <Select
+              value={settings.crestAlgorithm || 'average'}
+              onValueChange={(v: CrestAlgorithm) => onUpdate({ crestAlgorithm: v })}
+            >
+              <SelectTrigger className="w-36 h-8" data-testid="select-crest-algorithm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="average">Average</SelectItem>
+                <SelectItem value="minimum">Minimum</SelectItem>
+                <SelectItem value="maximum">Maximum</SelectItem>
+                <SelectItem value="rms_weighted">RMS-Weighted</SelectItem>
               </SelectContent>
             </Select>
           </div>

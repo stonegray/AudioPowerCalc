@@ -22,6 +22,7 @@ const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   arraySummationFactor: 0.91,
   appMode: 'advanced',
   crestCurve: GENRE_CREST_PRESETS.rock,
+  crestAlgorithm: 'average',
 };
 
 const createDefaultDistroChannel = (id: string): DistroChannel => ({
@@ -83,7 +84,8 @@ export function useSystemStore() {
     const generators = Array.isArray(newState.generators) ? newState.generators : [];
     
     const crestCurve = newState.globalSettings?.crestCurve || [];
-    const recalculatedAmplifiers = recalculateAmplifiers(amplifiers, speakers, connections, crestCurve);
+    const crestAlgorithm = newState.globalSettings?.crestAlgorithm || 'average';
+    const recalculatedAmplifiers = recalculateAmplifiers(amplifiers, speakers, connections, crestCurve, crestAlgorithm);
     const recalculatedSpeakers = recalculateSpeakers(speakers, recalculatedAmplifiers, connections);
     const recalculatedGenerators = recalculateDistroChannels(generators, recalculatedAmplifiers, connections);
     

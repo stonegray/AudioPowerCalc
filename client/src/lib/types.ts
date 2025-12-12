@@ -5,6 +5,7 @@ export type Units = "metric" | "imperial";
 export type SPLDistance = "1m" | "10m" | "50m";
 export type CableInputMode = "awg" | "manual";
 export type AppMode = "basic" | "advanced" | "engineering";
+export type CrestAlgorithm = "average" | "minimum" | "maximum" | "rms_weighted";
 
 export interface CrestCurvePoint {
   frequency: number;
@@ -20,6 +21,7 @@ export interface GlobalSettings {
   arraySummationFactor: number;
   appMode: AppMode;
   crestCurve: CrestCurvePoint[];
+  crestAlgorithm: CrestAlgorithm;
 }
 
 export const GENRE_CREST_PRESETS: Record<MusicGenre, CrestCurvePoint[]> = {

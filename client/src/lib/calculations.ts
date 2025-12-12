@@ -206,28 +206,116 @@ function interpolateCrest(crestCurve: CrestCurvePoint[], frequency: number): num
   return 8;
 }
 
-// Calculate average crest factor between HPF and LPF frequencies
+// Sample crest factors between HPF and LPF with logarithmic spacing
+function sampleCrestFactors(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[],
+  numSamples: number = 20
+): number[] {
+  const samples: number[] = [];
+  const logHpf = Math.log10(Math.max(1, hpf));
+  const logLpf = Math.log10(Math.max(1, lpf));
+  
+  for (let i = 0; i <= numSamples; i++) {
+    const logFreq = logHpf + (i / numSamples) * (logLpf - logHpf);
+    const freq = Math.pow(10, logFreq);
+    samples.push(interpolateCrest(crestCurve, freq));
+  }
+  
+  return samples;
+}
+
+// Average crest factor - arithmetic mean across HPF/LPF window
+function calculateAverageCrestInternal(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[]
+): number {
+  const samples = sampleCrestFactors(hpf, lpf, crestCurve);
+  return samples.reduce((a, b) => a + b, 0) / samples.length;
+}
+
+// Minimum crest factor - most conservative, assumes worst-case energy draw
+function calculateMinimumCrest(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[]
+): number {
+  const samples = sampleCrestFactors(hpf, lpf, crestCurve);
+  return Math.min(...samples);
+}
+
+// Maximum crest factor - most optimistic, assumes best-case energy draw
+function calculateMaximumCrest(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[]
+): number {
+  const samples = sampleCrestFactors(hpf, lpf, crestCurve);
+  return Math.max(...samples);
+}
+
+// RMS-weighted crest factor - weights lower frequencies more heavily
+// (typical audio content has more energy at lower frequencies)
+function calculateRmsWeightedCrest(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[]
+): number {
+  const numSamples = 20;
+  const logHpf = Math.log10(Math.max(1, hpf));
+  const logLpf = Math.log10(Math.max(1, lpf));
+  
+  let weightedSum = 0;
+  let totalWeight = 0;
+  
+  for (let i = 0; i <= numSamples; i++) {
+    const logFreq = logHpf + (i / numSamples) * (logLpf - logHpf);
+    const freq = Math.pow(10, logFreq);
+    const crest = interpolateCrest(crestCurve, freq);
+    
+    // Weight inversely proportional to frequency (lower freqs have more energy)
+    const weight = 1 / Math.sqrt(freq);
+    weightedSum += crest * weight;
+    totalWeight += weight;
+  }
+  
+  return totalWeight > 0 ? weightedSum / totalWeight : 8;
+}
+
+export type CrestAlgorithmType = "average" | "minimum" | "maximum" | "rms_weighted";
+
+// Calculate crest factor between HPF and LPF frequencies using selected algorithm
+export function calculateCrestWithAlgorithm(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[],
+  algorithm: CrestAlgorithmType = "average"
+): number {
+  if (crestCurve.length === 0) return 8;
+  if (hpf >= lpf) return interpolateCrest(crestCurve, hpf);
+  
+  switch (algorithm) {
+    case "minimum":
+      return calculateMinimumCrest(hpf, lpf, crestCurve);
+    case "maximum":
+      return calculateMaximumCrest(hpf, lpf, crestCurve);
+    case "rms_weighted":
+      return calculateRmsWeightedCrest(hpf, lpf, crestCurve);
+    case "average":
+    default:
+      return calculateAverageCrestInternal(hpf, lpf, crestCurve);
+  }
+}
+
+// Legacy function for backward compatibility
 export function calculateAverageCrest(
   hpf: number,
   lpf: number,
   crestCurve: CrestCurvePoint[]
 ): number {
-  if (crestCurve.length === 0) return 8;
-  if (hpf >= lpf) return interpolateCrest(crestCurve, hpf);
-  
-  // Sample the curve at multiple points between HPF and LPF (logarithmic spacing)
-  const numSamples = 20;
-  const logHpf = Math.log10(Math.max(1, hpf));
-  const logLpf = Math.log10(Math.max(1, lpf));
-  
-  let sum = 0;
-  for (let i = 0; i <= numSamples; i++) {
-    const logFreq = logHpf + (i / numSamples) * (logLpf - logHpf);
-    const freq = Math.pow(10, logFreq);
-    sum += interpolateCrest(crestCurve, freq);
-  }
-  
-  return sum / (numSamples + 1);
+  return calculateCrestWithAlgorithm(hpf, lpf, crestCurve, "average");
 }
 
 export function calculateChannelAudioPower(
@@ -304,7 +392,8 @@ export function recalculateAmplifiers(
   amplifiers: Amplifier[],
   speakers: Speaker[],
   connections: Connection[],
-  crestCurve: CrestCurvePoint[] = []
+  crestCurve: CrestCurvePoint[] = [],
+  crestAlgorithm: CrestAlgorithmType = "average"
 ): Amplifier[] {
   return amplifiers.map(amp => {
     const updatedChannels = (amp.channels || []).map(channel => {
@@ -317,7 +406,7 @@ export function recalculateAmplifiers(
         );
       });
       
-      const averageCrest = calculateAverageCrest(channel.hpf, channel.lpf, crestCurve);
+      const averageCrest = calculateCrestWithAlgorithm(channel.hpf, channel.lpf, crestCurve, crestAlgorithm);
       const audioPower = calculateChannelAudioPower(channel, connectedSpeakers);
       const channelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency, averageCrest);
       const effectiveZ = calculateChannelEffectiveZ(connectedSpeakers);
