@@ -268,7 +268,7 @@ export default function SpeakerCard({
             </span>
           </div>
         )}
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           <Label className="text-xs text-muted-foreground">Model</Label>
           <SearchableModelSelect
             value={speaker.model}
