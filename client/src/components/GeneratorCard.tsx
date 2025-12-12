@@ -110,7 +110,7 @@ export default function GeneratorCard({
         voltage: preset.voltage || 120,
         powerFactor: preset.powerFactor || 0.95,
         ratingType: preset.ratingType || 'watts',
-        distroChannels: [],
+        distroChannels: preset.distroChannels || [],
       });
     } else {
       onUpdate({ model, distroChannels: [] });
