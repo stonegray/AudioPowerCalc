@@ -354,6 +354,12 @@ export default function Home() {
         if (gens.length > 0) {
           const newGen = gens[gens.length - 1];
           if (newGen && config.generator) {
+            // Regenerate distro channel IDs to be unique while keeping preset properties
+            const distroChannels = (config.generator.distroChannels || []).map((dc, i) => ({
+              ...dc,
+              id: `distro_${Date.now()}_${i}`,
+            }));
+            
             updateGenerator(newGen.id, {
               name: config.generator.name || 'Generator',
               model: config.generator.model || config.generator.name || 'Generator',
@@ -365,7 +371,7 @@ export default function Home() {
               phaseType: config.generator.phaseType || 'single',
               ratingType: config.generator.ratingType || 'watts',
               powerFactor: config.generator.powerFactor || 0.95,
-              distroChannels: config.generator.distroChannels || [],
+              distroChannels,
             });
           }
         }
