@@ -176,17 +176,22 @@ export default function ProjectSettingsModal({
   onImport,
 }: ProjectSettingsModalProps) {
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('project');
+  const [selectedGenre, setSelectedGenre] = useState<MusicGenre>(settings.musicGenre || 'rock');
   const [formula, setFormula] = useState(() => GENRE_PRESETS[settings.musicGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula);
   const [formulaError, setFormulaError] = useState<string | null>(null);
   const [timeFormula, setTimeFormula] = useState('');
 
-  const isCustom = settings.musicGenre === 'custom';
+  const isCustom = selectedGenre === 'custom';
 
   useEffect(() => {
-    const newFormula = GENRE_PRESETS[settings.musicGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
+    setSelectedGenre(settings.musicGenre || 'rock');
+  }, [settings.musicGenre]);
+
+  useEffect(() => {
+    const newFormula = GENRE_PRESETS[selectedGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
     setFormula(newFormula);
     setFormulaError(null);
-  }, [settings.musicGenre]);
+  }, [selectedGenre]);
 
   const formulaCurvePoints = useMemo(() => {
     const points: { x: number; y: number }[] = [];
@@ -218,6 +223,7 @@ export default function ProjectSettingsModal({
   const curveValidation = useMemo(() => validateFormula(formula), [formula]);
 
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
+    setSelectedGenre(newGenre);
     const newFormula = GENRE_PRESETS[newGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
     setFormula(newFormula);
     const newCurve = generateCrestCurveFromFormula(newFormula);
@@ -362,7 +368,7 @@ export default function ProjectSettingsModal({
 
       <div className="space-y-2">
         <Label htmlFor="genre-select">Genre</Label>
-        <Select value={settings.musicGenre || 'rock'} onValueChange={handleGenreChange}>
+        <Select value={selectedGenre} onValueChange={handleGenreChange}>
           <SelectTrigger id="genre-select" data-testid="select-genre">
             <SelectValue placeholder="Select genre" />
           </SelectTrigger>
