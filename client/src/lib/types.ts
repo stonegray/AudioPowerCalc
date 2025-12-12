@@ -129,6 +129,9 @@ export interface Generator {
   powerFactor: number;
   ratingType: 'watts' | 'kva';
   powerFactorDebug?: PowerFactorDebug;
+  hideFeeder?: boolean;
+  readOnlyExceptDerate?: boolean;
+  verified?: boolean;
 }
 
 export interface AmpChannel {

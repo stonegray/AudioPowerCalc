@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, BadgeCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SearchableModelSelectProps {
@@ -78,6 +78,9 @@ export default function SearchableModelSelect({
                   <div className={value === key ? 'ml-0' : 'ml-5'}>
                     <div className="flex items-baseline gap-1.5">
                       <span>{preset.name}</span>
+                      {preset.verified && (
+                        <BadgeCheck className="w-3 h-3 text-green-600 dark:text-green-400" />
+                      )}
                       {dataDisplay && (
                         <span className="text-muted-foreground text-xs">
                           {dataDisplay}

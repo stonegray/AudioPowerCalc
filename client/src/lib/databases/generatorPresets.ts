@@ -31,6 +31,7 @@ const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     powerFactor: 1.0,
     ratingType: "watts",
     distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
+    verified: true,
   },
   honda_3000is: {
     name: "Honda EU3000iS",
@@ -46,6 +47,7 @@ const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
       createDistroChannelPreset("distro_20a", 1, 20, "NEMA-5-20"),
       createDistroChannelPreset("distro_30a", 1, 30, "30A Twist Lock"),
     ],
+    verified: true,
   },
   honda_7000i: {
     name: "Honda EU7000i",
@@ -58,6 +60,7 @@ const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     powerFactor: 1.0,
     ratingType: "watts",
     distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
+    verified: true,
   },
   shore_power: {
     name: "Shore Power",
@@ -70,6 +73,9 @@ const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     powerFactor: 0.95,
     ratingType: "watts",
     distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
+    hideFeeder: true,
+    readOnlyExceptDerate: true,
+    verified: true,
   },
   trailer_50k_3ph: {
     name: "Trailer 50kW 3-Phase",

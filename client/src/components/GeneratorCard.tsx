@@ -280,7 +280,7 @@ export default function GeneratorCard({
           )}
         </div>
 
-        {isCustom && !isBasic && (
+        {isCustom && !isBasic && !generator.readOnlyExceptDerate && (
           <div className="space-y-2">
             <div className="flex flex-wrap gap-2">
               <div className="flex items-center gap-1">
@@ -343,7 +343,7 @@ export default function GeneratorCard({
           </div>
         )}
 
-        {!isBasic && (
+        {!isBasic && !generator.hideFeeder && (
           <div className="flex flex-wrap items-center gap-2">
             <Label className="text-xs text-muted-foreground">Feeder</Label>
             <Popover open={feederPresetsOpen} onOpenChange={setFeederPresetsOpen}>
