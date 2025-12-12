@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -120,6 +121,7 @@ export default function SetupWizardModal({
   const [locationSearch, setLocationSearch] = useState("");
   const [appMode, setAppMode] = useState<import('@/lib/types').AppMode>("basic");
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
+  const [showEngineeringMode, setShowEngineeringMode] = useState(false);
 
   const selectedLocation = LOCATIONS.find(l => l.id === location);
 
@@ -196,6 +198,7 @@ export default function SetupWizardModal({
     setLocationSearch("");
     setAppMode("basic");
     setSkipConfirmOpen(false);
+    setShowEngineeringMode(false);
     onOpenChange(false);
   };
 
@@ -524,29 +527,43 @@ export default function SetupWizardModal({
                   </div>
                 </button>
 
-                <button
-                  onClick={() => setAppMode("engineering")}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
-                    appMode === "engineering"
-                      ? "border-primary bg-primary/5"
-                      : "border-muted hover:border-muted-foreground/50"
-                  }`}
-                  data-testid="button-mode-engineering"
-                >
-                  <div className="font-medium">Engineering Mode</div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    <div className="font-semibold text-xs mb-2">Pros:</div>
-                    <div className="text-xs space-y-1">
-                      <div>• All features unlocked</div>
-                      <div>• Debug panels visible</div>
-                      <div>• Complete transparency</div>
+                {showEngineeringMode && (
+                  <button
+                    onClick={() => setAppMode("engineering")}
+                    className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
+                      appMode === "engineering"
+                        ? "border-primary bg-primary/5"
+                        : "border-muted hover:border-muted-foreground/50"
+                    }`}
+                    data-testid="button-mode-engineering"
+                  >
+                    <div className="font-medium">Engineering Mode</div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      <div className="font-semibold text-xs mb-2">Pros:</div>
+                      <div className="text-xs space-y-1">
+                        <div>• All features unlocked</div>
+                        <div>• Debug panels visible</div>
+                        <div>• Complete transparency</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-2">
-                    <div className="font-semibold text-xs mb-1 text-destructive">Cons:</div>
-                    <div className="text-xs">Complex interface, steep learning curve</div>
-                  </div>
-                </button>
+                    <div className="text-sm text-muted-foreground mt-2">
+                      <div className="font-semibold text-xs mb-1 text-destructive">Cons:</div>
+                      <div className="text-xs">Complex interface, steep learning curve</div>
+                    </div>
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t">
+                <Checkbox
+                  id="show-engineering"
+                  checked={showEngineeringMode}
+                  onCheckedChange={(checked) => setShowEngineeringMode(checked as boolean)}
+                  data-testid="checkbox-show-engineering"
+                />
+                <Label htmlFor="show-engineering" className="text-xs cursor-pointer">
+                  Show even more advanced modes
+                </Label>
               </div>
             </div>
           )}
