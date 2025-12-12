@@ -260,7 +260,7 @@ export default function SetupWizardModal({
               <div className="space-y-2">
                 <Label>Where are you?</Label>
                 <p className="text-sm text-muted-foreground">
-                  Location affects temperature and altitude derating calculations for your generators.
+                  Location affects temperature and altitude derating calculations for your generators, thermal alarms for your amplifiers, and contributes to thermal compression calculations on speaker models which support it.
                 </p>
                 <div className="space-y-2">
                   <div className="relative">
@@ -315,7 +315,7 @@ export default function SetupWizardModal({
                 </Label>
                 <p className="text-sm text-muted-foreground">
                   Different music genres have different electrical consumption patterns. 
-                  Select the genre closest to what you plan to primarily use the system for.
+                  Select the genre closest to what you plan to primarily use the system for; you can change this later.
                 </p>
                 <Select value={musicGenre} onValueChange={(v) => setMusicGenre(v as MusicGenre)}>
                   <SelectTrigger data-testid="select-genre">
@@ -344,7 +344,7 @@ export default function SetupWizardModal({
                   Select a generator or shore power preset to add to your project. You can add more generators later.
                 </p>
                 <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                  Don't see your generator? No problem — proceed and add it manually in the editor.
+                  Don't see your generator? No problem — proceed and add it manually in the editor, or select shore power (wall power) for now.
                 </p>
               </div>
 
