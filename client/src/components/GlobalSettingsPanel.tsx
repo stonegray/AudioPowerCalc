@@ -16,10 +16,11 @@ interface GlobalSettingsPanelProps {
   onUpdate: (settings: Partial<GlobalSettings>) => void;
   onSave: () => void;
   onLoad: () => void;
-  onNewProject: () => void;
+  onNewProject: (skipPrompt?: boolean) => void;
   onFindProblems: () => void;
   onStartSimulation?: () => void;
   savedConfigs: string[];
+  hasUnsavedWork?: boolean;
 }
 
 export default function GlobalSettingsPanel({
@@ -30,8 +31,18 @@ export default function GlobalSettingsPanel({
   onNewProject,
   onFindProblems,
   onStartSimulation,
+  hasUnsavedWork = false,
 }: GlobalSettingsPanelProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
+  
+  const handleNewProject = () => {
+    if (hasUnsavedWork) {
+      setNewProjectDialogOpen(true);
+    } else {
+      onNewProject(true);
+    }
+  };
   const tempUnit = settings.units === 'metric' ? '°C' : '°F';
   const altUnit = settings.units === 'metric' ? 'm' : 'ft';
   const isBasic = settings.appMode === 'basic';
@@ -284,10 +295,36 @@ export default function GlobalSettingsPanel({
                 </div>
               </DialogContent>
             </Dialog>
-            <Button variant="outline" size="sm" onClick={onNewProject} data-testid="button-new-project">
-              <FilePlus className="w-3 h-3 mr-1" />
-              New
-            </Button>
+            <Dialog open={newProjectDialogOpen} onOpenChange={setNewProjectDialogOpen}>
+              <Button variant="outline" size="sm" onClick={handleNewProject} data-testid="button-new-project">
+                <FilePlus className="w-3 h-3 mr-1" />
+                New
+              </Button>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Start New Project?</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">You have unsaved changes. Would you like to save your current project before starting a new one?</p>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" onClick={() => setNewProjectDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="outline" onClick={() => {
+                    setNewProjectDialogOpen(false);
+                    onNewProject(true);
+                  }}>
+                    Discard
+                  </Button>
+                  <Button onClick={() => {
+                    setNewProjectDialogOpen(false);
+                    onSave();
+                    setTimeout(() => onNewProject(true), 500);
+                  }}>
+                    Save & New
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" size="sm" onClick={onSave} data-testid="button-save">
               <Save className="w-3 h-3 mr-1" />
               Save

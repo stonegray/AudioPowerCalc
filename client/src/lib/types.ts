@@ -34,25 +34,25 @@ export interface GenrePreset {
 
 export const GENRE_PRESETS: Record<MusicGenre, GenrePreset> = {
   bass_dubstep: {
-    name: "Bass/Dubstep",
+    name: "Bass/Dubstep/Drum & Bass",
     crestCurveFormula: "7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)",
     timeWindowFormula: "",
-    description: "Heavy bass, high power draw peaks",
+    description: "Heavy bass, high power draw peaks. This preset is frequency-aware, so set your crossover points on the amplifiers for accurate consumption.",
   },
   rock: {
     name: "Rock",
     crestCurveFormula: "8",
     timeWindowFormula: "",
-    description: "Moderate dynamics, balanced consumption",
+    description: "Moderate dynamics, balanced consumption (Fixed CF=8dB)",
   },
   acoustic: {
     name: "Acoustic/Classical",
-    crestCurveFormula: "10 + 2.5 * log10(f / 10)",
+    crestCurveFormula: "10",
     timeWindowFormula: "",
-    description: "Wide dynamics, lower average power",
+    description: "Wide dynamics, lower average power (Fixed CF=10dB)",
   },
   white_noise: {
-    name: "White Noise/Electronic",
+    name: "White Noise/Test Tones",
     crestCurveFormula: "0",
     timeWindowFormula: "",
     description: "Sustained levels, consistent power",

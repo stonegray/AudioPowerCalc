@@ -66,7 +66,13 @@ export default function Home() {
     saveConfiguration,
     loadConfiguration,
     getSavedConfigurations,
+    clearState,
   } = useSystemStore();
+
+  const hasUnsavedWork = state.generators.length > 0 || 
+    state.amplifiers.length > 0 || 
+    state.speakers.length > 0 || 
+    state.poweredSpeakers.length > 0;
 
   useEffect(() => {
     const configs = getSavedConfigurations();
@@ -409,10 +415,16 @@ export default function Home() {
           onUpdate={updateGlobalSettings}
           onSave={() => setSaveDialogOpen(true)}
           onLoad={() => setLoadDialogOpen(true)}
-          onNewProject={() => setSetupWizardOpen(true)}
+          onNewProject={(skipPrompt) => {
+            if (skipPrompt) {
+              clearState();
+            }
+            setSetupWizardOpen(true);
+          }}
           onFindProblems={handleFindProblems}
           onStartSimulation={() => setProUpgradeModalOpen(true)}
           savedConfigs={getSavedConfigurations()}
+          hasUnsavedWork={hasUnsavedWork}
         />
 
         <div 
