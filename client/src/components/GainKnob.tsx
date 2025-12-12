@@ -28,20 +28,8 @@ export default function GainKnob({
   const startY = useRef(0);
   const startValue = useRef(safeValue);
 
-  // Exponential scale conversion: linear range (0-1) to exponential (0-1)
-  // Power of 2 makes it less sensitive near 0dB, more sensitive at high gains
-  const linearToExp = (normalized: number): number => {
-    return Math.pow(normalized, 2);
-  };
-
-  // Inverse conversion: exponential (0-1) back to linear (0-1)
-  const expToLinear = (expNormalized: number): number => {
-    return Math.sqrt(expNormalized);
-  };
-
   const normalizedValue = (safeValue - min) / (max - min);
-  const expNormalizedValue = linearToExp(normalizedValue);
-  const rotation = -135 + expNormalizedValue * 270;
+  const rotation = -135 + normalizedValue * 270;
 
   const sizeClasses = {
     sm: 'w-10 h-10',
@@ -57,18 +45,8 @@ export default function GainKnob({
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
       const deltaY = startY.current - moveEvent.clientY;
-      // Convert deltaY to rotation change (270 degree range over 300px)
-      const rotationDelta = (deltaY / 300) * 270;
-      // Convert rotation delta to exponential-normalized delta
-      const expNormalizedDelta = rotationDelta / 270;
-      // Get the exponential-normalized start value
-      const startNormalized = (startValue.current - min) / (max - min);
-      const expStartValue = linearToExp(startNormalized);
-      // Calculate new exponential-normalized value
-      const expNewValue = Math.max(0, Math.min(1, expStartValue + expNormalizedDelta));
-      // Convert back to linear, then to actual value
-      const newNormalized = expToLinear(expNewValue);
-      const newValue = min + newNormalized * (max - min);
+      const sensitivity = (max - min) / 300;
+      const newValue = Math.min(max, Math.max(min, startValue.current + deltaY * sensitivity));
       onChange(Math.round(newValue * 10) / 10);
     };
 
@@ -80,19 +58,14 @@ export default function GainKnob({
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  }, [safeValue, min, max, onChange, linearToExp, expToLinear]);
+  }, [safeValue, min, max, onChange]);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
-    // Wheel delta in exponential space: small increment/decrement
-    const wheelExpDelta = e.deltaY > 0 ? -0.05 : 0.05;
-    const currentNormalized = (safeValue - min) / (max - min);
-    const currentExpValue = linearToExp(currentNormalized);
-    const newExpValue = Math.max(0, Math.min(1, currentExpValue + wheelExpDelta));
-    const newNormalized = expToLinear(newExpValue);
-    const newValue = min + newNormalized * (max - min);
+    const delta = e.deltaY > 0 ? -0.5 : 0.5;
+    const newValue = Math.min(max, Math.max(min, safeValue + delta));
     onChange(Math.round(newValue * 10) / 10);
-  }, [safeValue, min, max, onChange, linearToExp, expToLinear]);
+  }, [safeValue, min, max, onChange]);
 
   const tickMarks = [];
   for (let i = 0; i <= 6; i++) {
