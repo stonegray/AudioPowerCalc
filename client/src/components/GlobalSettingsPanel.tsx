@@ -9,6 +9,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Save, FolderOpen, AlertTriangle, Play, Info, Settings, FilePlus } from 'lucide-react';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode, CrestAlgorithm } from '@/lib/types';
+import { GENRE_PRESETS } from '@/lib/types';
 
 interface GlobalSettingsPanelProps {
   settings: GlobalSettings;
@@ -99,11 +100,14 @@ export default function GlobalSettingsPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
-                <SelectItem value="rock">Rock</SelectItem>
-                <SelectItem value="acoustic">Acoustic</SelectItem>
-                <SelectItem value="white_noise">White Noise</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
+                {Object.entries(GENRE_PRESETS).map(([key, preset]) => (
+                  <SelectItem key={key} value={key}>
+                    <div className="flex flex-col">
+                      <span>{preset.name}</span>
+                      <span className="text-xs text-muted-foreground">{preset.description}</span>
+                    </div>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
