@@ -144,12 +144,12 @@ export default function SetupWizardModal({
     }
   }, [musicGenre, onGenrePreview]);
 
-  // Update preview when app mode changes
+  // Update preview when app mode changes (only on page 3)
   useEffect(() => {
-    if (onModePreview) {
+    if (page === 3 && onModePreview) {
       onModePreview(appMode);
     }
-  }, [appMode, onModePreview]);
+  }, [appMode, page, onModePreview]);
   
   const filteredLocations = LOCATIONS.filter(loc =>
     loc.name.toLowerCase().includes(locationSearch.toLowerCase()) ||
