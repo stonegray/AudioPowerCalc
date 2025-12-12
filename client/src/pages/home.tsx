@@ -390,6 +390,19 @@ export default function Home() {
     }
   }, [wizardGenId, addGenerator, updateGenerator, removeGenerator, state.generators]);
 
+  const handleWizardLocationPreview = useCallback((temperature: number, altitude: number) => {
+    updateGlobalSettings({
+      ambientTemperature: temperature,
+      altitude,
+    });
+  }, [updateGlobalSettings]);
+
+  const handleWizardGenrePreview = useCallback((genre: import('@/lib/types').MusicGenre) => {
+    updateGlobalSettings({
+      musicGenre: genre,
+    });
+  }, [updateGlobalSettings]);
+
   const handleWizardComplete = useCallback((config: {
     projectName: string;
     location: string;
@@ -398,13 +411,6 @@ export default function Home() {
     altitude: number;
     generator: Partial<import('@/lib/types').Generator> | null;
   }) => {
-    // Update global settings with wizard selections
-    updateGlobalSettings({
-      musicGenre: config.musicGenre,
-      ambientTemperature: config.temperature,
-      altitude: config.altitude,
-    });
-
     // Clear wizard generator ID since we're done with preview
     setWizardGenId(null);
 
@@ -412,7 +418,7 @@ export default function Home() {
       title: `Project "${config.projectName}" created`, 
       description: 'Your audio system configuration is ready' 
     });
-  }, [updateGlobalSettings, toast]);
+  }, [toast]);
 
   const generatorsWithCalculations = (state.generators || []).map(gen => {
     const { effectiveWatts, derates } = calculateGeneratorEffectiveWatts(gen, state.globalSettings);
@@ -695,6 +701,8 @@ export default function Home() {
         onOpenChange={setSetupWizardOpen}
         onComplete={handleWizardComplete}
         onGeneratorPreview={handleWizardGeneratorPreview}
+        onLocationPreview={handleWizardLocationPreview}
+        onGenrePreview={handleWizardGenrePreview}
       />
 
       <EquipmentPresetModal

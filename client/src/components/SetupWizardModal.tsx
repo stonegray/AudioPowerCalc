@@ -42,6 +42,8 @@ interface SetupWizardModalProps {
     generator: Partial<Generator> | null;
   }) => void;
   onGeneratorPreview?: (generator: Partial<Generator> | null) => void;
+  onLocationPreview?: (temperature: number, altitude: number) => void;
+  onGenrePreview?: (genre: MusicGenre) => void;
 }
 
 const LOCATIONS = [
@@ -96,6 +98,8 @@ export default function SetupWizardModal({
   onOpenChange,
   onComplete,
   onGeneratorPreview,
+  onLocationPreview,
+  onGenrePreview,
 }: SetupWizardModalProps) {
   const [page, setPage] = useState(1);
   const [projectName, setProjectName] = useState("New Project");
@@ -114,6 +118,20 @@ export default function SetupWizardModal({
       onGeneratorPreview(genPreset);
     }
   }, [selectedGenerator, page, onGeneratorPreview]);
+
+  // Update preview when location changes
+  useEffect(() => {
+    if (onLocationPreview && selectedLocation) {
+      onLocationPreview(selectedLocation.temperature, selectedLocation.altitude);
+    }
+  }, [location, onLocationPreview, selectedLocation]);
+
+  // Update preview when genre changes
+  useEffect(() => {
+    if (onGenrePreview) {
+      onGenrePreview(musicGenre);
+    }
+  }, [musicGenre, onGenrePreview]);
   
   const filteredPresets = Object.entries(GENERATOR_PRESETS)
     .filter(([key, preset]) => 
