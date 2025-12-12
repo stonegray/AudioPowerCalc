@@ -375,16 +375,16 @@ export default function ProjectSettingsModal({
 
       <div className="space-y-2">
         <Label htmlFor="genre-select">Genre</Label>
-        <Select value={settings.musicGenre} onValueChange={handleGenreChange}>
+        <Select value={settings.musicGenre || 'rock'} onValueChange={handleGenreChange}>
           <SelectTrigger id="genre-select" data-testid="select-genre">
             <SelectValue placeholder="Select genre" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="bass_dubstep">Bass/Dubstep</SelectItem>
-            <SelectItem value="rock">Rock</SelectItem>
-            <SelectItem value="acoustic">Acoustic</SelectItem>
-            <SelectItem value="white_noise">White Noise</SelectItem>
-            <SelectItem value="custom">Custom</SelectItem>
+            {Object.entries(GENRE_PRESETS).map(([key, preset]) => (
+              <SelectItem key={key} value={key}>
+                {preset.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

@@ -82,7 +82,7 @@ export default function GlobalSettingsPanel({
           <div className="flex items-center gap-1">
             <Label className="text-xs text-muted-foreground">Genre</Label>
             <Select
-              value={settings.musicGenre}
+              value={settings.musicGenre || 'rock'}
               onValueChange={(v: MusicGenre) => {
                 const formula = GENRE_PRESETS[v]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
                 const crestCurve = generateCrestCurveFromFormula(formula);
