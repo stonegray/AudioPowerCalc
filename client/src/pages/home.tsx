@@ -423,35 +423,12 @@ export default function Home() {
                     settings={state.globalSettings}
                   />
                 ))}
-                {poweredSpeakersWithCalcs.map(spk => (
-                  <PoweredSpeakerCard
-                    key={spk.id}
-                    speaker={spk}
-                    splDistance={state.globalSettings.splDistance}
-                    onUpdate={(updates) => updatePoweredSpeaker(spk.id, updates)}
-                    onRemove={() => removePoweredSpeaker(spk.id)}
-                    onNodeClick={handlePoweredSpeakerNodeClick}
-                    connectionColor={getConnectionColor(spk.id)}
-                    appMode={state.globalSettings.appMode}
-                    units={state.globalSettings.units}
-                    generators={state.generators}
-                    connections={state.connections}
-                  />
-                ))}
-                <div className="space-y-2">
-                  <AddEquipmentButton
-                    label="Add Amplifier"
-                    onClick={addAmplifier}
-                    variant="secondary"
-                    testId="button-add-amplifier"
-                  />
-                  <AddEquipmentButton
-                    label="Add Powered Speaker"
-                    onClick={addPoweredSpeaker}
-                    variant="secondary"
-                    testId="button-add-powered-speaker"
-                  />
-                </div>
+                <AddEquipmentButton
+                  label="Add Amplifier"
+                  onClick={addAmplifier}
+                  variant="secondary"
+                  testId="button-add-amplifier"
+                />
               </div>
             </ScrollArea>
           </div>
@@ -480,11 +457,34 @@ export default function Home() {
                     generators={state.generators}
                   />
                 ))}
-                <AddEquipmentButton
-                  label="Add Speaker"
-                  onClick={addSpeaker}
-                  testId="button-add-speaker"
-                />
+                {poweredSpeakersWithCalcs.map(spk => (
+                  <PoweredSpeakerCard
+                    key={spk.id}
+                    speaker={spk}
+                    splDistance={state.globalSettings.splDistance}
+                    onUpdate={(updates) => updatePoweredSpeaker(spk.id, updates)}
+                    onRemove={() => removePoweredSpeaker(spk.id)}
+                    onNodeClick={handlePoweredSpeakerNodeClick}
+                    connectionColor={getConnectionColor(spk.id)}
+                    appMode={state.globalSettings.appMode}
+                    units={state.globalSettings.units}
+                    generators={state.generators}
+                    connections={state.connections}
+                  />
+                ))}
+                <div className="space-y-2">
+                  <AddEquipmentButton
+                    label="Add Speaker"
+                    onClick={addSpeaker}
+                    testId="button-add-speaker"
+                  />
+                  <AddEquipmentButton
+                    label="Add Powered Speaker"
+                    onClick={addPoweredSpeaker}
+                    variant="secondary"
+                    testId="button-add-powered-speaker"
+                  />
+                </div>
               </div>
             </ScrollArea>
           </div>
