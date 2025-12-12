@@ -113,6 +113,8 @@ export interface Generator {
   distroChannels: DistroChannel[];
   utilizationPercent: number;
   peakUtilizationPercent: number;
+  powerFactor: number;
+  ratingType: 'watts' | 'kva';
 }
 
 export interface AmpChannel {
@@ -214,6 +216,8 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     phaseCount: 1,
     phaseType: "single",
     voltage: 120,
+    powerFactor: 1.0,
+    ratingType: "watts",
   },
   honda_7000i: {
     name: "Honda EU7000i",
@@ -223,6 +227,8 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     phaseCount: 1,
     phaseType: "single",
     voltage: 120,
+    powerFactor: 1.0,
+    ratingType: "watts",
   },
   shore_power: {
     name: "Shore Power",
@@ -232,6 +238,8 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     phaseCount: 1,
     phaseType: "single",
     voltage: 120,
+    powerFactor: 0.95,
+    ratingType: "watts",
   },
   trailer_50k_3ph: {
     name: "Trailer 50kW 3-Phase",
@@ -241,6 +249,8 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     phaseCount: 3,
     phaseType: "3_wye",
     voltage: 208,
+    powerFactor: 0.9,
+    ratingType: "watts",
   },
   custom: {
     name: "Custom Generator",
@@ -250,6 +260,8 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     phaseCount: 1,
     phaseType: "single",
     voltage: 120,
+    powerFactor: 0.95,
+    ratingType: "watts",
   },
 };
 

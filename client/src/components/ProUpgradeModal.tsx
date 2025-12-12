@@ -31,6 +31,11 @@ const proFeatures = [
     description: 'Generate and analyze frequency-based crest factor curves that accurately represent the frequency content of your uploaded music',
   },
   {
+    icon: Zap,
+    title: 'Advanced Power Analysis',
+    description: 'Full 3-Phase Delta/Wye support, with leg balancing and support for single, split, and three phase amplifiers',
+  },
+  {
     icon: Cpu,
     title: 'Hardware Integration',
     description: 'Connect with your digital signal processors, and external energy monitoring hardware',

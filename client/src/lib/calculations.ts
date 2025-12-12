@@ -1,6 +1,16 @@
 import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel, CrestCurvePoint } from './types';
 import { AWG_RESISTANCE } from './types';
 
+// Power factor conversions
+export function kvaToWatts(kva: number, powerFactor: number): number {
+  return kva * Math.max(0.01, Math.min(1, powerFactor));
+}
+
+export function wattsToKva(watts: number, powerFactor: number): number {
+  const pf = Math.max(0.01, Math.min(1, powerFactor));
+  return pf > 0 ? watts / pf : 0;
+}
+
 export function calculateCableResistance(
   awg: number,
   lengthFeet: number,
@@ -102,7 +112,12 @@ export function calculateGeneratorEffectiveWatts(
   const altitudeDerate = calculateAltitudeDerate(settings.altitude);
   const userDerate = 1 - (generator.userDerate / 100);
   
-  const effectiveWatts = generator.continuousWatts * tempDerate * altitudeDerate * userDerate;
+  // Convert KVA to watts if needed
+  const continuousWatts = generator.ratingType === 'kva' 
+    ? kvaToWatts(generator.continuousWatts, generator.powerFactor)
+    : generator.continuousWatts;
+  
+  const effectiveWatts = continuousWatts * tempDerate * altitudeDerate * userDerate;
   
   return {
     effectiveWatts,

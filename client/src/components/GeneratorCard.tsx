@@ -13,7 +13,7 @@ import DistroChannelRow from './DistroChannelRow';
 import SearchableModelSelect from './SearchableModelSelect';
 import DebugPanel from './DebugPanel';
 import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode, GlobalSettings, CableConfig } from '@/lib/types';
-import { generateDerateDescriptions } from '@/lib/calculations';
+import { generateDerateDescriptions, wattsToKva, kvaToWatts } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 
 const FEEDER_PRESETS: { label: string; awg: number; length: number }[] = [
@@ -102,10 +102,21 @@ export default function GeneratorCard({
         phaseCount: preset.phaseCount || 1,
         phaseType: preset.phaseType || 'single',
         voltage: preset.voltage || 120,
+        powerFactor: preset.powerFactor || 0.95,
+        ratingType: preset.ratingType || 'watts',
       });
     } else {
       onUpdate({ model });
     }
+  };
+
+  const getRatingDisplay = () => {
+    if (generator.ratingType === 'kva') {
+      const watts = kvaToWatts(generator.continuousWatts, generator.powerFactor);
+      return `${generator.continuousWatts.toFixed(1)} KVA (${watts.toFixed(0)}W @ PF ${generator.powerFactor.toFixed(2)})`;
+    }
+    const kva = wattsToKva(generator.continuousWatts, generator.powerFactor);
+    return `${generator.continuousWatts.toFixed(0)}W (${kva.toFixed(1)} KVA @ PF ${generator.powerFactor.toFixed(2)})`;
   };
 
   return (
@@ -237,29 +248,65 @@ export default function GeneratorCard({
         </div>
 
         {isCustom && !isBasic && (
-          <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-1">
-              <Label className="text-xs text-muted-foreground">Cont</Label>
-              <Input
-                type="number"
-                value={generator.continuousWatts}
-                onChange={(e) => onUpdate({ continuousWatts: Number(e.target.value) })}
-                className="h-7 w-20 font-mono text-right text-xs"
-                data-testid={`input-continuous-watts-${generator.id}`}
-              />
-              <span className="text-xs text-muted-foreground">W</span>
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">Rating</Label>
+                <Select
+                  value={generator.ratingType}
+                  onValueChange={(v: 'watts' | 'kva') => onUpdate({ ratingType: v })}
+                >
+                  <SelectTrigger className="h-7 w-20 text-xs" data-testid={`select-rating-type-${generator.id}`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="watts">Watts</SelectItem>
+                    <SelectItem value="kva">KVA</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">PF</Label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  value={generator.powerFactor.toFixed(2)}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val)) onUpdate({ powerFactor: Math.max(0.01, Math.min(1, val)) });
+                  }}
+                  className="h-7 w-14 font-mono text-right text-xs"
+                  data-testid={`input-power-factor-${generator.id}`}
+                />
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Label className="text-xs text-muted-foreground">Peak</Label>
-              <Input
-                type="number"
-                value={generator.peakWatts}
-                onChange={(e) => onUpdate({ peakWatts: Number(e.target.value) })}
-                className="h-7 w-20 font-mono text-right text-xs"
-                data-testid={`input-peak-watts-${generator.id}`}
-              />
-              <span className="text-xs text-muted-foreground">W</span>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">Cont</Label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  value={generator.continuousWatts}
+                  onChange={(e) => onUpdate({ continuousWatts: Number(e.target.value) || 0 })}
+                  className="h-7 w-20 font-mono text-right text-xs"
+                  data-testid={`input-continuous-watts-${generator.id}`}
+                />
+                <span className="text-xs text-muted-foreground">{generator.ratingType === 'kva' ? 'KVA' : 'W'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Label className="text-xs text-muted-foreground">Peak</Label>
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  value={generator.peakWatts}
+                  onChange={(e) => onUpdate({ peakWatts: Number(e.target.value) || 0 })}
+                  className="h-7 w-20 font-mono text-right text-xs"
+                  data-testid={`input-peak-watts-${generator.id}`}
+                />
+                <span className="text-xs text-muted-foreground">{generator.ratingType === 'kva' ? 'KVA' : 'W'}</span>
+              </div>
             </div>
+            <div className="text-xs text-muted-foreground font-mono px-1">{getRatingDisplay()}</div>
           </div>
         )}
 
@@ -383,14 +430,16 @@ export default function GeneratorCard({
                 title: 'User Inputs',
                 entries: [
                   { label: 'Model', value: generator.model },
-                  { label: 'Generator Type', value: generator.generatorType },
-                  { label: 'Continuous Watts', value: generator.continuousWatts, unit: 'W' },
-                  { label: 'Peak Watts', value: generator.peakWatts, unit: 'W' },
+                  { label: 'Generator Type', value: generator.type },
+                  { label: 'Continuous Watts', value: generator.continuousWatts, unit: generator.ratingType === 'kva' ? 'KVA' : 'W' },
+                  { label: 'Peak Watts', value: generator.peakWatts, unit: generator.ratingType === 'kva' ? 'KVA' : 'W' },
+                  { label: 'Power Factor', value: generator.powerFactor.toFixed(2), isCalculated: true },
+                  { label: 'Rating Type', value: generator.ratingType },
                   { label: 'Voltage', value: generator.voltage, unit: 'V' },
                   { label: 'Phase Type', value: generator.phaseType },
                   { label: 'Phase Count', value: generator.phaseCount },
                   { label: 'Feeder AWG', value: generator.feederCable?.awg },
-                  { label: 'Feeder Length', value: generator.feederCable?.lengthFeet, unit: 'ft' },
+                  { label: 'Feeder Length', value: generator.feederCable?.length, unit: 'ft' },
                 ]
               },
               {
