@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck, Sparkles, Cpu, TrendingUp, AlertTriangle } from "lucide-react";
+import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck, Sparkles, Cpu, TrendingUp, AlertTriangle, Library } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { MusicGenre, GlobalSettings, Generator } from "@/lib/types";
 import { GENERATOR_PRESETS } from "@/lib/types";
@@ -677,6 +677,13 @@ export default function SetupWizardModal({
                       <div className="text-xs">
                         <div className="font-medium">Hardware Integration</div>
                         <div className="text-muted-foreground">DSP & monitoring devices</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Library className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">User Library</div>
+                        <div className="text-muted-foreground">Save custom equipment</div>
                       </div>
                     </div>
                   </div>
