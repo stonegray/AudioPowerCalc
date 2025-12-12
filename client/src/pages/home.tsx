@@ -434,6 +434,14 @@ export default function Home() {
             <h2 className="text-lg font-medium text-muted-foreground">Power Sources</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
               <div className="space-y-4 pr-6 overflow-visible">
+                {generatorsWithCalculations.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+                    <div className="text-muted-foreground text-sm">
+                      <p className="mb-2">To get started, add your first generator</p>
+                      <div className="text-2xl">↓</div>
+                    </div>
+                  </div>
+                )}
                 {generatorsWithCalculations.map(gen => (
                   <GeneratorCard
                     key={gen.id}
@@ -465,6 +473,14 @@ export default function Home() {
             <h2 className="text-lg font-medium text-muted-foreground">Amplification</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
               <div className="space-y-4 pr-6 pl-8 overflow-visible">
+                {state.amplifiers.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+                    <div className="text-muted-foreground text-sm">
+                      <p className="mb-2">To get started, add your first amplifier</p>
+                      <div className="text-2xl">↓</div>
+                    </div>
+                  </div>
+                )}
                 {state.amplifiers.map(amp => (
                   <AmplifierCard
                     key={amp.id}
@@ -500,6 +516,14 @@ export default function Home() {
             <h2 className="text-lg font-medium text-muted-foreground">Speakers</h2>
             <ScrollArea className="h-[calc(100vh-320px)] overflow-visible">
               <div className="space-y-4 pr-4 pl-2 overflow-visible">
+                {speakersWithSPL.length === 0 && poweredSpeakersWithCalcs.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center space-y-3">
+                    <div className="text-muted-foreground text-sm">
+                      <p className="mb-2">To get started, add your first speaker</p>
+                      <div className="text-2xl">↓</div>
+                    </div>
+                  </div>
+                )}
                 {speakersWithSPL.map(spk => (
                   <SpeakerCard
                     key={spk.id}
