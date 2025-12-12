@@ -62,6 +62,13 @@ const LOCATIONS = [
     description: "Semi-desert with high temperatures"
   },
   { 
+    id: "denver", 
+    name: "Denver, CO", 
+    temperature: 17, 
+    altitude: 1609,
+    description: "High altitude urban environment"
+  },
+  { 
     id: "indoor", 
     name: "Indoor, Sea Level", 
     temperature: 22, 
@@ -107,6 +114,7 @@ export default function SetupWizardModal({
   const [musicGenre, setMusicGenre] = useState<MusicGenre>("bass_dubstep");
   const [selectedGenerator, setSelectedGenerator] = useState<string | null>(null);
   const [generatorSearch, setGeneratorSearch] = useState("");
+  const [locationSearch, setLocationSearch] = useState("");
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
 
   const selectedLocation = LOCATIONS.find(l => l.id === location);
@@ -133,6 +141,11 @@ export default function SetupWizardModal({
     }
   }, [musicGenre, onGenrePreview]);
   
+  const filteredLocations = LOCATIONS.filter(loc =>
+    loc.name.toLowerCase().includes(locationSearch.toLowerCase()) ||
+    loc.description.toLowerCase().includes(locationSearch.toLowerCase())
+  );
+
   const filteredPresets = Object.entries(GENERATOR_PRESETS)
     .filter(([key, preset]) => 
       key !== "custom" && 
@@ -230,23 +243,50 @@ export default function SetupWizardModal({
                 <p className="text-sm text-muted-foreground">
                   Location affects temperature and altitude derating calculations for your generators.
                 </p>
-                <Select value={location} onValueChange={setLocation}>
-                  <SelectTrigger data-testid="select-location">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {LOCATIONS.map((loc) => (
-                      <SelectItem key={loc.id} value={loc.id}>
-                        <div className="flex flex-col">
-                          <span>{loc.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            {loc.temperature}°C, {loc.altitude}m altitude
-                          </span>
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-3 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search locations..."
+                      value={locationSearch}
+                      onChange={(e) => setLocationSearch(e.target.value)}
+                      className="pl-8"
+                      data-testid="input-location-search"
+                    />
+                  </div>
+                  <ScrollArea className="h-40 border rounded-md p-2">
+                    <div className="space-y-1">
+                      {filteredLocations.length > 0 ? (
+                        filteredLocations.map((loc) => (
+                          <button
+                            key={loc.id}
+                            onClick={() => {
+                              setLocation(loc.id);
+                              setLocationSearch("");
+                            }}
+                            className={`w-full text-left p-2 rounded-md transition-colors ${
+                              location === loc.id
+                                ? "bg-primary text-primary-foreground"
+                                : "hover:bg-muted"
+                            }`}
+                            data-testid={`button-location-${loc.id}`}
+                          >
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium">{loc.name}</span>
+                              <span className="text-xs opacity-75">
+                                {loc.temperature}°C, {loc.altitude}m altitude • {loc.description}
+                              </span>
+                            </div>
+                          </button>
+                        ))
+                      ) : (
+                        <div className="p-4 text-sm text-muted-foreground text-center">
+                          No locations found
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
 
               <div className="space-y-2">
