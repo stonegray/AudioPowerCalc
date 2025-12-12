@@ -18,6 +18,7 @@ interface GlobalSettingsPanelProps {
   onLoad: () => void;
   onNewProject: (skipPrompt?: boolean) => void;
   onFindProblems: () => void;
+  onOpenSettings: () => void;
   onStartSimulation?: () => void;
   savedConfigs: string[];
   hasUnsavedWork?: boolean;
@@ -30,10 +31,10 @@ export default function GlobalSettingsPanel({
   onLoad,
   onNewProject,
   onFindProblems,
+  onOpenSettings,
   onStartSimulation,
   hasUnsavedWork = false,
 }: GlobalSettingsPanelProps) {
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [newProjectDialogOpen, setNewProjectDialogOpen] = useState(false);
   
   const handleNewProject = () => {
@@ -224,51 +225,17 @@ export default function GlobalSettingsPanel({
             </div>
           )}
 
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={onOpenSettings}
+            data-testid="button-project-settings"
+          >
+            <Settings className="w-3 h-3 mr-1" />
+            Settings
+          </Button>
+
           <div className="flex items-center gap-2 ml-auto">
-            <Dialog open={advancedOpen} onOpenChange={setAdvancedOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" data-testid="button-advanced-settings">
-                  <Settings className="w-3 h-3 mr-1" />
-                  Advanced
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Advanced Settings</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="flex items-end gap-3">
-                    <div className="flex-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Label className="text-xs text-muted-foreground cursor-help">Crossover Emulation Sampler Precision</Label>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="max-w-xs">
-                          <p className="text-xs">Number of samples used by sampleCrestFactors function. Higher values increase accuracy but computational cost. Range: 2-50.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                      <Input
-                        type="text"
-                        inputMode="numeric"
-                        value={settings.numSamples}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value, 10);
-                          if (!isNaN(val)) {
-                            const clamped = Math.max(2, Math.min(50, val));
-                            onUpdate({ numSamples: clamped });
-                          }
-                        }}
-                        className="w-full h-8 font-mono text-right text-sm mt-1"
-                        data-testid="input-num-samples"
-                      />
-                    </div>
-                    <div className="text-xs text-muted-foreground font-mono">
-                      {settings.numSamples < 2 ? '(min 2)' : settings.numSamples > 50 ? '(max 50)' : `${settings.numSamples} samples`}
-                    </div>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
             <Dialog open={newProjectDialogOpen} onOpenChange={setNewProjectDialogOpen}>
               <Button 
                 variant={hasUnsavedWork ? "outline" : "default"} 

@@ -508,6 +508,7 @@ export default function Home() {
             setSetupWizardOpen(true);
           }}
           onFindProblems={handleFindProblems}
+          onOpenSettings={() => setProjectSettingsModalOpen(true)}
           onStartSimulation={() => setProUpgradeModalOpen(true)}
           savedConfigs={getSavedConfigurations()}
           hasUnsavedWork={hasUnsavedWork}
