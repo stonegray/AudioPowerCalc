@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/hooks/use-theme';
 import GlobalSettingsPanel from '@/components/GlobalSettingsPanel';
 import GeneratorCard from '@/components/GeneratorCard';
 import AmplifierCard from '@/components/AmplifierCard';
@@ -8,7 +9,7 @@ import PoweredSpeakerCard from '@/components/PoweredSpeakerCard';
 import AddEquipmentButton from '@/components/AddEquipmentButton';
 import ConnectionLines from '@/components/ConnectionLines';
 import SaveLoadDialog from '@/components/SaveLoadDialog';
-import AudioContentModal from '@/components/AudioContentModal';
+import ProjectSettingsModal from '@/components/ProjectSettingsModal';
 import ProUpgradeModal from '@/components/ProUpgradeModal';
 import SetupWizardModal from '@/components/SetupWizardModal';
 import EquipmentPresetModal from '@/components/EquipmentPresetModal';
@@ -16,7 +17,7 @@ import HelpModal from '@/components/HelpModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { HelpCircle } from 'lucide-react';
+import { HelpCircle, Settings } from 'lucide-react';
 import { useSystemStore } from '@/lib/store';
 import { 
   GENERATOR_PRESETS, 
@@ -41,9 +42,10 @@ export default function Home() {
     sourceType: 'distro' | 'ampChannel';
   } | null>(null);
   const [hoveredConnectionId, setHoveredConnectionId] = useState<string | null>(null);
-  const [audioContentModalOpen, setAudioContentModalOpen] = useState(false);
+  const [projectSettingsModalOpen, setProjectSettingsModalOpen] = useState(false);
   const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
+  const { theme, setTheme, toggleTheme } = useTheme();
   const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
@@ -486,10 +488,11 @@ export default function Home() {
             >
               <HelpCircle className="w-5 h-5" />
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setAudioContentModalOpen(true)} data-testid="button-audio-content">
-              Audio Content
+            <Button variant="outline" size="sm" onClick={() => setProjectSettingsModalOpen(true)} data-testid="button-project-settings">
+              <Settings className="w-4 h-4 mr-2" />
+              Project Settings
             </Button>
-            <ThemeToggle />
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
       </header>
@@ -715,13 +718,13 @@ export default function Home() {
         onImport={handleImportJSON}
       />
 
-      <AudioContentModal
-        open={audioContentModalOpen}
-        onOpenChange={setAudioContentModalOpen}
-        genre={state.globalSettings.musicGenre}
-        onGenreChange={(genre) => updateGlobalSettings({ musicGenre: genre })}
-        crestCurve={state.globalSettings.crestCurve || []}
-        onCrestCurveChange={(curve) => updateGlobalSettings({ crestCurve: curve })}
+      <ProjectSettingsModal
+        open={projectSettingsModalOpen}
+        onOpenChange={setProjectSettingsModalOpen}
+        settings={state.globalSettings}
+        onUpdate={updateGlobalSettings}
+        theme={theme}
+        onThemeChange={setTheme}
       />
 
       <ProUpgradeModal
