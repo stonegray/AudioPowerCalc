@@ -10,7 +10,6 @@ import type {
   DistroChannel,
   AmpChannel 
 } from './types';
-import { GENRE_CREST_PRESETS } from './types';
 import { recalculateAmplifiers, recalculateSpeakers, recalculateDistroChannels } from './calculations';
 
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
@@ -21,7 +20,7 @@ const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   splDistance: '1m',
   arraySummationFactor: 0.91,
   appMode: 'advanced',
-  crestCurve: GENRE_CREST_PRESETS.rock,
+  crestCurve: [],
   crestAlgorithm: 'average',
   numSamples: 20,
 };

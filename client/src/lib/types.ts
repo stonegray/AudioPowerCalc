@@ -25,59 +25,44 @@ export interface GlobalSettings {
   numSamples: number;
 }
 
-export const GENRE_CREST_PRESETS: Record<MusicGenre, CrestCurvePoint[]> = {
-  bass_dubstep: [
-    { frequency: 10, crestFactor: 1.8 },
-    { frequency: 50, crestFactor: 2.5 },
-    { frequency: 100, crestFactor: 3.3 },
-    { frequency: 200, crestFactor: 4.5 },
-    { frequency: 500, crestFactor: 6.2 },
-    { frequency: 1000, crestFactor: 7.8 },
-    { frequency: 2000, crestFactor: 7.8 },
-    { frequency: 5000, crestFactor: 7.8 },
-    { frequency: 10000, crestFactor: 7.8 },
-    { frequency: 20000, crestFactor: 7.8 },
-  ],
-  rock: [
-    { frequency: 10, crestFactor: 8 },
-    { frequency: 100, crestFactor: 8 },
-    { frequency: 500, crestFactor: 8 },
-    { frequency: 1000, crestFactor: 8 },
-    { frequency: 2000, crestFactor: 8 },
-    { frequency: 5000, crestFactor: 8 },
-    { frequency: 10000, crestFactor: 8 },
-    { frequency: 20000, crestFactor: 8 },
-  ],
-  acoustic: [
-    { frequency: 10, crestFactor: 10 },
-    { frequency: 100, crestFactor: 12 },
-    { frequency: 500, crestFactor: 14 },
-    { frequency: 2000, crestFactor: 16 },
-    { frequency: 8000, crestFactor: 18 },
-    { frequency: 20000, crestFactor: 18 },
-  ],
-  white_noise: [
-    { frequency: 10, crestFactor: 0 },
-    { frequency: 100, crestFactor: 0 },
-    { frequency: 500, crestFactor: 0 },
-    { frequency: 1000, crestFactor: 0 },
-    { frequency: 2000, crestFactor: 0 },
-    { frequency: 5000, crestFactor: 0 },
-    { frequency: 10000, crestFactor: 0 },
-    { frequency: 20000, crestFactor: 0 },
-  ],
-  custom: [
-    { frequency: 10, crestFactor: 1.8 },
-    { frequency: 50, crestFactor: 2.5 },
-    { frequency: 100, crestFactor: 3.3 },
-    { frequency: 200, crestFactor: 4.5 },
-    { frequency: 500, crestFactor: 6.2 },
-    { frequency: 1000, crestFactor: 7.8 },
-    { frequency: 2000, crestFactor: 7.8 },
-    { frequency: 5000, crestFactor: 7.8 },
-    { frequency: 10000, crestFactor: 7.8 },
-    { frequency: 20000, crestFactor: 7.8 },
-  ],
+export interface GenrePreset {
+  name: string;
+  crestCurveFormula: string;
+  timeWindowFormula: string;
+  description: string;
+}
+
+export const GENRE_PRESETS: Record<MusicGenre, GenrePreset> = {
+  bass_dubstep: {
+    name: "Bass/Dubstep",
+    crestCurveFormula: "7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)",
+    timeWindowFormula: "",
+    description: "Heavy bass, high power draw peaks",
+  },
+  rock: {
+    name: "Rock",
+    crestCurveFormula: "8",
+    timeWindowFormula: "",
+    description: "Moderate dynamics, balanced consumption",
+  },
+  acoustic: {
+    name: "Acoustic/Classical",
+    crestCurveFormula: "10 + 2.5 * log10(f / 10)",
+    timeWindowFormula: "",
+    description: "Wide dynamics, lower average power",
+  },
+  white_noise: {
+    name: "White Noise/Electronic",
+    crestCurveFormula: "0",
+    timeWindowFormula: "",
+    description: "Sustained levels, consistent power",
+  },
+  custom: {
+    name: "Custom",
+    crestCurveFormula: "7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)",
+    timeWindowFormula: "",
+    description: "Custom configuration",
+  },
 };
 
 export interface CableConfig {

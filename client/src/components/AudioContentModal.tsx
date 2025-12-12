@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MusicGenre, CrestCurvePoint } from '@/lib/types';
-import { GENRE_CREST_PRESETS } from '@/lib/types';
 
 interface AudioContentModalProps {
   open: boolean;
@@ -234,8 +233,7 @@ export default function AudioContentModal({
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
     onGenreChange(newGenre);
     setFormula(PRESET_FORMULAS[newGenre]);
-    onCrestCurveChange(GENRE_CREST_PRESETS[newGenre]);
-  }, [onGenreChange, onCrestCurveChange]);
+  }, [onGenreChange]);
 
   const handleFormulaChange = useCallback((newFormula: string) => {
     setFormula(newFormula);
