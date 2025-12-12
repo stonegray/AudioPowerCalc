@@ -89,7 +89,7 @@ export default function PoweredSpeakerCard({
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            {!isPowered && (
+            {!hasConnection && (
               <Badge variant="destructive" className="bg-orange-500 hover:bg-orange-600 text-xs">
                 Disconnected
               </Badge>
