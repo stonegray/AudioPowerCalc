@@ -541,8 +541,8 @@ export function recalculateDistroChannels(
       };
     });
     
-    const totalLoadWatts = updatedChannels.reduce((sum, ch) => sum + ch.loadWatts, 0);
-    const totalPeakLoadWatts = updatedChannels.reduce((sum, ch) => sum + ch.peakLoadWatts, 0);
+    const totalLoadWatts = updatedChannels.reduce((sum, ch) => sum + (ch.enabled ? ch.loadWatts : 0), 0);
+    const totalPeakLoadWatts = updatedChannels.reduce((sum, ch) => sum + (ch.enabled ? ch.peakLoadWatts : 0), 0);
     
     const utilizationPercent = gen.continuousWatts > 0
       ? (totalLoadWatts / gen.continuousWatts) * 100

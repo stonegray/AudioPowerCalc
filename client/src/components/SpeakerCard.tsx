@@ -356,9 +356,8 @@ export default function SpeakerCard({
                 ]
               },
               {
-                title: 'Incoming Audio Power',
+                title: 'Calculated Capacity',
                 entries: [
-                  { label: 'Incoming Audio Power', value: speaker.incomingAudioPower, unit: 'W', isCalculated: true },
                   { label: 'Pmax x Quantity', value: speaker.pmax * speaker.quantity, unit: 'W', isCalculated: true },
                 ]
               },
