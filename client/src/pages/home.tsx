@@ -12,9 +12,11 @@ import AudioContentModal from '@/components/AudioContentModal';
 import ProUpgradeModal from '@/components/ProUpgradeModal';
 import SetupWizardModal from '@/components/SetupWizardModal';
 import EquipmentPresetModal from '@/components/EquipmentPresetModal';
+import HelpModal from '@/components/HelpModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
+import { HelpCircle } from 'lucide-react';
 import { useSystemStore } from '@/lib/store';
 import { 
   GENERATOR_PRESETS, 
@@ -41,6 +43,7 @@ export default function Home() {
   const [hoveredConnectionId, setHoveredConnectionId] = useState<string | null>(null);
   const [audioContentModalOpen, setAudioContentModalOpen] = useState(false);
   const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
@@ -463,6 +466,15 @@ export default function Home() {
         <div className="w-full px-4 py-2 flex items-center justify-between gap-4">
           <h1 className="text-lg font-semibold">Audio System Power Calculator</h1>
           <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setHelpModalOpen(true)} 
+              data-testid="button-help"
+              title="Learn how to connect equipment"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setAudioContentModalOpen(true)} data-testid="button-audio-content">
               Audio Content
             </Button>
@@ -714,6 +726,11 @@ export default function Home() {
         onLocationPreview={handleWizardLocationPreview}
         onGenrePreview={handleWizardGenrePreview}
         onModePreview={handleWizardModePreview}
+      />
+
+      <HelpModal
+        open={helpModalOpen}
+        onOpenChange={setHelpModalOpen}
       />
 
       <EquipmentPresetModal
