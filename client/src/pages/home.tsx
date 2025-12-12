@@ -14,7 +14,6 @@ import ProUpgradeModal from '@/components/ProUpgradeModal';
 import SetupWizardModal from '@/components/SetupWizardModal';
 import EquipmentPresetModal from '@/components/EquipmentPresetModal';
 import HelpModal from '@/components/HelpModal';
-import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { HelpCircle, Settings } from 'lucide-react';
@@ -45,7 +44,7 @@ export default function Home() {
   const [projectSettingsModalOpen, setProjectSettingsModalOpen] = useState(false);
   const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
-  const { theme, setTheme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
@@ -492,7 +491,6 @@ export default function Home() {
               <Settings className="w-4 h-4 mr-2" />
               Project Settings
             </Button>
-            <ThemeToggle theme={theme} onToggle={toggleTheme} />
           </div>
         </div>
       </header>
