@@ -102,9 +102,9 @@ export default function GlobalSettingsPanel({
               <SelectContent>
                 {Object.entries(GENRE_PRESETS).map(([key, preset]) => (
                   <SelectItem key={key} value={key}>
-                    <div className="flex flex-col">
-                      <span>{preset.name}</span>
-                      <span className="text-xs text-muted-foreground">{preset.description}</span>
+                    <div>
+                      <div>{preset.name}</div>
+                      <div className="text-xs text-muted-foreground">{preset.description}</div>
                     </div>
                   </SelectItem>
                 ))}
