@@ -12,6 +12,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { cn } from '@/lib/utils';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, CrestCurvePoint, CrestAlgorithm } from '@/lib/types';
 import { GENRE_PRESETS } from '@/lib/types';
+import { generateCrestCurveFromFormula } from '@/lib/calculations';
 
 interface ProjectSettingsModalProps {
   open: boolean;
@@ -155,20 +156,6 @@ const validateFormula = (formula: string): CurveValidation => {
   return result;
 };
 
-const generateCurveFromFormula = (formula: string): CrestCurvePoint[] => {
-  const points: CrestCurvePoint[] = [];
-  const frequencies = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
-  
-  for (const freq of frequencies) {
-    const crest = safeEval(formula, freq);
-    if (crest !== null) {
-      points.push({ frequency: freq, crestFactor: Math.round(crest * 10) / 10 });
-    }
-  }
-  
-  return points;
-};
-
 const CATEGORY_ITEMS: { id: SettingsCategory; label: string; icon: typeof Settings2 }[] = [
   { id: 'project', label: 'Project', icon: FileText },
   { id: 'units', label: 'Units & Environment', icon: Ruler },
@@ -233,7 +220,7 @@ export default function ProjectSettingsModal({
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
     const newFormula = GENRE_PRESETS[newGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
     setFormula(newFormula);
-    const newCurve = generateCurveFromFormula(newFormula);
+    const newCurve = generateCrestCurveFromFormula(newFormula);
     onUpdate({ musicGenre: newGenre, crestCurve: newCurve });
   }, [onUpdate]);
 
@@ -249,7 +236,7 @@ export default function ProjectSettingsModal({
     setFormulaError(null);
     
     if (isCustom) {
-      const newCurve = generateCurveFromFormula(newFormula);
+      const newCurve = generateCrestCurveFromFormula(newFormula);
       if (newCurve.length > 0) {
         onUpdate({ crestCurve: newCurve });
       }
@@ -260,7 +247,7 @@ export default function ProjectSettingsModal({
     if (!isCustom) {
       onUpdate({ musicGenre: 'custom' });
     }
-    const newCurve = generateCurveFromFormula(formula);
+    const newCurve = generateCrestCurveFromFormula(formula);
     if (newCurve.length > 0) {
       onUpdate({ crestCurve: newCurve });
     }
