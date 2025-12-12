@@ -1,5 +1,5 @@
 import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel, CrestCurvePoint, DistroLoadInfo, PowerFactorDebug } from './types';
-import { AWG_RESISTANCE } from './types';
+import { AWG_RESISTANCE, GENRE_PRESETS } from './types';
 
 // Power factor conversions
 export function kvaToWatts(kva: number, powerFactor: number): number {
@@ -160,15 +160,6 @@ export function getCrestFactor(genre: string): number {
   }
 }
 
-// Preset formulas for each music genre
-export const CREST_FORMULAS: Record<string, string> = {
-  bass_dubstep: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
-  rock: '8',
-  acoustic: '10 + 2.5 * log10(f / 10)',
-  white_noise: '0',
-  custom: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
-};
-
 // Safely evaluate a crest formula at a given frequency
 export function evaluateCrestFormula(formula: string, f: number): number | null {
   try {
@@ -214,7 +205,8 @@ export function generateCrestCurveFromFormula(formula: string): CrestCurvePoint[
 
 // Generate crest curve from genre
 export function generateCrestCurveFromGenre(genre: string): CrestCurvePoint[] {
-  const formula = CREST_FORMULAS[genre] || CREST_FORMULAS.rock;
+  const preset = GENRE_PRESETS[genre as keyof typeof GENRE_PRESETS];
+  const formula = preset?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
   return generateCrestCurveFromFormula(formula);
 }
 

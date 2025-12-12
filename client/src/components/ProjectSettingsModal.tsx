@@ -57,13 +57,6 @@ const formatFreq = (f: number): string => {
   return `${f}`;
 };
 
-const PRESET_FORMULAS: Record<MusicGenre, string> = {
-  bass_dubstep: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
-  rock: '8',
-  acoustic: '10 + 2.5 * log10(f / 10)',
-  white_noise: '0',
-  custom: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
-};
 
 const safeEvalRaw = (formula: string, f: number): number | null => {
   try {
@@ -196,14 +189,14 @@ export default function ProjectSettingsModal({
   onImport,
 }: ProjectSettingsModalProps) {
   const [activeCategory, setActiveCategory] = useState<SettingsCategory>('project');
-  const [formula, setFormula] = useState(() => PRESET_FORMULAS[settings.musicGenre] || PRESET_FORMULAS.rock);
+  const [formula, setFormula] = useState(() => GENRE_PRESETS[settings.musicGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula);
   const [formulaError, setFormulaError] = useState<string | null>(null);
   const [timeFormula, setTimeFormula] = useState('');
 
   const isCustom = settings.musicGenre === 'custom';
 
   useEffect(() => {
-    const newFormula = PRESET_FORMULAS[settings.musicGenre] || PRESET_FORMULAS.rock;
+    const newFormula = GENRE_PRESETS[settings.musicGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
     setFormula(newFormula);
     setFormulaError(null);
   }, [settings.musicGenre]);
@@ -211,7 +204,7 @@ export default function ProjectSettingsModal({
   // Generate crest curve on mount if it's empty
   useEffect(() => {
     if (!settings.crestCurve || settings.crestCurve.length === 0) {
-      const currentFormula = PRESET_FORMULAS[settings.musicGenre] || PRESET_FORMULAS.rock;
+      const currentFormula = GENRE_PRESETS[settings.musicGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
       const newCurve = generateCurveFromFormula(currentFormula);
       if (newCurve.length > 0) {
         onUpdate({ crestCurve: newCurve });
@@ -249,7 +242,7 @@ export default function ProjectSettingsModal({
   const curveValidation = useMemo(() => validateFormula(formula), [formula]);
 
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
-    const newFormula = PRESET_FORMULAS[newGenre];
+    const newFormula = GENRE_PRESETS[newGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
     setFormula(newFormula);
     const newCurve = generateCurveFromFormula(newFormula);
     onUpdate({ musicGenre: newGenre, crestCurve: newCurve });

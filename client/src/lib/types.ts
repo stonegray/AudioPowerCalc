@@ -49,9 +49,9 @@ export const GENRE_PRESETS: Record<MusicGenre, GenrePreset> = {
   },
   acoustic: {
     name: "Acoustic/Classical",
-    crestCurveFormula: "10",
+    crestCurveFormula: "10 + 2.5 * log10(f / 10)",
     timeWindowFormula: "",
-    description: "Wide dynamics, lower average power (Fixed CF=10dB)",
+    description: "Wide dynamics, lower average power with frequency-dependent curve",
   },
   white_noise: {
     name: "White Noise/Test Tones",
