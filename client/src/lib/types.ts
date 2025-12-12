@@ -207,12 +207,21 @@ export interface PoweredSpeaker {
   verified?: boolean;
 }
 
+export interface Load {
+  id: string;
+  name: string;
+  model: string;
+  watts: number;
+  powerFactor: number;
+  connectedDistroId?: string;
+}
+
 export interface Connection {
   id: string;
   sourceId: string;
   sourceType: "distro" | "ampChannel";
   targetId: string;
-  targetType: "amp" | "poweredSpeaker" | "speaker";
+  targetType: "amp" | "poweredSpeaker" | "speaker" | "load";
   color: string;
 }
 
@@ -222,6 +231,7 @@ export interface SystemState {
   amplifiers: Amplifier[];
   speakers: Speaker[];
   poweredSpeakers: PoweredSpeaker[];
+  loads: Load[];
   connections: Connection[];
 }
 
@@ -229,11 +239,13 @@ import { getGenerators } from '@/lib/databases/generatorPresets';
 import { getAmplifiers } from '@/lib/databases/amplifierPresets';
 import { getSpeakers } from '@/lib/databases/speakerPresets';
 import { getPoweredSpeakers } from '@/lib/databases/poweredSpeakerPresets';
+import { getLoads } from '@/lib/databases/loadPresets';
 
 export const GENERATOR_PRESETS = getGenerators();
 export const AMPLIFIER_PRESETS = getAmplifiers();
 export const SPEAKER_PRESETS = getSpeakers();
 export const POWERED_SPEAKER_PRESETS = getPoweredSpeakers();
+export const LOAD_PRESETS = getLoads();
 
 export const CONNECTION_COLORS = [
   "#3b82f6", // blue
