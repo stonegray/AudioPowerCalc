@@ -90,8 +90,8 @@ const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
       createDistroChannelPreset("distro_l12_30a", 12, 30, "NEMA L14-30", "split"),
       createDistroChannelPreset("distro_l23_30a", 23, 30, "NEMA L14-30", "split"),
       createDistroChannelPreset("distro_l31_30a", 31, 30, "NEMA L14-30", "split"),
-      // 3-phase wye output on CamLoks
-      createDistroChannelPreset("distro_3ph_wye_50a", 123, 50, "CamLok", "3_wye"),
+      // 3-phase wye output on CamLoks (150A @ 208V = ~50kW @ PF 0.9)
+      createDistroChannelPreset("distro_3ph_wye_150a", 123, 150, "CamLok", "3_wye"),
     ],
   },
   custom: {
