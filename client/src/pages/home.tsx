@@ -790,7 +790,10 @@ export default function Home() {
               setTimeout(() => {
                 const amps = state.amplifiers;
                 if (amps.length > 0) {
-                  updateAmplifier(amps[amps.length - 1].id, preset);
+                  updateAmplifier(amps[amps.length - 1].id, {
+                    ...preset,
+                    model: presetKey,
+                  });
                 }
               }, 0);
             }
@@ -801,7 +804,10 @@ export default function Home() {
               setTimeout(() => {
                 const spks = state.speakers;
                 if (spks.length > 0) {
-                  updateSpeaker(spks[spks.length - 1].id, preset);
+                  updateSpeaker(spks[spks.length - 1].id, {
+                    ...preset,
+                    model: presetKey,
+                  });
                 }
               }, 0);
             }
@@ -812,7 +818,10 @@ export default function Home() {
               setTimeout(() => {
                 const pwSpks = state.poweredSpeakers;
                 if (pwSpks.length > 0) {
-                  updatePoweredSpeaker(pwSpks[pwSpks.length - 1].id, preset);
+                  updatePoweredSpeaker(pwSpks[pwSpks.length - 1].id, {
+                    ...preset,
+                    model: presetKey,
+                  });
                 }
               }, 0);
             }
