@@ -8,13 +8,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search } from "lucide-react";
-import type { Generator, Amplifier, Speaker } from "@/lib/types";
+import type { Generator, Amplifier, Speaker, PoweredSpeaker } from "@/lib/types";
 
 interface EquipmentPresetModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  equipmentType: "generator" | "amplifier" | "speaker" | null;
-  presets: Record<string, Partial<Generator | Amplifier | Speaker>>;
+  equipmentType: "generator" | "amplifier" | "speaker" | "poweredSpeaker" | null;
+  presets: Record<string, Partial<Generator | Amplifier | Speaker | PoweredSpeaker>>;
   onSelect: (presetKey: string | null) => void;
 }
 
@@ -48,6 +48,7 @@ export default function EquipmentPresetModal({
             {equipmentType === "generator" && "Choose a Generator"}
             {equipmentType === "amplifier" && "Choose an Amplifier"}
             {equipmentType === "speaker" && "Choose a Speaker"}
+            {equipmentType === "poweredSpeaker" && "Choose a Powered Speaker"}
           </DialogTitle>
         </DialogHeader>
 

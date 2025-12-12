@@ -64,6 +64,7 @@ export function useSystemStore() {
           amplifiers: parsed.amplifiers || [],
           speakers: parsed.speakers || [],
           poweredSpeakers: parsed.poweredSpeakers || [],
+          loads: parsed.loads || [],
           connections: parsed.connections || [],
         };
       } catch {
@@ -76,6 +77,7 @@ export function useSystemStore() {
       amplifiers: [],
       speakers: [],
       poweredSpeakers: [],
+      loads: [],
       connections: [],
     };
   });
@@ -98,6 +100,7 @@ export function useSystemStore() {
       amplifiers: recalculatedAmplifiers,
       speakers: recalculatedSpeakers,
       poweredSpeakers: Array.isArray(newState.poweredSpeakers) ? newState.poweredSpeakers : [],
+      loads: Array.isArray(newState.loads) ? newState.loads : [],
       connections,
     };
     setState(safeState);
@@ -329,6 +332,7 @@ export function useSystemStore() {
         amplifiers: loaded.amplifiers || [],
         speakers: loaded.speakers || [],
         poweredSpeakers: loaded.poweredSpeakers || [],
+        loads: loaded.loads || [],
         connections: loaded.connections || [],
       };
       saveState(merged);
@@ -347,6 +351,7 @@ export function useSystemStore() {
       amplifiers: [],
       speakers: [],
       poweredSpeakers: [],
+      loads: [],
       connections: [],
     });
   }, [saveState]);

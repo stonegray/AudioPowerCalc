@@ -20,6 +20,7 @@ import {
   GENERATOR_PRESETS, 
   AMPLIFIER_PRESETS, 
   SPEAKER_PRESETS,
+  POWERED_SPEAKER_PRESETS,
   CONNECTION_COLORS,
   type Connection,
   type DistroChannel,
@@ -43,7 +44,7 @@ export default function Home() {
   const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
-  const [equipmentType, setEquipmentType] = useState<"generator" | "amplifier" | "speaker" | null>(null);
+  const [equipmentType, setEquipmentType] = useState<"generator" | "amplifier" | "speaker" | "poweredSpeaker" | null>(null);
   const [wizardGenId, setWizardGenId] = useState<string | null>(null);
 
   const {
@@ -653,7 +654,10 @@ export default function Home() {
                   />
                   <AddEquipmentButton
                     label="Add Powered Speaker"
-                    onClick={addPoweredSpeaker}
+                    onClick={() => {
+                      setEquipmentType("poweredSpeaker");
+                      setEquipmentModalOpen(true);
+                    }}
                     variant="secondary"
                     testId="button-add-powered-speaker"
                   />
@@ -721,6 +725,8 @@ export default function Home() {
             ? GENERATOR_PRESETS
             : equipmentType === "amplifier"
             ? AMPLIFIER_PRESETS
+            : equipmentType === "poweredSpeaker"
+            ? POWERED_SPEAKER_PRESETS
             : SPEAKER_PRESETS
         }
         onSelect={(presetKey) => {
@@ -763,6 +769,17 @@ export default function Home() {
                 const spks = state.speakers;
                 if (spks.length > 0) {
                   updateSpeaker(spks[spks.length - 1].id, preset);
+                }
+              }, 0);
+            }
+          } else if (equipmentType === "poweredSpeaker") {
+            addPoweredSpeaker();
+            if (presetKey) {
+              const preset = POWERED_SPEAKER_PRESETS[presetKey];
+              setTimeout(() => {
+                const pwSpks = state.poweredSpeakers;
+                if (pwSpks.length > 0) {
+                  updatePoweredSpeaker(pwSpks[pwSpks.length - 1].id, preset);
                 }
               }, 0);
             }
