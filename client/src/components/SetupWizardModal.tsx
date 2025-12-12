@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck } from "lucide-react";
+import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck, Sparkles, Cpu, TrendingUp, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { MusicGenre, GlobalSettings, Generator } from "@/lib/types";
 import { GENERATOR_PRESETS } from "@/lib/types";
@@ -577,70 +578,121 @@ export default function SetupWizardModal({
           {page === 4 && (
             <div className="space-y-6">
               <div className="space-y-2">
-                <h3 className="text-lg font-medium">Free vs Pro Features</h3>
+                <h3 className="text-2xl font-bold">Free vs Pro</h3>
                 <p className="text-sm text-muted-foreground">
-                  Here's what you get with the free version versus upgrading to Pro:
+                  Choose the plan that fits your needs
                 </p>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-3 font-medium">Feature</th>
-                      <th className="text-center p-3 font-medium">Free</th>
-                      <th className="text-center p-3 font-medium">Pro</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    <tr>
-                      <td className="text-left p-3">Basic Power Calculations</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr>
-                      <td className="text-left p-3">SPL Calculations</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr>
-                      <td className="text-left p-3">Equipment Presets</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr>
-                      <td className="text-left p-3">JSON Import/Export</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr>
-                      <td className="text-left p-3">Multiple Complexity Modes</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr className="bg-muted/30">
-                      <td className="text-left p-3 font-medium">Custom Equipment Library</td>
-                      <td className="text-center p-3 text-muted-foreground">—</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr className="bg-muted/30">
-                      <td className="text-left p-3 font-medium">Saved Equipment Sets</td>
-                      <td className="text-center p-3 text-muted-foreground">—</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                    <tr className="bg-muted/30">
-                      <td className="text-left p-3 font-medium">Cloud Sync & Backup</td>
-                      <td className="text-center p-3 text-muted-foreground">—</td>
-                      <td className="text-center p-3"><Check className="w-4 h-4 mx-auto text-primary" /></td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-2 gap-4">
+                {/* FREE COLUMN */}
+                <div className="rounded-xl border border-muted bg-gradient-to-br from-background via-background to-muted/20 p-4 space-y-4">
+                  <div className="space-y-1">
+                    <h4 className="text-lg font-bold">Free</h4>
+                    <p className="text-xs text-muted-foreground">Perfect for most users</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Power Calculations</div>
+                        <div className="text-muted-foreground">All modes & algorithms</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Equipment Presets</div>
+                        <div className="text-muted-foreground">Generators, amps, speakers</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Project Management</div>
+                        <div className="text-muted-foreground">Save, import/export JSON</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Complexity Modes</div>
+                        <div className="text-muted-foreground">Basic, Advanced, Engineering</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Temperature & Altitude</div>
+                        <div className="text-muted-foreground">Automatic power derating</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PRO COLUMN */}
+                <div className="rounded-xl border-2 border-primary bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4 space-y-4 relative overflow-hidden">
+                  <div className="absolute top-2 right-2">
+                    <Badge className="bg-primary/90 text-primary-foreground text-xs">Coming Soon</Badge>
+                  </div>
+
+                  <div className="space-y-1">
+                    <h4 className="text-lg font-bold">Pro</h4>
+                    <p className="text-xs text-muted-foreground">Advanced simulation & analysis</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Everything in Free</div>
+                        <div className="text-muted-foreground">All basic features included</div>
+                      </div>
+                    </div>
+                    <div className="border-t border-muted my-2" />
+                    <div className="flex items-start gap-2">
+                      <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Realtime Simulation</div>
+                        <div className="text-muted-foreground">Live audio analysis & graphs</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Fault Analysis</div>
+                        <div className="text-muted-foreground">Identify potential issues</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <TrendingUp className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Crest Curve Analysis</div>
+                        <div className="text-muted-foreground">Frequency-based curves</div>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Cpu className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <div className="text-xs">
+                        <div className="font-medium">Hardware Integration</div>
+                        <div className="text-muted-foreground">DSP & monitoring devices</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-4 border">
-                <p className="text-sm text-muted-foreground">
-                  The free version includes everything you need to design professional audio systems. Pro features are available for teams and advanced users who need custom equipment management and cloud collaboration.
-                </p>
+              <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                <div className="flex gap-2">
+                  <Sparkles className="w-5 h-5 text-primary flex-shrink-0" />
+                  <div className="text-sm">
+                    <div className="font-medium text-foreground">Start free today</div>
+                    <p className="text-muted-foreground text-xs mt-1">
+                      The free version has everything professional audio engineers need. Upgrade to Pro when you're ready for real-time simulation.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           )}
