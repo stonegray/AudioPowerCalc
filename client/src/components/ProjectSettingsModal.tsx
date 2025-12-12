@@ -200,17 +200,6 @@ export default function ProjectSettingsModal({
     setFormula(newFormula);
     setFormulaError(null);
   }, [settings.musicGenre]);
-  
-  // Generate crest curve on mount if it's empty
-  useEffect(() => {
-    if (!settings.crestCurve || settings.crestCurve.length === 0) {
-      const currentFormula = GENRE_PRESETS[settings.musicGenre]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
-      const newCurve = generateCurveFromFormula(currentFormula);
-      if (newCurve.length > 0) {
-        onUpdate({ crestCurve: newCurve });
-      }
-    }
-  }, []);
 
   const formulaCurvePoints = useMemo(() => {
     const points: { x: number; y: number }[] = [];
@@ -386,7 +375,7 @@ export default function ProjectSettingsModal({
 
       <div className="space-y-2">
         <Label htmlFor="genre-select">Genre</Label>
-        <Select key={settings.musicGenre} value={settings.musicGenre} onValueChange={handleGenreChange}>
+        <Select value={settings.musicGenre} onValueChange={handleGenreChange}>
           <SelectTrigger id="genre-select" data-testid="select-genre">
             <SelectValue placeholder="Select genre" />
           </SelectTrigger>
