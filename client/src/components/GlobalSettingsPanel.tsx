@@ -44,31 +44,7 @@ export default function GlobalSettingsPanel({
       onNewProject(true);
     }
   };
-  const tempUnit = settings.units === 'metric' ? '°C' : '°F';
-  const altUnit = settings.units === 'metric' ? 'm' : 'ft';
   const isBasic = settings.appMode === 'basic';
-
-  const displayTemp = settings.units === 'imperial' 
-    ? Math.round((settings.ambientTemperature * 9/5) + 32) 
-    : Math.round(settings.ambientTemperature);
-  
-  const displayAlt = settings.units === 'imperial'
-    ? Math.round(settings.altitude * 3.28084)
-    : settings.altitude;
-
-  const handleTempChange = (displayValue: number) => {
-    const metricValue = settings.units === 'imperial'
-      ? (displayValue - 32) * 5/9
-      : displayValue;
-    onUpdate({ ambientTemperature: metricValue });
-  };
-
-  const handleAltChange = (displayValue: number) => {
-    const metricValue = settings.units === 'imperial'
-      ? displayValue / 3.28084
-      : displayValue;
-    onUpdate({ altitude: metricValue });
-  };
 
   return (
     <Card className="mb-4">
@@ -158,72 +134,6 @@ export default function GlobalSettingsPanel({
             </Select>
           </div>
 
-          {!isBasic && (
-            <>
-              <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground">Temp</Label>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  value={displayTemp}
-                  onChange={(e) => handleTempChange(Number(e.target.value))}
-                  onWheel={(e) => {
-                    e.preventDefault();
-                    const delta = (e as any).deltaY > 0 ? -1 : 1;
-                    handleTempChange(displayTemp + delta);
-                  }}
-                  className="w-16 h-8 font-mono text-right text-sm"
-                  data-testid="input-temperature"
-                />
-                <span className="text-xs text-muted-foreground">{tempUnit}</span>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <Label className="text-xs text-muted-foreground">Alt</Label>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  value={displayAlt}
-                  onChange={(e) => handleAltChange(Number(e.target.value))}
-                  onWheel={(e) => {
-                    e.preventDefault();
-                    const delta = (e as any).deltaY > 0 ? -10 : 10;
-                    handleAltChange(displayAlt + delta);
-                  }}
-                  className="w-20 h-8 font-mono text-right text-sm"
-                  data-testid="input-altitude"
-                />
-                <span className="text-xs text-muted-foreground">{altUnit}</span>
-              </div>
-            </>
-          )}
-
-
-          {!isBasic && (
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 cursor-help">
-                    <Label className="text-xs text-muted-foreground">Array</Label>
-                    <Info className="w-3.5 h-3.5 text-muted-foreground hover:text-foreground transition-colors" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs">
-                  <p className="text-xs">Used to create accurate SPL estimates by correcting for imperfect summation of arrayed drivers.</p>
-                </TooltipContent>
-              </Tooltip>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                max="1"
-                value={settings.arraySummationFactor}
-                onChange={(e) => onUpdate({ arraySummationFactor: Number(e.target.value) })}
-                className="w-16 h-8 font-mono text-right text-sm"
-                data-testid="input-array-factor"
-              />
-            </div>
-          )}
 
           <Button 
             variant="outline" 
