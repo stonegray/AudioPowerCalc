@@ -297,7 +297,7 @@ export default function DistroChannelRow({
           </Popover>
         )}
 
-        {!isBasic && (
+        {appMode === 'engineering' && (
           <div className="flex items-center gap-1">
             <Label className="text-xs text-muted-foreground">Type</Label>
             <Select
@@ -316,7 +316,7 @@ export default function DistroChannelRow({
           </div>
         )}
 
-        {!isBasic && (
+        {appMode === 'engineering' && (
           <div className="flex items-center gap-1">
             <Select
               value={channel.cable.mode}
