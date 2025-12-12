@@ -414,77 +414,7 @@ export default function ProjectSettingsModal({
         </div>
       )}
 
-      <div className={`flex-1 grid grid-cols-2 gap-4 min-h-0 transition-opacity ${!isCustom ? 'opacity-50 pointer-events-none' : ''}`}>
-        <div className="flex flex-col space-y-3 overflow-hidden">
-          <div className="space-y-2">
-            <Label htmlFor="formula-input">Curve Formula</Label>
-            <div className="flex items-start gap-2">
-              <span className="text-sm font-mono text-muted-foreground pt-2">C(f) =</span>
-              <Textarea
-                id="formula-input"
-                value={formula}
-                onChange={(e) => handleFormulaChange(e.target.value)}
-                className="font-mono text-sm resize-none min-h-20 flex-1"
-                placeholder="e.g., 6 + 2 * log10(f / 10)"
-                disabled={!isCustom}
-                data-testid="input-formula"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Functions: log10(), sqrt(), pow(), sin(), cos(), exp()
-            </p>
-          </div>
-
-          {formulaError && (
-            <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md">
-              <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
-              <span>{formulaError}</span>
-            </div>
-          )}
-
-          <Tabs value="formula" className="flex-shrink-0">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="formula">Formula Mode</TabsTrigger>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="inline-flex">
-                    <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
-                      Point Mode
-                    </TabsTrigger>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Coming Soon</p>
-                </TooltipContent>
-              </Tooltip>
-            </TabsList>
-          </Tabs>
-
-          <div className="space-y-2">
-            <Label htmlFor="time-formula">Time Domain</Label>
-            <div className="flex items-start gap-2">
-              <span className="text-sm font-mono text-muted-foreground pt-2">C(t) =</span>
-              <Textarea
-                id="time-formula"
-                value={timeFormula}
-                onChange={(e) => setTimeFormula(e.target.value)}
-                className="font-mono text-sm resize-none flex-1 min-h-16"
-                placeholder="e.g., 4 + 4 * cos(2 * pi * f * t)"
-                data-testid="input-time-formula"
-              />
-            </div>
-          </div>
-
-          <Button 
-            onClick={handleApplyFormula}
-            disabled={!!formulaError}
-            className="w-full mt-auto"
-            data-testid="button-apply-formula"
-          >
-            Apply Formula
-          </Button>
-        </div>
-
+      <div className={`flex-1 flex flex-col gap-4 min-h-0 transition-opacity ${!isCustom ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="flex flex-col overflow-hidden">
           <Label className="mb-2">Crest Factor vs Frequency</Label>
           <div className="border rounded-md bg-muted/30 p-2 flex-1 flex items-center justify-center overflow-auto">
@@ -598,6 +528,76 @@ export default function ProjectSettingsModal({
           <p className="text-xs text-muted-foreground text-center mt-2">
             Edit the formula to shape the curve
           </p>
+        </div>
+
+        <div className="flex flex-col space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="formula-input">Curve Formula</Label>
+            <div className="flex items-start gap-2">
+              <span className="text-sm font-mono text-muted-foreground pt-2">C(f) =</span>
+              <Textarea
+                id="formula-input"
+                value={formula}
+                onChange={(e) => handleFormulaChange(e.target.value)}
+                className="font-mono text-sm resize-none min-h-20 flex-1"
+                placeholder="e.g., 6 + 2 * log10(f / 10)"
+                disabled={!isCustom}
+                data-testid="input-formula"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Functions: log10(), sqrt(), pow(), sin(), cos(), exp()
+            </p>
+          </div>
+
+          {formulaError && (
+            <div className="flex items-start gap-2 text-destructive text-xs p-2 bg-destructive/10 rounded-md">
+              <AlertCircle className="w-3 h-3 flex-shrink-0 mt-0.5" />
+              <span>{formulaError}</span>
+            </div>
+          )}
+
+          <Tabs value="formula" className="flex-shrink-0">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="formula">Formula Mode</TabsTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <TabsTrigger value="points" disabled className="opacity-50 cursor-not-allowed">
+                      Point Mode
+                    </TabsTrigger>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Coming Soon</p>
+                </TooltipContent>
+              </Tooltip>
+            </TabsList>
+          </Tabs>
+
+          <div className="space-y-2">
+            <Label htmlFor="time-formula">Time Domain</Label>
+            <div className="flex items-start gap-2">
+              <span className="text-sm font-mono text-muted-foreground pt-2">C(t) =</span>
+              <Textarea
+                id="time-formula"
+                value={timeFormula}
+                onChange={(e) => setTimeFormula(e.target.value)}
+                className="font-mono text-sm resize-none flex-1 min-h-16"
+                placeholder="e.g., 4 + 4 * cos(2 * pi * f * t)"
+                data-testid="input-time-formula"
+              />
+            </div>
+          </div>
+
+          <Button 
+            onClick={handleApplyFormula}
+            disabled={!!formulaError}
+            className="w-full"
+            data-testid="button-apply-formula"
+          >
+            Apply Formula
+          </Button>
         </div>
       </div>
     </div>
