@@ -6,6 +6,15 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -92,6 +101,7 @@ export default function SetupWizardModal({
   const [musicGenre, setMusicGenre] = useState<MusicGenre>("bass_dubstep");
   const [selectedGenerator, setSelectedGenerator] = useState<string | null>(null);
   const [generatorSearch, setGeneratorSearch] = useState("");
+  const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
 
   const selectedLocation = LOCATIONS.find(l => l.id === location);
   
@@ -135,14 +145,20 @@ export default function SetupWizardModal({
   };
 
   const handleSkip = () => {
+    setSkipConfirmOpen(true);
+  };
+
+  const handleSkipConfirm = () => {
+    setSkipConfirmOpen(false);
     resetAndClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) resetAndClose();
-      else onOpenChange(isOpen);
-    }}>
+    <>
+      <Dialog open={open} onOpenChange={(isOpen) => {
+        if (!isOpen) resetAndClose();
+        else onOpenChange(isOpen);
+      }}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -347,6 +363,30 @@ export default function SetupWizardModal({
           </div>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+
+      <AlertDialog open={skipConfirmOpen} onOpenChange={setSkipConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Skip Setup?</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3">
+              <p>
+                Skipping the setup wizard will create an entirely empty project file. 
+                <strong className="block mt-2">You will be responsible for entering all project data manually.</strong>
+              </p>
+              <p className="text-sm">
+                This includes project settings, generators, amplifiers, speakers, and all connections.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-2 justify-end">
+            <AlertDialogCancel data-testid="button-skip-cancel">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSkipConfirm} data-testid="button-skip-confirm">
+              Skip Setup
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
