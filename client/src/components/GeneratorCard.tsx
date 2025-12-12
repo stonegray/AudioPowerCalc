@@ -70,6 +70,7 @@ export default function GeneratorCard({
   const [feederPresetsOpen, setFeederPresetsOpen] = useState(false);
   const [warningShown, setWarningShown] = useState(false);
   const [warningOpen, setWarningOpen] = useState(false);
+  const [warningReason, setWarningReason] = useState<'add-distro' | 'phase-change'>('add-distro');
   const isCustom = generator.model === 'custom';
   const isBasic = appMode === 'basic';
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
@@ -118,16 +119,25 @@ export default function GeneratorCard({
   const handleAddDistro = () => {
     // Show warning if generator type is not shore power and warning hasn't been shown yet
     if (generator.type !== 'shore' && !warningShown) {
+      setWarningReason('add-distro');
       setWarningOpen(true);
     } else {
       onAddDistro();
     }
   };
 
-  const handleConfirmAddDistro = () => {
+  const handleShowPhaseWarning = () => {
+    setWarningReason('phase-change');
+    setWarningOpen(true);
+  };
+
+  const handleConfirmWarning = () => {
     setWarningShown(true);
     setWarningOpen(false);
-    onAddDistro();
+    if (warningReason === 'add-distro') {
+      onAddDistro();
+    }
+    // For phase-change, the DistroChannelRow's onConfirmWarning will handle the update
   };
 
   const getRatingDisplay = () => {
@@ -538,6 +548,14 @@ export default function GeneratorCard({
                 onNodeClick={onNodeClick}
                 connectionColor={getConnectionColor?.(channel.id)}
                 appMode={appMode}
+                generatorType={generator.type}
+                warningShown={warningShown}
+                onShowWarning={handleShowPhaseWarning}
+                onConfirmWarning={(updates) => {
+                  setWarningShown(true);
+                  setWarningOpen(false);
+                  onUpdateDistro(channel.id, updates);
+                }}
               />
             ))}
           </div>
@@ -562,7 +580,7 @@ export default function GeneratorCard({
           </AlertDialogHeader>
           <div className="flex justify-end gap-2">
             <AlertDialogCancel data-testid={`button-cancel-distro-warning-${generator.id}`}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmAddDistro} data-testid={`button-confirm-distro-warning-${generator.id}`}>
+            <AlertDialogAction onClick={handleConfirmWarning} data-testid={`button-confirm-distro-warning-${generator.id}`}>
               I understand, proceed
             </AlertDialogAction>
           </div>

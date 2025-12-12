@@ -26,6 +26,10 @@ interface DistroChannelRowProps {
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
   appMode?: 'basic' | 'advanced' | 'engineering';
+  generatorType?: string;
+  warningShown?: boolean;
+  onShowWarning?: () => void;
+  onConfirmWarning?: (updates: Partial<DistroChannel>) => void;
 }
 
 export default function DistroChannelRow({
@@ -38,9 +42,14 @@ export default function DistroChannelRow({
   onNodeClick,
   connectionColor,
   appMode = 'advanced',
+  generatorType = 'standard',
+  warningShown = false,
+  onShowWarning,
+  onConfirmWarning,
 }: DistroChannelRowProps) {
   const [presetsOpen, setPresetsOpen] = useState(false);
   const [cablePresetsOpen, setCablePresetsOpen] = useState(false);
+  const [pendingOutputTypeUpdate, setPendingOutputTypeUpdate] = useState<PhaseType | null>(null);
 
   const DISTRO_PRESETS = [
     { label: '15A Single', ampacity: 15, outputType: 'single' as PhaseType },
@@ -63,13 +72,36 @@ export default function DistroChannelRow({
     { label: '6 AWG @ 100 ft', awg: 6, length: 100 },
   ];
 
+  const handleOutputTypeChange = (newType: PhaseType) => {
+    // Check if we need to show warning
+    if (generatorType !== 'shore' && !warningShown) {
+      setPendingOutputTypeUpdate(newType);
+      onShowWarning?.();
+    } else {
+      onUpdate({ outputType: newType });
+    }
+  };
+
+  const handleConfirmOutputType = () => {
+    if (pendingOutputTypeUpdate) {
+      onConfirmWarning?.({ outputType: pendingOutputTypeUpdate });
+      setPendingOutputTypeUpdate(null);
+    }
+  };
+
   const handlePreset = (preset: typeof DISTRO_PRESETS[0]) => {
     const phaseSource = preset.outputType === '3_wye' ? 123 : 1;
-    onUpdate({
-      ampacity: preset.ampacity,
-      outputType: preset.outputType,
-      phaseSource,
-    });
+    // Check if we need to show warning for preset that changes output type
+    if (generatorType !== 'shore' && !warningShown && preset.outputType !== channel.outputType) {
+      setPendingOutputTypeUpdate(preset.outputType);
+      onShowWarning?.();
+    } else {
+      onUpdate({
+        ampacity: preset.ampacity,
+        outputType: preset.outputType,
+        phaseSource,
+      });
+    }
     setPresetsOpen(false);
   };
 
@@ -270,7 +302,7 @@ export default function DistroChannelRow({
             <Label className="text-xs text-muted-foreground">Type</Label>
             <Select
               value={channel.outputType}
-              onValueChange={(v: PhaseType) => onUpdate({ outputType: v })}
+              onValueChange={handleOutputTypeChange}
             >
               <SelectTrigger className="h-7 w-24 text-xs" data-testid={`select-output-type-${index}`}>
                 <SelectValue />
