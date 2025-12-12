@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, AlertTriangle, Thermometer, Mountain, Ruler, Music, Palette, Settings2, Sun, Moon, FileJson, Download, Upload, FileText } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Thermometer, Mountain, Ruler, Music, Palette, Settings2, Sun, Moon, FileJson, Download, Upload, FileText, Lock, Zap, Mail } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, CrestCurvePoint, CrestAlgorithm } from '@/lib/types';
@@ -24,7 +24,7 @@ interface ProjectSettingsModalProps {
   onImport?: () => void;
 }
 
-type SettingsCategory = 'project' | 'units' | 'audio' | 'theme' | 'advanced';
+type SettingsCategory = 'project' | 'units' | 'audio' | 'theme' | 'advanced' | 'library';
 
 const GRAPH_WIDTH = 460;
 const GRAPH_HEIGHT = 260;
@@ -181,6 +181,7 @@ const CATEGORY_ITEMS: { id: SettingsCategory; label: string; icon: typeof Settin
   { id: 'units', label: 'Units & Environment', icon: Ruler },
   { id: 'audio', label: 'Audio Content', icon: Music },
   { id: 'theme', label: 'Theme', icon: Palette },
+  { id: 'library', label: 'User Library', icon: Lock },
   { id: 'advanced', label: 'Advanced Parameters', icon: Settings2 },
 ];
 
@@ -710,6 +711,49 @@ export default function ProjectSettingsModal({
     </div>
   );
 
+  const renderUserLibraryContent = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-4">User Library</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Build and manage your custom library of equipment presets.
+        </p>
+      </div>
+
+      <div className="border rounded-lg p-6 bg-gradient-to-br from-primary/5 to-primary/10 space-y-4">
+        <div className="flex items-start gap-3">
+          <Lock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-sm mb-2">Pro Feature</h4>
+            <p className="text-sm text-muted-foreground">
+              Create and save custom equipment presets to your personal library. Access your saved configurations across all projects.
+            </p>
+          </div>
+        </div>
+
+        <Button className="w-full gap-2" size="sm">
+          <Zap className="w-4 h-4" />
+          Upgrade to Pro
+        </Button>
+      </div>
+
+      <div className="border rounded-lg p-6 bg-muted/50 space-y-4">
+        <div className="flex items-start gap-3">
+          <Mail className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="font-semibold text-sm mb-2">For Manufacturers</h4>
+            <p className="text-sm text-muted-foreground mb-3">
+              Are you a manufacturer? Contact us to include your products in the free version of this app, accessible to all users.
+            </p>
+            <Button variant="outline" size="sm">
+              Contact Us
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderAdvancedContent = () => (
     <div className="space-y-6">
       <div>
@@ -808,6 +852,8 @@ export default function ProjectSettingsModal({
         return renderAudioContent();
       case 'theme':
         return renderThemeContent();
+      case 'library':
+        return renderUserLibraryContent();
       case 'advanced':
         return renderAdvancedContent();
       default:
