@@ -20,6 +20,7 @@ interface AmpChannelRowProps {
   onNodeClick?: (id: string) => void;
   connectionColor?: string;
   appMode?: 'basic' | 'advanced' | 'engineering';
+  isCollapsed?: boolean;
 }
 
 export default function AmpChannelRow({
@@ -34,6 +35,7 @@ export default function AmpChannelRow({
   onNodeClick,
   connectionColor,
   appMode = 'advanced',
+  isCollapsed = false,
 }: AmpChannelRowProps) {
   const isDisabled = bridgePartnerDisabled;
   const channelNum = index + 1;
@@ -47,10 +49,11 @@ export default function AmpChannelRow({
     <div 
       className={cn(
         'relative bg-muted/50 rounded-md p-2 pr-12 transition-all',
-        isDisabled && 'opacity-50'
+        isDisabled && 'opacity-50',
+        isCollapsed && 'p-0 bg-transparent'
       )}
     >
-      {!channel.enabled ? (
+      {isCollapsed ? null : !channel.enabled ? (
         <div className="flex items-center gap-1.5">
           <Switch
             checked={channel.enabled}

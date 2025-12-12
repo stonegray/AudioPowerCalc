@@ -54,6 +54,7 @@ export default function AmplifierCard({
   settings,
 }: AmplifierCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [channelsCollapsed, setChannelsCollapsed] = useState(false);
   const isCustom = amplifier.model === 'custom';
   const isBasic = appMode === 'basic';
   
@@ -421,8 +422,19 @@ export default function AmplifierCard({
         )}
 
         <div className="space-y-1.5">
-          <span className="text-xs font-medium">Channels</span>
-          {amplifier.channels.map((channel, index) => {
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-5 w-5 p-0"
+              onClick={() => setChannelsCollapsed(!channelsCollapsed)}
+              data-testid={`button-toggle-channels-${amplifier.id}`}
+            >
+              <ChevronDown className={cn('w-3 h-3 transition-transform', channelsCollapsed && '-rotate-90')} />
+            </Button>
+            <span className="text-xs font-medium">Channels</span>
+          </div>
+          {!channelsCollapsed && amplifier.channels.map((channel, index) => {
             const canBridge = index % 2 === 0;
             const bridgePartnerDisabled = index % 2 === 1 && 
               amplifier.channels[index - 1]?.bridged;
@@ -444,6 +456,37 @@ export default function AmplifierCard({
               />
             );
           })}
+          {channelsCollapsed && (
+            <div className="space-y-1.5">
+              {amplifier.channels.map((channel, index) => {
+                const canBridge = index % 2 === 0;
+                const bridgePartnerDisabled = index % 2 === 1 && 
+                  amplifier.channels[index - 1]?.bridged;
+                
+                return (
+                  <div
+                    key={channel.id}
+                    className="relative h-0 overflow-visible"
+                  >
+                    <AmpChannelRow
+                      channel={channel}
+                      index={index}
+                      canBridge={canBridge}
+                      bridgePartnerDisabled={bridgePartnerDisabled}
+                      supportsBridging={amplifier.supportsBridging}
+                      minImpedance={amplifier.minImpedance}
+                      channelPmax={amplifier.pmax / amplifier.channelCount}
+                      onUpdate={(updates) => handleChannelUpdate(channel.id, updates)}
+                      onNodeClick={onOutputNodeClick}
+                      connectionColor={getOutputConnectionColor?.(channel.id)}
+                      appMode={appMode}
+                      isCollapsed={true}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
