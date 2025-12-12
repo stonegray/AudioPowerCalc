@@ -8,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ChevronDown, Plus, Trash2, Zap, Info, Cable } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
 import SearchableModelSelect from './SearchableModelSelect';
@@ -67,6 +68,8 @@ export default function GeneratorCard({
 }: GeneratorCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [feederPresetsOpen, setFeederPresetsOpen] = useState(false);
+  const [warningShown, setWarningShown] = useState(false);
+  const [warningOpen, setWarningOpen] = useState(false);
   const isCustom = generator.model === 'custom';
   const isBasic = appMode === 'basic';
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
@@ -91,6 +94,8 @@ export default function GeneratorCard({
   };
 
   const handleModelChange = (model: string) => {
+    // Reset warning flag when model changes
+    setWarningShown(false);
     const preset = presets[model];
     if (preset) {
       onUpdate({
@@ -108,6 +113,21 @@ export default function GeneratorCard({
     } else {
       onUpdate({ model });
     }
+  };
+
+  const handleAddDistro = () => {
+    // Show warning if generator type is not shore power and warning hasn't been shown yet
+    if (generator.type !== 'shore' && !warningShown) {
+      setWarningOpen(true);
+    } else {
+      onAddDistro();
+    }
+  };
+
+  const handleConfirmAddDistro = () => {
+    setWarningShown(true);
+    setWarningOpen(false);
+    onAddDistro();
   };
 
   const getRatingDisplay = () => {
@@ -499,7 +519,7 @@ export default function GeneratorCard({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium">Distribution</span>
-            <Button variant="outline" size="sm" className="h-6 text-xs" onClick={onAddDistro} data-testid={`button-add-distro-${generator.id}`}>
+            <Button variant="outline" size="sm" className="h-6 text-xs" onClick={handleAddDistro} data-testid={`button-add-distro-${generator.id}`}>
               <Plus className="w-3 h-3 mr-1" />
               Add
             </Button>
@@ -523,6 +543,31 @@ export default function GeneratorCard({
           </div>
         </div>
       </CardContent>
+
+      <AlertDialog open={warningOpen} onOpenChange={setWarningOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Configuration Warning</AlertDialogTitle>
+            <AlertDialogDescription className="space-y-3 text-sm">
+              <p>
+                You are simulating a configuration that may be unsupported by your generator model. Any customization is done at your own risk.
+              </p>
+              <p className="font-semibold text-foreground">
+                This application is not designed to make safety-critical decisions.
+              </p>
+              <p>
+                Please consult your generator's documentation or manufacturer for support of this configuration.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-end gap-2">
+            <AlertDialogCancel data-testid={`button-cancel-distro-warning-${generator.id}`}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmAddDistro} data-testid={`button-confirm-distro-warning-${generator.id}`}>
+              I understand, proceed
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
