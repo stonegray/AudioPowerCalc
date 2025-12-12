@@ -159,20 +159,23 @@ export default function AmpChannelRow({
               </Tooltip>
             )}
 
-            <Select
-              value={crossoverMode}
-              onValueChange={(v) => handleCrossoverModeChange(v as CrossoverMode)}
-              disabled={isDisabled}
-            >
-              <SelectTrigger className="h-6 w-20 text-xs" data-testid={`select-crossover-mode-${index}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {crossoverOptions.map(opt => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">XO</Label>
+              <Select
+                value={crossoverMode}
+                onValueChange={(v) => handleCrossoverModeChange(v as CrossoverMode)}
+                disabled={isDisabled}
+              >
+                <SelectTrigger className="h-6 w-20 text-xs" data-testid={`select-crossover-mode-${index}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {crossoverOptions.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             <div className="flex items-center gap-1 ml-auto">
               <Label className="text-xs text-muted-foreground">Gain</Label>
@@ -184,7 +187,13 @@ export default function AmpChannelRow({
                   const num = Number(e.target.value);
                   if (!isNaN(num)) onUpdate({ gain: Math.min(0, Math.max(-60, num)) });
                 }}
-                className="h-6 w-14 font-mono text-right text-xs"
+                onWheel={(e) => {
+                  e.preventDefault();
+                  const delta = (e as WheelEvent).deltaY > 0 ? -1 : 1;
+                  const newGain = Math.min(0, Math.max(-60, channel.gain + delta));
+                  onUpdate({ gain: newGain });
+                }}
+                className="h-6 w-16 font-mono text-right text-xs"
                 disabled={isDisabled}
                 data-testid={`input-gain-${index}`}
               />
@@ -205,7 +214,13 @@ export default function AmpChannelRow({
                     const num = Number(e.target.value);
                     if (!isNaN(num)) handleManualFrequencyEdit('hpf', num);
                   }}
-                  className="h-6 w-14 font-mono text-right text-xs"
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = (e as WheelEvent).deltaY > 0 ? -10 : 10;
+                    const newHpf = Math.max(10, channel.hpf + delta);
+                    handleManualFrequencyEdit('hpf', newHpf);
+                  }}
+                  className="h-6 w-20 font-mono text-right text-xs"
                   disabled={isDisabled}
                   data-testid={`input-hpf-${index}`}
                 />
@@ -222,7 +237,13 @@ export default function AmpChannelRow({
                     const num = Number(e.target.value);
                     if (!isNaN(num)) handleManualFrequencyEdit('lpf', num);
                   }}
-                  className="h-6 w-16 font-mono text-right text-xs"
+                  onWheel={(e) => {
+                    e.preventDefault();
+                    const delta = (e as WheelEvent).deltaY > 0 ? -100 : 100;
+                    const newLpf = Math.max(channel.hpf + 100, channel.lpf + delta);
+                    handleManualFrequencyEdit('lpf', newLpf);
+                  }}
+                  className="h-6 w-20 font-mono text-right text-xs"
                   disabled={isDisabled}
                   data-testid={`input-lpf-${index}`}
                 />
