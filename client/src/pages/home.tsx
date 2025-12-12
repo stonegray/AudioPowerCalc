@@ -10,6 +10,7 @@ import ConnectionLines from '@/components/ConnectionLines';
 import SaveLoadDialog from '@/components/SaveLoadDialog';
 import AudioContentModal from '@/components/AudioContentModal';
 import ProUpgradeModal from '@/components/ProUpgradeModal';
+import SetupWizardModal from '@/components/SetupWizardModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export default function Home() {
   const [audioContentModalOpen, setAudioContentModalOpen] = useState(false);
   const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
   const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
+  const [setupWizardOpen, setSetupWizardOpen] = useState(false);
 
   const {
     state,
@@ -315,6 +317,45 @@ export default function Home() {
     reader.readAsText(file);
   }, [state, updateGlobalSettings, loadConfiguration, toast]);
 
+  const handleWizardComplete = useCallback((config: {
+    projectName: string;
+    location: string;
+    musicGenre: import('@/lib/types').MusicGenre;
+    temperature: number;
+    altitude: number;
+    generator: Partial<import('@/lib/types').Generator> | null;
+  }) => {
+    // Update global settings with wizard selections
+    updateGlobalSettings({
+      musicGenre: config.musicGenre,
+      ambientTemperature: config.temperature,
+      altitude: config.altitude,
+    });
+
+    // Add generator if selected
+    if (config.generator) {
+      addGenerator();
+      // Get the newly added generator and update it with preset values
+      setTimeout(() => {
+        const gens = state.generators;
+        if (gens.length > 0) {
+          const newGen = gens[gens.length - 1];
+          if (newGen && config.generator) {
+            updateGenerator(newGen.id, {
+              ...config.generator,
+              name: config.generator.name || 'Generator',
+            });
+          }
+        }
+      }, 50);
+    }
+
+    toast({ 
+      title: `Project "${config.projectName}" created`, 
+      description: 'Your audio system configuration is ready' 
+    });
+  }, [updateGlobalSettings, addGenerator, updateGenerator, state.generators, toast]);
+
   const generatorsWithCalculations = (state.generators || []).map(gen => {
     const { effectiveWatts, derates } = calculateGeneratorEffectiveWatts(gen, state.globalSettings);
     const totalDistroWatts = (gen.distroChannels || []).reduce((sum, ch) => sum + (ch.enabled ? ch.loadWatts : 0), 0);
@@ -365,6 +406,7 @@ export default function Home() {
           onUpdate={updateGlobalSettings}
           onSave={() => setSaveDialogOpen(true)}
           onLoad={() => setLoadDialogOpen(true)}
+          onNewProject={() => setSetupWizardOpen(true)}
           onFindProblems={handleFindProblems}
           onStartSimulation={() => setProUpgradeModalOpen(true)}
           savedConfigs={getSavedConfigurations()}
@@ -549,6 +591,12 @@ export default function Home() {
       <ProUpgradeModal
         open={proUpgradeModalOpen}
         onOpenChange={setProUpgradeModalOpen}
+      />
+
+      <SetupWizardModal
+        open={setupWizardOpen}
+        onOpenChange={setSetupWizardOpen}
+        onComplete={handleWizardComplete}
       />
     </div>
   );

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Save, FolderOpen, AlertTriangle, Play, Info, Settings } from 'lucide-react';
+import { Save, FolderOpen, AlertTriangle, Play, Info, Settings, FilePlus } from 'lucide-react';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode, CrestAlgorithm } from '@/lib/types';
 import { GENRE_CREST_PRESETS } from '@/lib/types';
 
@@ -16,6 +16,7 @@ interface GlobalSettingsPanelProps {
   onUpdate: (settings: Partial<GlobalSettings>) => void;
   onSave: () => void;
   onLoad: () => void;
+  onNewProject: () => void;
   onFindProblems: () => void;
   onStartSimulation?: () => void;
   savedConfigs: string[];
@@ -26,6 +27,7 @@ export default function GlobalSettingsPanel({
   onUpdate,
   onSave,
   onLoad,
+  onNewProject,
   onFindProblems,
   onStartSimulation,
 }: GlobalSettingsPanelProps) {
@@ -282,6 +284,10 @@ export default function GlobalSettingsPanel({
                 </div>
               </DialogContent>
             </Dialog>
+            <Button variant="outline" size="sm" onClick={onNewProject} data-testid="button-new-project">
+              <FilePlus className="w-3 h-3 mr-1" />
+              New
+            </Button>
             <Button variant="outline" size="sm" onClick={onSave} data-testid="button-save">
               <Save className="w-3 h-3 mr-1" />
               Save
