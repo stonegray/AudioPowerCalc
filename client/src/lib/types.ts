@@ -77,6 +77,7 @@ export interface DistroChannel {
   enabled: boolean;
   phaseSource: number;
   ampacity: number;
+  plugType: string;
   outputType: PhaseType;
   cable: CableConfig;
   loadAmps: number;
@@ -193,11 +194,18 @@ export interface SystemState {
   connections: Connection[];
 }
 
-const createDistroChannelPreset = (id: string, phaseSource: number = 1, outputType: PhaseType = "single"): DistroChannel => ({
+const createDistroChannelPreset = (
+  id: string,
+  phaseSource: number = 1,
+  ampacity: number = 20,
+  plugType: string = "NEMA-5-20",
+  outputType: PhaseType = "single"
+): DistroChannel => ({
   id,
   enabled: true,
   phaseSource,
-  ampacity: 20,
+  ampacity,
+  plugType,
   outputType,
   cable: { mode: "awg", awg: 12, length: 50 },
   loadAmps: 0,
@@ -216,7 +224,22 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     voltage: 120,
     powerFactor: 1.0,
     ratingType: "watts",
-    distroChannels: [createDistroChannelPreset("distro_default")],
+    distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
+  },
+  honda_3000is: {
+    name: "Honda EU3000iS",
+    type: "inverter",
+    continuousWatts: 2800,
+    peakWatts: 3000,
+    phaseCount: 1,
+    phaseType: "single",
+    voltage: 125,
+    powerFactor: 1.0,
+    ratingType: "watts",
+    distroChannels: [
+      createDistroChannelPreset("distro_20a", 1, 20, "NEMA-5-20"),
+      createDistroChannelPreset("distro_30a", 1, 30, "30A Twist Lock"),
+    ],
   },
   honda_7000i: {
     name: "Honda EU7000i",
@@ -228,7 +251,7 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     voltage: 120,
     powerFactor: 1.0,
     ratingType: "watts",
-    distroChannels: [createDistroChannelPreset("distro_default")],
+    distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
   },
   shore_power: {
     name: "Shore Power",
@@ -240,7 +263,7 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     voltage: 120,
     powerFactor: 0.95,
     ratingType: "watts",
-    distroChannels: [createDistroChannelPreset("distro_default")],
+    distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
   },
   trailer_50k_3ph: {
     name: "Trailer 50kW 3-Phase",
@@ -253,9 +276,9 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     powerFactor: 0.9,
     ratingType: "watts",
     distroChannels: [
-      createDistroChannelPreset("distro_phase1", 1, "single"),
-      createDistroChannelPreset("distro_phase2", 2, "single"),
-      createDistroChannelPreset("distro_phase3", 3, "single"),
+      createDistroChannelPreset("distro_phase1", 1, 20, "CamLok"),
+      createDistroChannelPreset("distro_phase2", 2, 20, "CamLok"),
+      createDistroChannelPreset("distro_phase3", 3, 20, "CamLok"),
     ],
   },
   custom: {
@@ -268,7 +291,7 @@ export const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     voltage: 120,
     powerFactor: 0.95,
     ratingType: "watts",
-    distroChannels: [createDistroChannelPreset("distro_default")],
+    distroChannels: [createDistroChannelPreset("distro_default", 1, 20, "NEMA-5-20")],
   },
 };
 

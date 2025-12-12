@@ -30,6 +30,7 @@ const createDefaultDistroChannel = (id: string): DistroChannel => ({
   enabled: true,
   phaseSource: 1,
   ampacity: 20,
+  plugType: 'NEMA-5-20',
   outputType: 'single',
   cable: { mode: 'awg', awg: 12, length: 50 },
   loadAmps: 0,
