@@ -44,6 +44,7 @@ export default function Home() {
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
   const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
   const [equipmentType, setEquipmentType] = useState<"generator" | "amplifier" | "speaker" | null>(null);
+  const [wizardGenId, setWizardGenId] = useState<string | null>(null);
 
   const {
     state,
@@ -330,6 +331,65 @@ export default function Home() {
     reader.readAsText(file);
   }, [state, updateGlobalSettings, loadConfiguration, toast]);
 
+  const handleWizardGeneratorPreview = useCallback((generator: Partial<import('@/lib/types').Generator> | null) => {
+    if (!generator) {
+      // Clear preview if no generator selected
+      if (wizardGenId) {
+        removeGenerator(wizardGenId);
+        setWizardGenId(null);
+      }
+      return;
+    }
+
+    // Regenerate distro channel IDs to be unique while keeping preset properties
+    const distroChannels = (generator.distroChannels || []).map((dc, i) => ({
+      ...dc,
+      id: `distro_${Date.now()}_${i}`,
+    }));
+
+    if (!wizardGenId) {
+      // Add a new generator for preview
+      addGenerator();
+      setTimeout(() => {
+        const gens = state.generators;
+        if (gens.length > 0) {
+          const newGen = gens[gens.length - 1];
+          if (newGen) {
+            setWizardGenId(newGen.id);
+            updateGenerator(newGen.id, {
+              name: generator.name || 'Generator',
+              model: generator.model || generator.name || 'Generator',
+              type: generator.type || 'standard',
+              continuousWatts: generator.continuousWatts || 5000,
+              peakWatts: generator.peakWatts || 6000,
+              voltage: generator.voltage || 120,
+              phaseCount: generator.phaseCount || 1,
+              phaseType: generator.phaseType || 'single',
+              ratingType: generator.ratingType || 'watts',
+              powerFactor: generator.powerFactor || 0.95,
+              distroChannels,
+            });
+          }
+        }
+      }, 0);
+    } else {
+      // Update existing preview generator
+      updateGenerator(wizardGenId, {
+        name: generator.name || 'Generator',
+        model: generator.model || generator.name || 'Generator',
+        type: generator.type || 'standard',
+        continuousWatts: generator.continuousWatts || 5000,
+        peakWatts: generator.peakWatts || 6000,
+        voltage: generator.voltage || 120,
+        phaseCount: generator.phaseCount || 1,
+        phaseType: generator.phaseType || 'single',
+        ratingType: generator.ratingType || 'watts',
+        powerFactor: generator.powerFactor || 0.95,
+        distroChannels,
+      });
+    }
+  }, [wizardGenId, addGenerator, updateGenerator, removeGenerator, state.generators]);
+
   const handleWizardComplete = useCallback((config: {
     projectName: string;
     location: string;
@@ -345,44 +405,14 @@ export default function Home() {
       altitude: config.altitude,
     });
 
-    // Add generator if selected
-    if (config.generator) {
-      addGenerator();
-      // Get the newly added generator and update it with preset values
-      setTimeout(() => {
-        const gens = state.generators;
-        if (gens.length > 0) {
-          const newGen = gens[gens.length - 1];
-          if (newGen && config.generator) {
-            // Regenerate distro channel IDs to be unique while keeping preset properties
-            const distroChannels = (config.generator.distroChannels || []).map((dc, i) => ({
-              ...dc,
-              id: `distro_${Date.now()}_${i}`,
-            }));
-            
-            updateGenerator(newGen.id, {
-              name: config.generator.name || 'Generator',
-              model: config.generator.model || config.generator.name || 'Generator',
-              type: config.generator.type || 'standard',
-              continuousWatts: config.generator.continuousWatts || 5000,
-              peakWatts: config.generator.peakWatts || 6000,
-              voltage: config.generator.voltage || 120,
-              phaseCount: config.generator.phaseCount || 1,
-              phaseType: config.generator.phaseType || 'single',
-              ratingType: config.generator.ratingType || 'watts',
-              powerFactor: config.generator.powerFactor || 0.95,
-              distroChannels,
-            });
-          }
-        }
-      }, 50);
-    }
+    // Clear wizard generator ID since we're done with preview
+    setWizardGenId(null);
 
     toast({ 
       title: `Project "${config.projectName}" created`, 
       description: 'Your audio system configuration is ready' 
     });
-  }, [updateGlobalSettings, addGenerator, updateGenerator, state.generators, toast]);
+  }, [updateGlobalSettings, toast]);
 
   const generatorsWithCalculations = (state.generators || []).map(gen => {
     const { effectiveWatts, derates } = calculateGeneratorEffectiveWatts(gen, state.globalSettings);
@@ -664,6 +694,7 @@ export default function Home() {
         open={setupWizardOpen}
         onOpenChange={setSetupWizardOpen}
         onComplete={handleWizardComplete}
+        onGeneratorPreview={handleWizardGeneratorPreview}
       />
 
       <EquipmentPresetModal

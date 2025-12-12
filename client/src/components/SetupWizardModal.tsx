@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +41,7 @@ interface SetupWizardModalProps {
     altitude: number;
     generator: Partial<Generator> | null;
   }) => void;
+  onGeneratorPreview?: (generator: Partial<Generator> | null) => void;
 }
 
 const LOCATIONS = [
@@ -94,6 +95,7 @@ export default function SetupWizardModal({
   open,
   onOpenChange,
   onComplete,
+  onGeneratorPreview,
 }: SetupWizardModalProps) {
   const [page, setPage] = useState(1);
   const [projectName, setProjectName] = useState("New Project");
@@ -104,6 +106,14 @@ export default function SetupWizardModal({
   const [skipConfirmOpen, setSkipConfirmOpen] = useState(false);
 
   const selectedLocation = LOCATIONS.find(l => l.id === location);
+
+  // Update preview when generator selection changes
+  useEffect(() => {
+    if (page === 2 && onGeneratorPreview) {
+      const genPreset = selectedGenerator ? GENERATOR_PRESETS[selectedGenerator] : null;
+      onGeneratorPreview(genPreset);
+    }
+  }, [selectedGenerator, page, onGeneratorPreview]);
   
   const filteredPresets = Object.entries(GENERATOR_PRESETS)
     .filter(([key, preset]) => 
