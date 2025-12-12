@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, memo } from 'react';
 import type { Connection } from '@/lib/types';
 
 interface NodePosition {
@@ -22,7 +22,7 @@ interface ConnectionLinesProps {
   onConnectionClick?: (connectionId: string) => void;
 }
 
-export default function ConnectionLines({ 
+function ConnectionLinesComponent({ 
   connections, 
   containerRef, 
   hoveredConnectionId,
@@ -63,16 +63,11 @@ export default function ConnectionLines({
       resizeObserver.observe(containerRef.current);
     }
     
-    const mutationObserver = new MutationObserver(updateNodePositions);
-    if (containerRef.current) {
-      mutationObserver.observe(containerRef.current, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-      });
-    }
-    
-    const handleScroll = () => updateNodePositions();
+    let scrollTimeout: NodeJS.Timeout;
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(updateNodePositions, 16);
+    };
     window.addEventListener('scroll', handleScroll, true);
     
     if (containerRef.current) {
@@ -82,19 +77,16 @@ export default function ConnectionLines({
       });
     }
     
-    const interval = setInterval(updateNodePositions, 50);
-    
     return () => {
       resizeObserver.disconnect();
-      mutationObserver.disconnect();
       window.removeEventListener('scroll', handleScroll, true);
+      clearTimeout(scrollTimeout);
       if (containerRef.current) {
         const scrollables = containerRef.current.querySelectorAll('[data-radix-scroll-area-viewport]');
         scrollables.forEach(el => {
           el.removeEventListener('scroll', handleScroll);
         });
       }
-      clearInterval(interval);
     };
   }, [updateNodePositions, containerRef]);
 
@@ -226,3 +218,5 @@ export default function ConnectionLines({
     </svg>
   );
 }
+
+export default memo(ConnectionLinesComponent);
