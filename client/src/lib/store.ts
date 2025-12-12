@@ -114,25 +114,25 @@ export function useSystemStore() {
     });
   }, [state, saveState]);
 
-  const addGenerator = useCallback(() => {
+  const addGenerator = useCallback((preset?: Partial<Generator>) => {
     const id = `gen_${Date.now()}`;
     const newGenerator: Generator = {
       id,
-      name: 'Generator',
-      model: 'custom',
-      type: 'standard',
-      continuousWatts: 5000,
-      peakWatts: 6000,
-      userDerate: 0,
-      phaseCount: 1,
-      phaseType: 'single',
-      voltage: 120,
-      feederCable: { mode: 'awg', awg: 10, length: 25 },
-      distroChannels: [createDefaultDistroChannel(`distro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)],
+      name: preset?.name || 'Generator',
+      model: preset?.model || 'custom',
+      type: preset?.type || 'standard',
+      continuousWatts: preset?.continuousWatts || 5000,
+      peakWatts: preset?.peakWatts || 6000,
+      userDerate: preset?.userDerate || 0,
+      phaseCount: preset?.phaseCount || 1,
+      phaseType: preset?.phaseType || 'single',
+      voltage: preset?.voltage || 120,
+      feederCable: preset?.feederCable || { mode: 'awg', awg: 10, length: 25 },
+      distroChannels: preset?.distroChannels || [createDefaultDistroChannel(`distro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)],
       utilizationPercent: 0,
       peakUtilizationPercent: 0,
-      powerFactor: 0.95,
-      ratingType: 'watts',
+      powerFactor: preset?.powerFactor || 0.95,
+      ratingType: preset?.ratingType || 'watts',
     };
     saveState({ ...state, generators: [...state.generators, newGenerator] });
   }, [state, saveState]);
@@ -164,27 +164,28 @@ export function useSystemStore() {
     });
   }, [state.generators, updateGenerator]);
 
-  const addAmplifier = useCallback(() => {
+  const addAmplifier = useCallback((preset?: Partial<Amplifier>) => {
     const id = `amp_${Date.now()}`;
-    const channels: AmpChannel[] = Array.from({ length: 4 }, (_, i) => 
+    const channelCount = preset?.channelCount || 4;
+    const channels: AmpChannel[] = preset?.channels || Array.from({ length: channelCount }, (_, i) => 
       createDefaultAmpChannel(`ch_${Date.now()}_${i}`, i)
     );
     const newAmplifier: Amplifier = {
       id,
-      name: 'Amplifier',
-      model: 'custom',
-      pmax: 1000,
-      efficiency: 0.85,
-      parasiticDraw: 50,
-      powerFactor: 0.95,
-      supportsBridging: true,
-      channelCount: 4,
+      name: preset?.name || 'Amplifier',
+      model: preset?.model || 'custom',
+      pmax: preset?.pmax || 1000,
+      efficiency: preset?.efficiency || 0.85,
+      parasiticDraw: preset?.parasiticDraw || 50,
+      powerFactor: preset?.powerFactor || 0.95,
+      supportsBridging: preset?.supportsBridging ?? true,
+      channelCount,
       channels,
       rmsWattsDrawn: 0,
       peakRmsWattsDrawn: 0,
       utilizationPercent: 0,
       peakUtilizationPercent: 0,
-      minImpedance: 4,
+      minImpedance: preset?.minImpedance || 4,
     };
     saveState({ ...state, amplifiers: [...state.amplifiers, newAmplifier] });
   }, [state, saveState]);
@@ -206,19 +207,19 @@ export function useSystemStore() {
     });
   }, [state, saveState]);
 
-  const addSpeaker = useCallback(() => {
+  const addSpeaker = useCallback((preset?: Partial<Speaker>) => {
     const id = `spk_${Date.now()}`;
     const newSpeaker: Speaker = {
       id,
-      name: 'Speaker',
-      model: 'custom',
-      pmax: 1000,
-      impedance: 8,
-      nominalImpedance: 8,
-      cableImpedanceMilliohms: 0,
-      sensitivity: 100,
-      quantity: 1,
-      gain: 0,
+      name: preset?.name || 'Speaker',
+      model: preset?.model || 'custom',
+      pmax: preset?.pmax || 1000,
+      impedance: preset?.impedance || 8,
+      nominalImpedance: preset?.nominalImpedance || 8,
+      cableImpedanceMilliohms: preset?.cableImpedanceMilliohms || 0,
+      sensitivity: preset?.sensitivity || 100,
+      quantity: preset?.quantity || 1,
+      gain: preset?.gain || 0,
       splOutput: 0,
       utilizationPercent: 0,
     };
@@ -240,23 +241,23 @@ export function useSystemStore() {
     });
   }, [state, saveState]);
 
-  const addPoweredSpeaker = useCallback(() => {
+  const addPoweredSpeaker = useCallback((preset?: Partial<PoweredSpeaker>) => {
     const id = `pwspk_${Date.now()}`;
     const newPoweredSpeaker: PoweredSpeaker = {
       id,
-      name: 'Powered Speaker',
-      model: 'custom',
-      pmax: 1000,
-      impedance: 8,
-      sensitivity: 100,
-      quantity: 1,
-      gain: 0,
-      powerAmplifierPmax: 500,
-      efficiency: 0.85,
-      parasiticDraw: 30,
-      powerFactor: 0.9,
-      hpf: 40,
-      lpf: 16000,
+      name: preset?.name || 'Powered Speaker',
+      model: preset?.model || 'custom',
+      pmax: preset?.pmax || 1000,
+      impedance: preset?.impedance || 8,
+      sensitivity: preset?.sensitivity || 100,
+      quantity: preset?.quantity || 1,
+      gain: preset?.gain || 0,
+      powerAmplifierPmax: preset?.powerAmplifierPmax || 500,
+      efficiency: preset?.efficiency || 0.85,
+      parasiticDraw: preset?.parasiticDraw || 30,
+      powerFactor: preset?.powerFactor || 0.9,
+      hpf: preset?.hpf || 40,
+      lpf: preset?.lpf || 16000,
       splOutput: 0,
       rmsWattsDrawn: 0,
     };
