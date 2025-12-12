@@ -82,9 +82,16 @@ const GENERATOR_PRESETS: Record<string, Partial<Generator>> = {
     powerFactor: 0.9,
     ratingType: "watts",
     distroChannels: [
-      createDistroChannelPreset("distro_phase1", 1, 20, "CamLok"),
-      createDistroChannelPreset("distro_phase2", 2, 20, "CamLok"),
-      createDistroChannelPreset("distro_phase3", 3, 20, "CamLok"),
+      // 120V single phase outputs on L1/L2/L3
+      createDistroChannelPreset("distro_l1_20a", 1, 20, "NEMA-5-20", "single"),
+      createDistroChannelPreset("distro_l2_20a", 2, 20, "NEMA-5-20", "single"),
+      createDistroChannelPreset("distro_l3_20a", 3, 20, "NEMA-5-20", "single"),
+      // 208V split phase outputs on L12/L23/L31
+      createDistroChannelPreset("distro_l12_30a", 12, 30, "NEMA L14-30", "split"),
+      createDistroChannelPreset("distro_l23_30a", 23, 30, "NEMA L14-30", "split"),
+      createDistroChannelPreset("distro_l31_30a", 31, 30, "NEMA L14-30", "split"),
+      // 3-phase wye output on CamLoks
+      createDistroChannelPreset("distro_3ph_wye_50a", 123, 50, "CamLok", "3_wye"),
     ],
   },
   custom: {
