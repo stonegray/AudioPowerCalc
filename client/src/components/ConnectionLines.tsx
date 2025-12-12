@@ -1,8 +1,7 @@
-import { useEffect, useState, useCallback, memo } from 'react';
+import { useLayoutEffect, useRef, memo } from 'react';
 import type { Connection } from '@/lib/types';
 
 interface NodePosition {
-  id: string;
   x: number;
   y: number;
 }
@@ -22,6 +21,12 @@ interface ConnectionLinesProps {
   onConnectionClick?: (connectionId: string) => void;
 }
 
+const createBezierPath = (startX: number, startY: number, endX: number, endY: number): string => {
+  const dx = endX - startX;
+  const controlOffset = Math.min(Math.abs(dx) * 0.4, 150);
+  return `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
+};
+
 function ConnectionLinesComponent({ 
   connections, 
   containerRef, 
@@ -30,14 +35,19 @@ function ConnectionLinesComponent({
   onConnectionHover,
   onConnectionClick,
 }: ConnectionLinesProps) {
-  const [nodePositions, setNodePositions] = useState<Map<string, NodePosition>>(new Map());
+  const nodePositionsRef = useRef<Map<string, NodePosition>>(new Map());
+  const pathCacheRef = useRef<Map<string, string>>(new Map());
+  const rafIdRef = useRef<number | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const connectionIdsRef = useRef<Set<string>>(new Set());
 
-  const updateNodePositions = useCallback(() => {
+  // Calculate node positions from DOM
+  const updateNodePositions = () => {
     if (!containerRef.current) return;
     
     const container = containerRef.current;
     const containerRect = container.getBoundingClientRect();
-    const newPositions = new Map<string, NodePosition>();
+    const positions = nodePositionsRef.current;
     
     const nodes = container.querySelectorAll('[data-node-id]');
     nodes.forEach((node) => {
@@ -45,92 +55,114 @@ function ConnectionLinesComponent({
       if (!id) return;
       
       const rect = node.getBoundingClientRect();
-      newPositions.set(id, {
-        id,
+      positions.set(id, {
         x: rect.left - containerRect.left + rect.width / 2,
         y: rect.top - containerRect.top + rect.height / 2,
       });
     });
-    
-    setNodePositions(newPositions);
-  }, [containerRef]);
+  };
 
-  useEffect(() => {
+  // Update SVG paths with calculated positions
+  const updatePaths = () => {
+    const positions = nodePositionsRef.current;
+    const pathCache = pathCacheRef.current;
+    const connectionIds = connectionIdsRef.current;
+
+    connectionIds.forEach((connId) => {
+      const group = svgRef.current?.querySelector(`[data-connection-id="${connId}"]`);
+      if (!group) return;
+
+      const paths = group.querySelectorAll('path') as NodeListOf<SVGPathElement>;
+      if (paths.length === 0) return;
+
+      // Extract connection info from DOM or reconstruct
+      const connIndex = Array.from(group.parentElement?.querySelectorAll('[data-connection-id]') || []).indexOf(group);
+      const conn = connections[connIndex];
+      if (!conn) return;
+
+      const startPos = positions.get(conn.sourceId);
+      const endPos = positions.get(conn.targetId);
+      
+      if (!startPos || !endPos) return;
+      
+      const newPath = createBezierPath(startPos.x, startPos.y, endPos.x, endPos.y);
+      const prevPath = pathCache.get(connId);
+      
+      if (newPath === prevPath) return;
+      
+      pathCache.set(connId, newPath);
+      
+      // Update all paths in the group
+      paths.forEach((path) => {
+        path.setAttribute('d', newPath);
+      });
+    });
+
+    // Update drag line
+    if (dragState && svgRef.current) {
+      const dragPath = createBezierPath(
+        dragState.sourceX,
+        dragState.sourceY,
+        dragState.currentX,
+        dragState.currentY
+      );
+      const dragLine = svgRef.current.querySelector('[data-drag-line]') as SVGPathElement;
+      if (dragLine) {
+        dragLine.setAttribute('d', dragPath);
+      }
+    }
+  };
+
+  // 60fps RAF loop
+  const raf = () => {
     updateNodePositions();
+    updatePaths();
+    rafIdRef.current = requestAnimationFrame(raf);
+  };
+
+  // Setup RAF loop on mount
+  useLayoutEffect(() => {
+    // Update connection IDs set
+    connectionIdsRef.current = new Set(connections.map(c => c.id));
+
+    // Initial update
+    updateNodePositions();
+    updatePaths();
+
+    // Start RAF loop if not running
+    if (!rafIdRef.current) {
+      rafIdRef.current = requestAnimationFrame(raf);
+    }
+
+    // Resize observer for layout changes
+    const resizeObserver = new ResizeObserver(() => {
+      updateNodePositions();
+    });
     
-    const resizeObserver = new ResizeObserver(updateNodePositions);
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
     }
-    
-    let scrollTimeout: NodeJS.Timeout;
-    const handleScroll = () => {
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(updateNodePositions, 16);
-    };
-    window.addEventListener('scroll', handleScroll, true);
-    
-    if (containerRef.current) {
-      const scrollables = containerRef.current.querySelectorAll('[data-radix-scroll-area-viewport]');
-      scrollables.forEach(el => {
-        el.addEventListener('scroll', handleScroll);
-      });
-    }
-    
+
     return () => {
       resizeObserver.disconnect();
-      window.removeEventListener('scroll', handleScroll, true);
-      clearTimeout(scrollTimeout);
-      if (containerRef.current) {
-        const scrollables = containerRef.current.querySelectorAll('[data-radix-scroll-area-viewport]');
-        scrollables.forEach(el => {
-          el.removeEventListener('scroll', handleScroll);
-        });
-      }
     };
-  }, [updateNodePositions, containerRef]);
+  }, [containerRef]);
 
-  const createBezierPath = (startX: number, startY: number, endX: number, endY: number): string => {
-    const dx = endX - startX;
-    const controlOffset = Math.min(Math.abs(dx) * 0.4, 150);
-    
-    return `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
-  };
+  // Update connection IDs when connections change (but don't restart RAF)
+  useLayoutEffect(() => {
+    connectionIdsRef.current = new Set(connections.map(c => c.id));
+  }, [connections]);
 
-  const getConnectedIds = (connectionId: string): Set<string> => {
-    const conn = connections.find(c => c.id === connectionId);
-    if (!conn) return new Set();
-    
-    const ids = new Set<string>();
-    ids.add(conn.sourceId);
-    ids.add(conn.targetId);
-    
-    connections.forEach(c => {
-      if (c.sourceId === conn.sourceId || c.targetId === conn.sourceId ||
-          c.sourceId === conn.targetId || c.targetId === conn.targetId) {
-        ids.add(c.sourceId);
-        ids.add(c.targetId);
-      }
-    });
-    
-    return ids;
-  };
-
-  const isConnectionHighlighted = (conn: Connection): boolean => {
-    if (!hoveredConnectionId) return false;
-    if (conn.id === hoveredConnectionId) return true;
-    
-    const hoveredConn = connections.find(c => c.id === hoveredConnectionId);
-    if (!hoveredConn) return false;
-    
-    return conn.sourceId === hoveredConn.sourceId || 
-           conn.targetId === hoveredConn.targetId ||
-           conn.sourceId === hoveredConn.targetId ||
-           conn.targetId === hoveredConn.sourceId;
-  };
+  // Cleanup RAF on unmount
+  useLayoutEffect(() => {
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    };
+  }, []);
 
   return (
     <svg
+      ref={svgRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
       style={{ overflow: 'visible', zIndex: 0 }}
     >
@@ -159,19 +191,12 @@ function ConnectionLinesComponent({
       </defs>
       
       {connections.map((conn) => {
-        const startPos = nodePositions.get(conn.sourceId);
-        const endPos = nodePositions.get(conn.targetId);
-        
-        if (!startPos || !endPos) return null;
-        
-        const path = createBezierPath(startPos.x, startPos.y, endPos.x, endPos.y);
-        const isHighlighted = isConnectionHighlighted(conn);
+        const isHighlighted = hoveredConnectionId === conn.id;
         
         return (
-          <g key={conn.id}>
+          <g key={conn.id} data-connection-id={conn.id}>
             {isHighlighted && (
               <path
-                d={path}
                 fill="none"
                 stroke={conn.color}
                 strokeWidth="8"
@@ -181,15 +206,12 @@ function ConnectionLinesComponent({
               />
             )}
             <path
-              d={path}
               fill="none"
               stroke={`url(#gradient-${conn.id})`}
               strokeWidth={isHighlighted ? "4" : "3"}
               strokeLinecap="round"
-              className="transition-all duration-150"
             />
             <path
-              d={path}
               fill="none"
               stroke="transparent"
               strokeWidth="16"
@@ -206,7 +228,7 @@ function ConnectionLinesComponent({
       
       {dragState && (
         <path
-          d={createBezierPath(dragState.sourceX, dragState.sourceY, dragState.currentX, dragState.currentY)}
+          data-drag-line
           fill="none"
           stroke="hsl(var(--primary))"
           strokeWidth="2"
