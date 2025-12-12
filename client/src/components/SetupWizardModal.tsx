@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck } from "lucide-react";
+import { ExternalLink, MapPin, Music, Zap, Check, Search, BadgeCheck, ArrowRight, HelpCircle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { MusicGenre, GlobalSettings, Generator } from "@/lib/types";
 import { GENERATOR_PRESETS } from "@/lib/types";
@@ -147,9 +147,9 @@ export default function SetupWizardModal({
     }
   }, [musicGenre, onGenrePreview]);
 
-  // Update preview when app mode changes (only on page 3)
+  // Update preview when app mode changes (only on page 4)
   useEffect(() => {
-    if (page === 3 && onModePreview) {
+    if (page === 4 && onModePreview) {
       onModePreview(appMode);
     }
   }, [appMode, page, onModePreview]);
@@ -166,7 +166,7 @@ export default function SetupWizardModal({
     );
 
   const handleNext = () => {
-    if (page < 4) {
+    if (page < 5) {
       setPage(page + 1);
     } else {
       const genPreset = selectedGenerator ? GENERATOR_PRESETS[selectedGenerator] : null;
@@ -234,11 +234,17 @@ export default function SetupWizardModal({
             )}
             {page === 3 && (
               <>
+                <HelpCircle className="w-5 h-5" />
+                How to Connect Equipment
+              </>
+            )}
+            {page === 4 && (
+              <>
                 <Zap className="w-5 h-5" />
                 Choose Mode
               </>
             )}
-            {page === 4 && (
+            {page === 5 && (
               <>
                 <Check className="w-5 h-5" />
                 Setup Complete
@@ -470,6 +476,86 @@ export default function SetupWizardModal({
           )}
 
           {page === 3 && (
+            <div className="space-y-6 py-4">
+              <div className="flex items-center gap-2 mb-4">
+                <HelpCircle className="w-5 h-5 text-primary" />
+                <h3 className="font-semibold">Learn how to connect your equipment</h3>
+              </div>
+
+              {/* Step 1 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex-shrink-0">
+                    1
+                  </div>
+                  <h4 className="font-semibold">Click the output node on your power source</h4>
+                </div>
+                <div className="ml-11 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Find a generator's distro channel or look for the small connection point on the right side of the card. This is your power output.
+                  </p>
+                  <div className="bg-muted p-4 rounded-md border border-border">
+                    <div className="flex items-center gap-3">
+                      <div className="text-xs font-mono text-muted-foreground">Generator</div>
+                      <div className="flex-1 h-10 bg-card border border-border rounded flex items-center px-3 justify-between">
+                        <span className="text-xs">Distro Channel</span>
+                        <div className="w-2 h-2 bg-primary rounded-full shadow-lg"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex-shrink-0">
+                    2
+                  </div>
+                  <h4 className="font-semibold">Click the input node on your destination equipment</h4>
+                </div>
+                <div className="ml-11 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Find an amplifier's input point on the left side of its card. This is where power flows in from your generator.
+                  </p>
+                  <div className="bg-muted p-4 rounded-md border border-border">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-primary rounded-full shadow-lg"></div>
+                      <div className="flex-1 h-10 bg-card border border-border rounded flex items-center px-3 justify-between">
+                        <span className="text-xs">Amplifier</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex-shrink-0">
+                    3
+                  </div>
+                  <h4 className="font-semibold">Connection created!</h4>
+                </div>
+                <div className="ml-11 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    A colored line will appear connecting the two nodes. Power flows from the generator through this connection.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 rounded-md p-3 space-y-2">
+                <h4 className="font-semibold text-sm text-blue-900 dark:text-blue-100">Quick Tips</h4>
+                <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                  <li>• Multiple amps can connect to one distro channel</li>
+                  <li>• Click a connection to remove it</li>
+                  <li>• Calculations update automatically</li>
+                </ul>
+              </div>
+            </div>
+          )}
+
+          {page === 4 && (
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label>What's your experience level?</Label>
@@ -568,7 +654,7 @@ export default function SetupWizardModal({
             </div>
           )}
 
-          {page === 4 && (
+          {page === 5 && (
             <div className="space-y-6 text-center py-4">
               <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
                 <Check className="w-8 h-8 text-primary" />
@@ -598,7 +684,7 @@ export default function SetupWizardModal({
 
         <DialogFooter className="flex justify-between gap-2">
           <div className="flex gap-2">
-            {page > 1 && page < 4 && (
+            {page > 1 && page < 5 && (
               <Button variant="outline" onClick={handleBack} data-testid="button-back">
                 Back
               </Button>
@@ -611,7 +697,7 @@ export default function SetupWizardModal({
           </div>
           <div className="flex gap-2">
             <div className="flex items-center gap-1 text-sm text-muted-foreground mr-4">
-              {[1, 2, 3, 4].map((p) => (
+              {[1, 2, 3, 4, 5].map((p) => (
                 <div
                   key={p}
                   className={`w-2 h-2 rounded-full ${
@@ -621,7 +707,7 @@ export default function SetupWizardModal({
               ))}
             </div>
             <Button onClick={handleNext} data-testid="button-next">
-              {page === 4 ? "Close" : "Next"}
+              {page === 5 ? "Close" : "Next"}
             </Button>
           </div>
         </DialogFooter>
