@@ -112,11 +112,15 @@ export default function Home() {
 
   const handleNodeClick = useCallback((nodeId: string, nodeType: 'distro' | 'ampChannel' | 'amp' | 'poweredSpeaker' | 'speaker') => {
     if (nodeType === 'distro' || nodeType === 'ampChannel') {
-      const existingConn = state.connections.find(c => c.sourceId === nodeId);
-      if (existingConn) {
-        removeConnection(existingConn.id);
-        toast({ title: 'Connection removed' });
-        return;
+      // For amp channels, only allow one connection (remove existing)
+      // For distros, allow multiple connections (don't remove existing)
+      if (nodeType === 'ampChannel') {
+        const existingConn = state.connections.find(c => c.sourceId === nodeId);
+        if (existingConn) {
+          removeConnection(existingConn.id);
+          toast({ title: 'Connection removed' });
+          return;
+        }
       }
       
       if (pendingConnection?.sourceId === nodeId) {

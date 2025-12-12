@@ -1,4 +1,4 @@
-import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel, CrestCurvePoint } from './types';
+import type { GlobalSettings, Generator, Amplifier, Speaker, Connection, AmpChannel, CrestCurvePoint, DistroLoadInfo, PowerFactorDebug } from './types';
 import { AWG_RESISTANCE } from './types';
 
 // Power factor conversions

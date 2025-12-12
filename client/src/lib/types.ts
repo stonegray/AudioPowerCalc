@@ -72,6 +72,16 @@ export interface CableConfig {
   manualResistance?: number;
 }
 
+export interface DistroLoadInfo {
+  ampId: string;
+  ampName: string;
+  watts: number;
+  peakWatts: number;
+  powerFactor: number;
+  va: number;
+  peakVa: number;
+}
+
 export interface DistroChannel {
   id: string;
   enabled: boolean;
@@ -83,6 +93,22 @@ export interface DistroChannel {
   loadAmps: number;
   loadWatts: number;
   peakLoadWatts: number;
+  connectedLoads?: DistroLoadInfo[];
+  aggregatePowerFactor?: number;
+  totalVa?: number;
+  peakTotalVa?: number;
+}
+
+export interface PowerFactorDebug {
+  totalWatts: number;
+  totalVa: number;
+  aggregatePowerFactor: number;
+  kvaCapacity: number;
+  wattsCapacity: number;
+  utilizationByVa: number;
+  utilizationByWatts: number;
+  powerFactorPenalty: number;
+  explanation: string;
 }
 
 export interface Generator {
@@ -102,6 +128,7 @@ export interface Generator {
   peakUtilizationPercent: number;
   powerFactor: number;
   ratingType: 'watts' | 'kva';
+  powerFactorDebug?: PowerFactorDebug;
 }
 
 export interface AmpChannel {
