@@ -161,12 +161,14 @@ export default function SpeakerCard({
           </div>
         </div>
         
-        <div className="flex items-baseline gap-2 mt-1">
-          <span className="text-xl font-mono font-semibold">
-            {speaker.splOutput.toFixed(1)}
-          </span>
-          <span className="text-xs text-muted-foreground">dB SPL @ {getDisplayDistance(splDistance, units)}</span>
-        </div>
+        {appMode !== 'basic' && (
+          <div className="flex items-baseline gap-2 mt-1">
+            <span className="text-xl font-mono font-semibold">
+              {speaker.splOutput.toFixed(1)}
+            </span>
+            <span className="text-xs text-muted-foreground">dB SPL @ {getDisplayDistance(splDistance, units)}</span>
+          </div>
+        )}
         
         <div className="flex items-center justify-between gap-3 mt-1.5">
           <div className="flex-1">
@@ -320,10 +322,12 @@ export default function SpeakerCard({
           )}
         </div>
 
-        <div className="bg-muted/50 rounded-md px-2 py-1 text-xs font-mono">
-          <span className="text-muted-foreground">Eff Z: </span>
-          <span>{((effectiveImpedance + cableImpedanceOhms) / speaker.quantity).toFixed(2)}Ω</span>
-        </div>
+        {appMode !== 'basic' && (
+          <div className="bg-muted/50 rounded-md px-2 py-1 text-xs font-mono">
+            <span className="text-muted-foreground">Eff Z: </span>
+            <span>{((effectiveImpedance + cableImpedanceOhms) / speaker.quantity).toFixed(2)}Ω</span>
+          </div>
+        )}
 
         {appMode === 'engineering' && (
           <DebugPanel

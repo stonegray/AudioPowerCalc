@@ -199,40 +199,44 @@ export default function DistroChannelRow({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <div className="flex items-center gap-1">
-          <Label className="text-xs text-muted-foreground">Ph</Label>
-          <Select
-            value={String(channel.phaseSource)}
-            onValueChange={(v) => onUpdate({ phaseSource: Number(v) })}
-          >
-            <SelectTrigger className="h-7 w-20 text-xs" data-testid={`select-phase-${index}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {phaseOptions.map((p) => (
-                <SelectItem key={p.value} value={String(p.value)}>{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {!isBasic && (
+          <div className="flex items-center gap-1">
+            <Label className="text-xs text-muted-foreground">Ph</Label>
+            <Select
+              value={String(channel.phaseSource)}
+              onValueChange={(v) => onUpdate({ phaseSource: Number(v) })}
+            >
+              <SelectTrigger className="h-7 w-20 text-xs" data-testid={`select-phase-${index}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {phaseOptions.map((p) => (
+                  <SelectItem key={p.value} value={String(p.value)}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-        <div className="flex items-center gap-1">
-          <Label className="text-xs text-muted-foreground">A</Label>
-          <Select
-            value={String(channel.ampacity)}
-            onValueChange={(v) => onUpdate({ ampacity: Number(v) })}
-          >
-            <SelectTrigger className="h-7 w-16 text-xs" data-testid={`select-ampacity-${index}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15">15A</SelectItem>
-              <SelectItem value="20">20A</SelectItem>
-              <SelectItem value="30">30A</SelectItem>
-              <SelectItem value="50">50A</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {!isBasic && (
+          <div className="flex items-center gap-1">
+            <Label className="text-xs text-muted-foreground">A</Label>
+            <Select
+              value={String(channel.ampacity)}
+              onValueChange={(v) => onUpdate({ ampacity: Number(v) })}
+            >
+              <SelectTrigger className="h-7 w-16 text-xs" data-testid={`select-ampacity-${index}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15">15A</SelectItem>
+                <SelectItem value="20">20A</SelectItem>
+                <SelectItem value="30">30A</SelectItem>
+                <SelectItem value="50">50A</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {!isBasic && (
           <Popover open={presetsOpen} onOpenChange={setPresetsOpen}>
@@ -260,22 +264,24 @@ export default function DistroChannelRow({
           </Popover>
         )}
 
-        <div className="flex items-center gap-1">
-          <Label className="text-xs text-muted-foreground">Type</Label>
-          <Select
-            value={channel.outputType}
-            onValueChange={(v: PhaseType) => onUpdate({ outputType: v })}
-          >
-            <SelectTrigger className="h-7 w-24 text-xs" data-testid={`select-output-type-${index}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {availablePhaseTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {!isBasic && (
+          <div className="flex items-center gap-1">
+            <Label className="text-xs text-muted-foreground">Type</Label>
+            <Select
+              value={channel.outputType}
+              onValueChange={(v: PhaseType) => onUpdate({ outputType: v })}
+            >
+              <SelectTrigger className="h-7 w-24 text-xs" data-testid={`select-output-type-${index}`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {availablePhaseTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {!isBasic && (
           <div className="flex items-center gap-1">

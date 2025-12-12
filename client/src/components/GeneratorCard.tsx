@@ -192,23 +192,25 @@ export default function GeneratorCard({
             </div>
           )}
 
-          <div className="flex items-center gap-1">
-            <Label className="text-xs text-muted-foreground">Ph</Label>
-            <Select
-              value={String(generator.phaseCount)}
-              onValueChange={(v) => onUpdate({ phaseCount: Number(v) as 1 | 2 | 3 })}
-              disabled={!isCustom}
-            >
-              <SelectTrigger className="h-7 w-12 text-xs" data-testid={`select-phases-${generator.id}`}>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {!isBasic && (
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">Ph</Label>
+              <Select
+                value={String(generator.phaseCount)}
+                onValueChange={(v) => onUpdate({ phaseCount: Number(v) as 1 | 2 | 3 })}
+                disabled={!isCustom}
+              >
+                <SelectTrigger className="h-7 w-12 text-xs" data-testid={`select-phases-${generator.id}`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {!isBasic && (
             <>
