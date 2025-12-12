@@ -4,8 +4,6 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import type { AmpChannel, CrossoverMode } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -55,7 +53,7 @@ export default function AmpChannelRow({
   const utilizationPercent = (channel.energyWatts / Math.max(effectivePmax, 1)) * 100;
 
   const crossoverMode = channel.crossoverMode || 'main';
-  const showCustomControls = crossoverMode === 'custom';
+  const showCustomControls = crossoverMode === 'custom' || isEngineering;
 
   const handleCrossoverModeChange = (mode: CrossoverMode) => {
     const preset = CROSSOVER_PRESETS[mode];
@@ -67,6 +65,14 @@ export default function AmpChannelRow({
         hpf: preset.hpf, 
         lpf: preset.lpf 
       });
+    }
+  };
+
+  const handleManualFrequencyEdit = (field: 'hpf' | 'lpf' | 'qFactor', value: number) => {
+    if (isEngineering && crossoverMode !== 'custom') {
+      onUpdate({ crossoverMode: 'custom', [field]: value });
+    } else {
+      onUpdate({ [field]: value });
     }
   };
 
@@ -86,10 +92,6 @@ export default function AmpChannelRow({
   };
 
   const crossoverOptions = getCrossoverOptions();
-
-  // Get effective HPF/LPF based on mode
-  const effectiveHpf = crossoverMode === 'custom' ? channel.hpf : CROSSOVER_PRESETS[crossoverMode]?.hpf || 30;
-  const effectiveLpf = crossoverMode === 'custom' ? channel.lpf : CROSSOVER_PRESETS[crossoverMode]?.lpf || 20000;
 
   return (
     <div 
@@ -169,20 +171,20 @@ export default function AmpChannelRow({
           </div>
 
           {/* Row 2: HPF/LPF/Q (hidden by default, shown when Custom mode or engineering mode) */}
-          {(showCustomControls || isEngineering) && (
+          {showCustomControls && (
             <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-border/50">
               <div className="flex items-center gap-1">
                 <Label className="text-xs text-muted-foreground">HPF</Label>
                 <Input
                   type="text"
                   inputMode="numeric"
-                  value={showCustomControls ? channel.hpf : effectiveHpf}
+                  value={channel.hpf}
                   onChange={(e) => {
                     const num = Number(e.target.value);
-                    if (!isNaN(num)) onUpdate({ hpf: num });
+                    if (!isNaN(num)) handleManualFrequencyEdit('hpf', num);
                   }}
                   className="h-6 w-14 font-mono text-right text-xs"
-                  disabled={isDisabled || !showCustomControls}
+                  disabled={isDisabled}
                   data-testid={`input-hpf-${index}`}
                 />
                 <span className="text-xs text-muted-foreground">Hz</span>
@@ -193,13 +195,13 @@ export default function AmpChannelRow({
                 <Input
                   type="text"
                   inputMode="numeric"
-                  value={showCustomControls ? channel.lpf : effectiveLpf}
+                  value={channel.lpf}
                   onChange={(e) => {
                     const num = Number(e.target.value);
-                    if (!isNaN(num)) onUpdate({ lpf: num });
+                    if (!isNaN(num)) handleManualFrequencyEdit('lpf', num);
                   }}
                   className="h-6 w-16 font-mono text-right text-xs"
-                  disabled={isDisabled || !showCustomControls}
+                  disabled={isDisabled}
                   data-testid={`input-lpf-${index}`}
                 />
                 <span className="text-xs text-muted-foreground">Hz</span>
@@ -213,7 +215,7 @@ export default function AmpChannelRow({
                   value={channel.qFactor?.toFixed(3) ?? '0.707'}
                   onChange={(e) => {
                     const num = Number(e.target.value);
-                    if (!isNaN(num)) onUpdate({ qFactor: num });
+                    if (!isNaN(num)) handleManualFrequencyEdit('qFactor', num);
                   }}
                   className="h-6 w-14 font-mono text-right text-xs"
                   disabled={isDisabled}

@@ -7,11 +7,16 @@ export default function AmpChannelRowExample() {
     id: 'ch_1',
     enabled: true,
     bridged: false,
+    crossoverMode: 'sub',
     hpf: 30,
     lpf: 100,
+    qFactor: 0.707,
     loadOhms: 4,
     energyWatts: 850,
+    peakEnergyWatts: 1000,
     musicPowerWatts: 1200,
+    gain: 0,
+    effectiveZ: 4,
   });
 
   return (
