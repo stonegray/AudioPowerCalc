@@ -12,7 +12,8 @@ import AmpChannelRow from './AmpChannelRow';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
 import DebugPanel from './DebugPanel';
-import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode, Connection, Generator } from '@/lib/types';
+import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode, Connection, Generator, GlobalSettings } from '@/lib/types';
+import { calculateCrestWithAlgorithm } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 
 interface AmplifierCardProps {
@@ -31,6 +32,7 @@ interface AmplifierCardProps {
   isHighlighted?: boolean;
   connections?: Connection[];
   generators?: Generator[];
+  settings?: GlobalSettings;
 }
 
 export default function AmplifierCard({
@@ -49,6 +51,7 @@ export default function AmplifierCard({
   isHighlighted = false,
   connections = [],
   generators = [],
+  settings,
 }: AmplifierCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const isCustom = amplifier.model === 'custom';
@@ -382,17 +385,28 @@ export default function AmplifierCard({
               },
               {
                 title: 'Channel Details',
-                entries: amplifier.channels.flatMap((ch, i) => [
-                  { label: `Ch ${i + 1} Enabled`, value: ch.enabled },
-                  { label: `Ch ${i + 1} HPF`, value: ch.hpf, unit: 'Hz' },
-                  { label: `Ch ${i + 1} LPF`, value: ch.lpf, unit: 'Hz' },
-                  { label: `Ch ${i + 1} Gain`, value: ch.gain, unit: 'dB' },
-                  { label: `Ch ${i + 1} Bridged`, value: ch.bridged },
-                  { label: `Ch ${i + 1} Effective Z`, value: ch.effectiveZ, unit: 'Ω', isCalculated: true },
-                  { label: `Ch ${i + 1} Music Power`, value: ch.musicPowerWatts, unit: 'W', isCalculated: true },
-                  { label: `Ch ${i + 1} Energy (Avg)`, value: ch.energyWatts, unit: 'W', isCalculated: true },
-                  { label: `Ch ${i + 1} Energy (Peak)`, value: ch.peakEnergyWatts, unit: 'W', isCalculated: true },
-                ])
+                entries: amplifier.channels.flatMap((ch, i) => {
+                  const avgCrest = settings ? calculateCrestWithAlgorithm(ch.hpf, ch.lpf, settings.crestCurve, 'average') : 0;
+                  const peakCrest = settings ? calculateCrestWithAlgorithm(ch.hpf, ch.lpf, settings.crestCurve, 'peak') : 0;
+                  const maxCrest = settings ? calculateCrestWithAlgorithm(ch.hpf, ch.lpf, settings.crestCurve, 'maximum') : 0;
+                  const rmsWeightedCrest = settings ? calculateCrestWithAlgorithm(ch.hpf, ch.lpf, settings.crestCurve, 'rms_weighted') : 0;
+                  
+                  return [
+                    { label: `Ch ${i + 1} Enabled`, value: ch.enabled },
+                    { label: `Ch ${i + 1} HPF`, value: ch.hpf, unit: 'Hz' },
+                    { label: `Ch ${i + 1} LPF`, value: ch.lpf, unit: 'Hz' },
+                    { label: `Ch ${i + 1} Gain`, value: ch.gain, unit: 'dB' },
+                    { label: `Ch ${i + 1} Bridged`, value: ch.bridged },
+                    { label: `Ch ${i + 1} Effective Z`, value: ch.effectiveZ, unit: 'Ω', isCalculated: true },
+                    { label: `Ch ${i + 1} Music Power`, value: ch.musicPowerWatts, unit: 'W', isCalculated: true },
+                    { label: `Ch ${i + 1} Energy (Avg)`, value: ch.energyWatts, unit: 'W', isCalculated: true },
+                    { label: `Ch ${i + 1} Energy (Peak)`, value: ch.peakEnergyWatts, unit: 'W', isCalculated: true },
+                    { label: `Ch ${i + 1} Crest: Average`, value: avgCrest.toFixed(2), isCalculated: true },
+                    { label: `Ch ${i + 1} Crest: Peak (Min)`, value: peakCrest.toFixed(2), isCalculated: true },
+                    { label: `Ch ${i + 1} Crest: Maximum`, value: maxCrest.toFixed(2), isCalculated: true },
+                    { label: `Ch ${i + 1} Crest: RMS-Weighted`, value: rmsWeightedCrest.toFixed(2), isCalculated: true },
+                  ];
+                })
               },
               {
                 title: 'Outputs To (Speakers)',

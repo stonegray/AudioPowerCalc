@@ -420,6 +420,7 @@ export default function Home() {
                     isHighlighted={isNodeHighlighted(amp.id)}
                     connections={state.connections}
                     generators={state.generators}
+                    settings={state.globalSettings}
                   />
                 ))}
                 {poweredSpeakersWithCalcs.map(spk => (
