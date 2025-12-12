@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Trash2 } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
+import DebugPanel from './DebugPanel';
 import type { DistroChannel, PhaseType, CableInputMode } from '@/lib/types';
 import { AWG_RESISTANCE } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -351,6 +352,42 @@ export default function DistroChannelRow({
           </div>
         )}
       </div>
+
+      {appMode === 'engineering' && channel.connectedLoads && channel.connectedLoads.length > 0 && (
+        <DebugPanel
+          testId={`button-toggle-debug-distro-${channel.id}`}
+          sections={[
+            {
+              title: 'Connected Loads',
+              entries: channel.connectedLoads.map((load, i) => ({
+                label: `${load.ampName} (Amp ${i + 1})`,
+                value: `${load.watts.toFixed(0)}W avg / ${load.peakWatts.toFixed(0)}W pk`,
+                isConnection: true
+              }))
+            },
+            {
+              title: 'Per-Load Details',
+              entries: channel.connectedLoads.flatMap((load, i) => [
+                { label: `Amp ${i + 1} Watts`, value: load.watts, unit: 'W', isCalculated: true },
+                { label: `Amp ${i + 1} Peak`, value: load.peakWatts, unit: 'W', isCalculated: true },
+                { label: `Amp ${i + 1} PF`, value: load.powerFactor.toFixed(2), isCalculated: true },
+                { label: `Amp ${i + 1} VA`, value: load.va, unit: 'VA', isCalculated: true },
+                { label: `Amp ${i + 1} Peak VA`, value: load.peakVa, unit: 'VA', isCalculated: true },
+              ])
+            },
+            {
+              title: 'Aggregated',
+              entries: [
+                { label: 'Total Load Watts', value: channel.loadWatts, unit: 'W', isCalculated: true },
+                { label: 'Total Peak Watts', value: channel.peakLoadWatts, unit: 'W', isCalculated: true },
+                { label: 'Aggregate PF', value: (channel.aggregatePowerFactor || 1.0).toFixed(2), isCalculated: true },
+                { label: 'Total VA', value: channel.totalVa, unit: 'VA', isCalculated: true },
+                { label: 'Peak VA', value: channel.peakTotalVa, unit: 'VA', isCalculated: true },
+              ]
+            }
+          ]}
+        />
+      )}
 
       <ConnectionNode
         id={channel.id}

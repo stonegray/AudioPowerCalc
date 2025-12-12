@@ -296,7 +296,13 @@ export default function GlobalSettingsPanel({
               </DialogContent>
             </Dialog>
             <Dialog open={newProjectDialogOpen} onOpenChange={setNewProjectDialogOpen}>
-              <Button variant="outline" size="sm" onClick={handleNewProject} data-testid="button-new-project">
+              <Button 
+                variant={hasUnsavedWork ? "outline" : "default"} 
+                size="sm" 
+                onClick={handleNewProject} 
+                data-testid="button-new-project"
+                className={!hasUnsavedWork ? "bg-green-600 hover:bg-green-700 border border-green-700 animate-pulse" : ""}
+              >
                 <FilePlus className="w-3 h-3 mr-1" />
                 New
               </Button>

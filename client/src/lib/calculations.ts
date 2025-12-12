@@ -509,21 +509,59 @@ export function calculateDistroChannelLoad(
   distroChannelId: string,
   amplifiers: Amplifier[],
   connections: Connection[]
-): { loadWatts: number; peakLoadWatts: number } {
+): { 
+  loadWatts: number; 
+  peakLoadWatts: number;
+  connectedLoads: DistroLoadInfo[];
+  aggregatePowerFactor: number;
+  totalVa: number;
+  peakTotalVa: number;
+} {
   let totalLoadWatts = 0;
   let totalPeakLoadWatts = 0;
+  const connectedLoads: DistroLoadInfo[] = [];
+  let totalVa = 0;
+  let peakTotalVa = 0;
   
   for (const connection of connections) {
     if (connection.sourceId === distroChannelId && connection.sourceType === 'distro' && connection.targetType === 'amp') {
       const amplifier = amplifiers.find(amp => amp.id === connection.targetId);
       if (amplifier) {
-        totalLoadWatts += amplifier.rmsWattsDrawn;
-        totalPeakLoadWatts += amplifier.peakRmsWattsDrawn || amplifier.rmsWattsDrawn;
+        const watts = amplifier.rmsWattsDrawn;
+        const peakWatts = amplifier.peakRmsWattsDrawn || amplifier.rmsWattsDrawn;
+        const pf = Math.max(0.01, Math.min(1, amplifier.powerFactor || 0.95));
+        const va = watts / pf;
+        const peakVa = peakWatts / pf;
+        
+        totalLoadWatts += watts;
+        totalPeakLoadWatts += peakWatts;
+        totalVa += va;
+        peakTotalVa += peakVa;
+        
+        connectedLoads.push({
+          ampId: amplifier.id,
+          ampName: amplifier.name,
+          watts,
+          peakWatts,
+          powerFactor: pf,
+          va,
+          peakVa,
+        });
       }
     }
   }
   
-  return { loadWatts: totalLoadWatts, peakLoadWatts: totalPeakLoadWatts };
+  // Calculate aggregate power factor: totalWatts / totalVA
+  const aggregatePowerFactor = totalVa > 0 ? totalLoadWatts / totalVa : 1.0;
+  
+  return { 
+    loadWatts: totalLoadWatts, 
+    peakLoadWatts: totalPeakLoadWatts,
+    connectedLoads,
+    aggregatePowerFactor,
+    totalVa,
+    peakTotalVa,
+  };
 }
 
 export function recalculateDistroChannels(
@@ -533,16 +571,32 @@ export function recalculateDistroChannels(
 ): Generator[] {
   return generators.map(gen => {
     const updatedChannels = (gen.distroChannels || []).map(channel => {
-      const { loadWatts, peakLoadWatts } = calculateDistroChannelLoad(channel.id, amplifiers, connections);
+      const { 
+        loadWatts, 
+        peakLoadWatts,
+        connectedLoads,
+        aggregatePowerFactor,
+        totalVa,
+        peakTotalVa,
+      } = calculateDistroChannelLoad(channel.id, amplifiers, connections);
       return {
         ...channel,
         loadWatts,
         peakLoadWatts,
+        connectedLoads,
+        aggregatePowerFactor,
+        totalVa,
+        peakTotalVa,
       };
     });
     
     const totalLoadWatts = updatedChannels.reduce((sum, ch) => sum + (ch.enabled ? ch.loadWatts : 0), 0);
     const totalPeakLoadWatts = updatedChannels.reduce((sum, ch) => sum + (ch.enabled ? ch.peakLoadWatts : 0), 0);
+    const totalVa = updatedChannels.reduce((sum, ch) => sum + (ch.enabled ? (ch.totalVa || 0) : 0), 0);
+    const peakTotalVa = updatedChannels.reduce((sum, ch) => sum + (ch.enabled ? (ch.peakTotalVa || 0) : 0), 0);
+    
+    // Calculate aggregate power factor for entire generator
+    const aggregatePowerFactor = totalVa > 0 ? totalLoadWatts / totalVa : 1.0;
     
     const utilizationPercent = gen.continuousWatts > 0
       ? (totalLoadWatts / gen.continuousWatts) * 100
@@ -551,11 +605,32 @@ export function recalculateDistroChannels(
       ? (totalPeakLoadWatts / gen.continuousWatts) * 100
       : 0;
     
+    // Build power factor debug info
+    const genPf = Math.max(0.01, Math.min(1, gen.powerFactor || 0.95));
+    const kvaCapacity = gen.continuousWatts / genPf;
+    const powerFactorPenalty = kvaCapacity - gen.continuousWatts;
+    const utilizationByVa = kvaCapacity > 0 ? (totalVa / kvaCapacity) * 100 : 0;
+    
+    const powerFactorDebug: PowerFactorDebug = {
+      totalWatts: totalLoadWatts,
+      totalVa,
+      aggregatePowerFactor,
+      kvaCapacity,
+      wattsCapacity: gen.continuousWatts,
+      utilizationByVa,
+      utilizationByWatts: utilizationPercent,
+      powerFactorPenalty,
+      explanation: `Generator rated ${gen.continuousWatts}W at PF ${genPf.toFixed(2)} = ${kvaCapacity.toFixed(0)}KVA capacity. ` +
+        `Load draws ${totalLoadWatts.toFixed(0)}W at aggregate PF ${aggregatePowerFactor.toFixed(2)} = ${totalVa.toFixed(0)}VA. ` +
+        `Watts limited at ${utilizationPercent.toFixed(1)}%, VA limited at ${utilizationByVa.toFixed(1)}%`,
+    };
+    
     return {
       ...gen,
       distroChannels: updatedChannels,
       utilizationPercent,
       peakUtilizationPercent,
+      powerFactorDebug,
     };
   });
 }

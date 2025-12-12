@@ -463,6 +463,19 @@ export default function GeneratorCard({
                   { label: 'Peak Utilization', value: generator.peakUtilizationPercent, unit: '%', isCalculated: true },
                 ]
               },
+              ...(generator.powerFactorDebug ? [{
+                title: 'Power Factor Compensation',
+                entries: [
+                  { label: 'Gen Rated', value: `${generator.continuousWatts}W @ PF ${(generator.powerFactor || 0.95).toFixed(2)}`, isCalculated: true },
+                  { label: 'Gen Capacity (KVA)', value: generator.powerFactorDebug.kvaCapacity, unit: 'KVA', isCalculated: true },
+                  { label: 'Load Watts', value: generator.powerFactorDebug.totalWatts, unit: 'W', isCalculated: true },
+                  { label: 'Load VA', value: generator.powerFactorDebug.totalVa, unit: 'VA', isCalculated: true },
+                  { label: 'Aggregate PF', value: generator.powerFactorDebug.aggregatePowerFactor.toFixed(2), isCalculated: true },
+                  { label: 'PF Penalty', value: generator.powerFactorDebug.powerFactorPenalty, unit: 'KVA', isCalculated: true },
+                  { label: 'W Utilization', value: generator.powerFactorDebug.utilizationByWatts, unit: '%', isCalculated: true },
+                  { label: 'VA Utilization', value: generator.powerFactorDebug.utilizationByVa, unit: '%', isCalculated: true },
+                ]
+              }] : []),
               {
                 title: 'Distro Channels',
                 entries: generator.distroChannels.map((dc, i) => ({
