@@ -11,6 +11,7 @@ import SaveLoadDialog from '@/components/SaveLoadDialog';
 import AudioContentModal from '@/components/AudioContentModal';
 import ProUpgradeModal from '@/components/ProUpgradeModal';
 import SetupWizardModal from '@/components/SetupWizardModal';
+import EquipmentPresetModal from '@/components/EquipmentPresetModal';
 import ThemeToggle from '@/components/ThemeToggle';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,8 @@ export default function Home() {
   const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
   const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
   const [setupWizardOpen, setSetupWizardOpen] = useState(false);
+  const [equipmentModalOpen, setEquipmentModalOpen] = useState(false);
+  const [equipmentType, setEquipmentType] = useState<"generator" | "amplifier" | "speaker" | null>(null);
 
   const {
     state,
@@ -462,7 +465,10 @@ export default function Home() {
                 ))}
                 <AddEquipmentButton
                   label="Add Generator"
-                  onClick={addGenerator}
+                  onClick={() => {
+                    setEquipmentType("generator");
+                    setEquipmentModalOpen(true);
+                  }}
                   testId="button-add-generator"
                 />
               </div>
@@ -504,7 +510,10 @@ export default function Home() {
                 ))}
                 <AddEquipmentButton
                   label="Add Amplifier"
-                  onClick={addAmplifier}
+                  onClick={() => {
+                    setEquipmentType("amplifier");
+                    setEquipmentModalOpen(true);
+                  }}
                   variant="secondary"
                   testId="button-add-amplifier"
                 />
@@ -563,7 +572,10 @@ export default function Home() {
                 <div className="space-y-2">
                   <AddEquipmentButton
                     label="Add Speaker"
-                    onClick={addSpeaker}
+                    onClick={() => {
+                      setEquipmentType("speaker");
+                      setEquipmentModalOpen(true);
+                    }}
                     testId="button-add-speaker"
                   />
                   <AddEquipmentButton
@@ -621,6 +633,56 @@ export default function Home() {
         open={setupWizardOpen}
         onOpenChange={setSetupWizardOpen}
         onComplete={handleWizardComplete}
+      />
+
+      <EquipmentPresetModal
+        open={equipmentModalOpen}
+        onOpenChange={setEquipmentModalOpen}
+        equipmentType={equipmentType}
+        presets={
+          equipmentType === "generator"
+            ? GENERATOR_PRESETS
+            : equipmentType === "amplifier"
+            ? AMPLIFIER_PRESETS
+            : SPEAKER_PRESETS
+        }
+        onSelect={(presetKey) => {
+          if (equipmentType === "generator") {
+            addGenerator();
+            if (presetKey) {
+              const preset = GENERATOR_PRESETS[presetKey];
+              setTimeout(() => {
+                const gens = state.generators;
+                if (gens.length > 0) {
+                  updateGenerator(gens[gens.length - 1].id, preset);
+                }
+              }, 0);
+            }
+          } else if (equipmentType === "amplifier") {
+            addAmplifier();
+            if (presetKey) {
+              const preset = AMPLIFIER_PRESETS[presetKey];
+              setTimeout(() => {
+                const amps = state.amplifiers;
+                if (amps.length > 0) {
+                  updateAmplifier(amps[amps.length - 1].id, preset);
+                }
+              }, 0);
+            }
+          } else if (equipmentType === "speaker") {
+            addSpeaker();
+            if (presetKey) {
+              const preset = SPEAKER_PRESETS[presetKey];
+              setTimeout(() => {
+                const spks = state.speakers;
+                if (spks.length > 0) {
+                  updateSpeaker(spks[spks.length - 1].id, preset);
+                }
+              }, 0);
+            }
+          }
+          setEquipmentType(null);
+        }}
       />
     </div>
   );
