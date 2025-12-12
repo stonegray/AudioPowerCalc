@@ -654,7 +654,16 @@ export default function Home() {
               setTimeout(() => {
                 const gens = state.generators;
                 if (gens.length > 0) {
-                  updateGenerator(gens[gens.length - 1].id, preset);
+                  const genId = gens[gens.length - 1].id;
+                  // Regenerate distro IDs to avoid conflicts
+                  const distroChannels = preset.distroChannels?.map(dc => ({
+                    ...dc,
+                    id: `distro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                  }));
+                  updateGenerator(genId, {
+                    ...preset,
+                    distroChannels
+                  });
                 }
               }, 0);
             }
