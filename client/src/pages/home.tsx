@@ -165,9 +165,20 @@ export default function Home() {
         return;
       }
       
-      const existingTargetConn = state.connections.find(c => c.targetId === nodeId);
-      if (existingTargetConn) {
-        removeConnection(existingTargetConn.id);
+      // Remove ALL existing connections to this target
+      // For amps connecting to distros: remove all distro-to-amp connections for this amp
+      // For others: remove the single existing connection
+      if (pendingConnection.sourceType === 'distro' && nodeType === 'amp') {
+        // Remove all distro-to-amp connections for this amp
+        state.connections
+          .filter(c => c.targetId === nodeId && c.sourceType === 'distro' && c.targetType === 'amp')
+          .forEach(conn => removeConnection(conn.id));
+      } else {
+        // For other connection types, just remove the first existing one
+        const existingTargetConn = state.connections.find(c => c.targetId === nodeId);
+        if (existingTargetConn) {
+          removeConnection(existingTargetConn.id);
+        }
       }
       
       const usedColors = state.connections.map(c => c.color);
