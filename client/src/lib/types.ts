@@ -22,6 +22,7 @@ export interface GlobalSettings {
   appMode: AppMode;
   crestCurve: CrestCurvePoint[];
   crestAlgorithm: CrestAlgorithm;
+  numSamples: number;
 }
 
 export const GENRE_CREST_PRESETS: Record<MusicGenre, CrestCurvePoint[]> = {

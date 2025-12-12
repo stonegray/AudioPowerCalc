@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Save, FolderOpen, AlertTriangle, Play, Info } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Save, FolderOpen, AlertTriangle, Play, Info, Settings } from 'lucide-react';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode, CrestAlgorithm } from '@/lib/types';
 import { GENRE_CREST_PRESETS } from '@/lib/types';
 
@@ -27,6 +29,7 @@ export default function GlobalSettingsPanel({
   onFindProblems,
   onStartSimulation,
 }: GlobalSettingsPanelProps) {
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const tempUnit = settings.units === 'metric' ? '°C' : '°F';
   const altUnit = settings.units === 'metric' ? 'm' : 'ft';
   const isBasic = settings.appMode === 'basic';
@@ -235,6 +238,50 @@ export default function GlobalSettingsPanel({
           )}
 
           <div className="flex items-center gap-2 ml-auto">
+            <Dialog open={advancedOpen} onOpenChange={setAdvancedOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" data-testid="button-advanced-settings">
+                  <Settings className="w-3 h-3 mr-1" />
+                  Advanced
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Advanced Settings</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="flex items-end gap-3">
+                    <div className="flex-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Label className="text-xs text-muted-foreground cursor-help">Crossover Emulation Sampler Precision</Label>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-xs">
+                          <p className="text-xs">Number of samples used by sampleCrestFactors function. Higher values increase accuracy but computational cost. Range: 2-50.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        value={settings.numSamples}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          if (!isNaN(val)) {
+                            const clamped = Math.max(2, Math.min(50, val));
+                            onUpdate({ numSamples: clamped });
+                          }
+                        }}
+                        className="w-full h-8 font-mono text-right text-sm mt-1"
+                        data-testid="input-num-samples"
+                      />
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {settings.numSamples < 2 ? '(min 2)' : settings.numSamples > 50 ? '(max 50)' : `${settings.numSamples} samples`}
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button variant="outline" size="sm" onClick={onSave} data-testid="button-save">
               <Save className="w-3 h-3 mr-1" />
               Save

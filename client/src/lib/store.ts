@@ -23,6 +23,7 @@ const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   appMode: 'advanced',
   crestCurve: GENRE_CREST_PRESETS.rock,
   crestAlgorithm: 'average',
+  numSamples: 20,
 };
 
 const createDefaultDistroChannel = (id: string): DistroChannel => ({
