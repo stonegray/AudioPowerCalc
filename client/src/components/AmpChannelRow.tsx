@@ -4,6 +4,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import ConnectionNode from './ConnectionNode';
 import type { AmpChannel, CrossoverMode } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -93,6 +94,18 @@ export default function AmpChannelRow({
 
   const crossoverOptions = getCrossoverOptions();
 
+  const getBridgeTooltip = (): string | null => {
+    if (!supportsBridging) {
+      return 'Bridging not supported on this amplifier';
+    }
+    if (!canBridge) {
+      return 'Bridging only available on even channel numbers';
+    }
+    return null;
+  };
+
+  const bridgeTooltip = getBridgeTooltip();
+
   return (
     <div 
       className={cn(
@@ -125,16 +138,25 @@ export default function AmpChannelRow({
               <span className="text-xs font-medium">Ch{channelNum}</span>
             </div>
 
-            {canBridge && supportsBridging && !isBasic && (
-              <div className="flex items-center gap-1">
-                <Switch
-                  checked={channel.bridged}
-                  onCheckedChange={(checked) => onUpdate({ bridged: checked })}
-                  disabled={isDisabled}
-                  data-testid={`switch-channel-bridge-${index}`}
-                />
-                <Label className="text-xs text-muted-foreground">Br</Label>
-              </div>
+            {!isBasic && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={cn('flex items-center gap-1', (!canBridge || !supportsBridging) && 'opacity-50')}>
+                    <Switch
+                      checked={channel.bridged}
+                      onCheckedChange={(checked) => onUpdate({ bridged: checked })}
+                      disabled={isDisabled || !canBridge || !supportsBridging}
+                      data-testid={`switch-channel-bridge-${index}`}
+                    />
+                    <Label className="text-xs text-muted-foreground">Br</Label>
+                  </div>
+                </TooltipTrigger>
+                {bridgeTooltip && (
+                  <TooltipContent side="top" className="text-xs">
+                    {bridgeTooltip}
+                  </TooltipContent>
+                )}
+              </Tooltip>
             )}
 
             <Select
