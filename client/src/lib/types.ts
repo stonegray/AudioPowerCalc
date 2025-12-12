@@ -136,12 +136,16 @@ export interface Generator {
   verified?: boolean;
 }
 
+export type CrossoverMode = 'sub' | 'main' | 'full' | 'custom';
+
 export interface AmpChannel {
   id: string;
   enabled: boolean;
   bridged: boolean;
+  crossoverMode: CrossoverMode;
   hpf: number;
   lpf: number;
+  qFactor: number;
   loadOhms: number;
   energyWatts: number;
   peakEnergyWatts: number;
