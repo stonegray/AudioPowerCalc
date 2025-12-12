@@ -134,6 +134,10 @@ export default function SetupWizardModal({
     onOpenChange(false);
   };
 
+  const handleSkip = () => {
+    resetAndClose();
+  };
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
       if (!isOpen) resetAndClose();
@@ -318,6 +322,11 @@ export default function SetupWizardModal({
             {page > 1 && page < 3 && (
               <Button variant="outline" onClick={handleBack} data-testid="button-back">
                 Back
+              </Button>
+            )}
+            {page < 3 && (
+              <Button variant="ghost" onClick={handleSkip} data-testid="button-skip-wizard">
+                Skip
               </Button>
             )}
           </div>
