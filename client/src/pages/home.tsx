@@ -724,6 +724,8 @@ export default function Home() {
         onUpdate={updateGlobalSettings}
         theme={theme}
         onThemeChange={setTheme}
+        onExport={() => setSaveDialogOpen(true)}
+        onImport={() => setLoadDialogOpen(true)}
       />
 
       <ProUpgradeModal

@@ -23,6 +23,8 @@ export interface GlobalSettings {
   crestCurve: CrestCurvePoint[];
   crestAlgorithm: CrestAlgorithm;
   numSamples: number;
+  projectName?: string;
+  userNotes?: string;
 }
 
 export interface GenrePreset {

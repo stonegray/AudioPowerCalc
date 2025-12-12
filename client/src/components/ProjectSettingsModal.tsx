@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle, AlertTriangle, Thermometer, Mountain, Ruler, Music, Palette, Settings2, Sun, Moon } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Thermometer, Mountain, Ruler, Music, Palette, Settings2, Sun, Moon, FileJson, Download, Upload, FileText } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, CrestCurvePoint, CrestAlgorithm } from '@/lib/types';
@@ -20,9 +20,11 @@ interface ProjectSettingsModalProps {
   onUpdate: (updates: Partial<GlobalSettings>) => void;
   theme: 'light' | 'dark';
   onThemeChange: (theme: 'light' | 'dark') => void;
+  onExport?: () => void;
+  onImport?: () => void;
 }
 
-type SettingsCategory = 'units' | 'audio' | 'theme' | 'advanced';
+type SettingsCategory = 'project' | 'units' | 'audio' | 'theme' | 'advanced';
 
 const GRAPH_WIDTH = 460;
 const GRAPH_HEIGHT = 260;
@@ -175,6 +177,7 @@ const generateCurveFromFormula = (formula: string): CrestCurvePoint[] => {
 };
 
 const CATEGORY_ITEMS: { id: SettingsCategory; label: string; icon: typeof Settings2 }[] = [
+  { id: 'project', label: 'Project', icon: FileText },
   { id: 'units', label: 'Units & Environment', icon: Ruler },
   { id: 'audio', label: 'Audio Content', icon: Music },
   { id: 'theme', label: 'Theme', icon: Palette },
@@ -188,8 +191,10 @@ export default function ProjectSettingsModal({
   onUpdate,
   theme,
   onThemeChange,
+  onExport,
+  onImport,
 }: ProjectSettingsModalProps) {
-  const [activeCategory, setActiveCategory] = useState<SettingsCategory>('units');
+  const [activeCategory, setActiveCategory] = useState<SettingsCategory>('project');
   const [formula, setFormula] = useState(() => PRESET_FORMULAS[settings.musicGenre] || PRESET_FORMULAS.rock);
   const [formulaError, setFormulaError] = useState<string | null>(null);
   const [timeFormula, setTimeFormula] = useState('');
@@ -633,6 +638,78 @@ export default function ProjectSettingsModal({
     </div>
   );
 
+  const renderProjectContent = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Project Settings</h3>
+        <p className="text-sm text-muted-foreground mb-6">
+          Manage project name, notes, and configuration files.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label>Project Name</Label>
+          <Input
+            type="text"
+            value={settings.projectName || ''}
+            onChange={(e) => onUpdate({ projectName: e.target.value })}
+            placeholder="Enter project name"
+            data-testid="input-project-name"
+          />
+          <p className="text-xs text-muted-foreground">
+            A name to help you identify this configuration
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>User Notes</Label>
+          <Textarea
+            value={settings.userNotes || ''}
+            onChange={(e) => onUpdate({ userNotes: e.target.value })}
+            placeholder="Add any notes about this project..."
+            className="resize-none h-32"
+            data-testid="textarea-user-notes"
+          />
+          <p className="text-xs text-muted-foreground">
+            Add notes about your setup, design decisions, or any other relevant information
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Configuration Files</Label>
+          <div className="flex gap-2">
+            {onExport && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onExport}
+                data-testid="button-export-json"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export JSON
+              </Button>
+            )}
+            {onImport && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onImport}
+                data-testid="button-import-json"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Import JSON
+              </Button>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Export your complete configuration as JSON or import a previously saved one
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderAdvancedContent = () => (
     <div className="space-y-6">
       <div>
@@ -723,6 +800,8 @@ export default function ProjectSettingsModal({
 
   const renderContent = () => {
     switch (activeCategory) {
+      case 'project':
+        return renderProjectContent();
       case 'units':
         return renderUnitsContent();
       case 'audio':
