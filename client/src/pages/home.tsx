@@ -38,6 +38,7 @@ export default function Home() {
   const [hoveredConnectionId, setHoveredConnectionId] = useState<string | null>(null);
   const [audioContentModalOpen, setAudioContentModalOpen] = useState(false);
   const [proUpgradeModalOpen, setProUpgradeModalOpen] = useState(false);
+  const [explodingSpeakerId, setExplodingSpeakerId] = useState<string | null>(null);
 
   const {
     state,
@@ -124,6 +125,26 @@ export default function Home() {
         return;
       }
       
+      // Prevent powered speakers from connecting to amplifier channels
+      if (nodeType === 'poweredSpeaker' && pendingConnection.sourceType === 'ampChannel') {
+        toast({ title: 'Invalid connection', description: 'Powered speakers cannot connect to amplifiers', variant: 'destructive' });
+        setPendingConnection(null);
+        return;
+      }
+      
+      // Easter egg: Speaker connected to generator = explosion!
+      if (nodeType === 'speaker' && pendingConnection.sourceType === 'distro') {
+        toast({ title: 'Direct power to speaker!', description: 'This kills the speaker...', variant: 'destructive' });
+        setExplodingSpeakerId(nodeId);
+        setPendingConnection(null);
+        // Delete speaker after explosion animation
+        setTimeout(() => {
+          removeSpeaker(nodeId);
+          setExplodingSpeakerId(null);
+        }, 2000);
+        return;
+      }
+      
       const existingTargetConn = state.connections.find(c => c.targetId === nodeId);
       if (existingTargetConn) {
         removeConnection(existingTargetConn.id);
@@ -144,7 +165,7 @@ export default function Home() {
       setPendingConnection(null);
       toast({ title: 'Connected!' });
     }
-  }, [pendingConnection, state.connections, addConnection, removeConnection, toast]);
+  }, [pendingConnection, state.connections, addConnection, removeConnection, removeSpeaker, toast]);
 
   const handleDistroNodeClick = useCallback((distroId: string) => {
     handleNodeClick(distroId, 'distro');
@@ -451,6 +472,7 @@ export default function Home() {
                     powerPath={getSpeakerPath(spk.id)}
                     isPendingConnection={pendingConnection?.sourceType === 'ampChannel'}
                     isHighlighted={isNodeHighlighted(spk.id)}
+                    isExploding={explodingSpeakerId === spk.id}
                     connections={state.connections}
                     units={state.globalSettings.units}
                     amplifiers={state.amplifiers}
