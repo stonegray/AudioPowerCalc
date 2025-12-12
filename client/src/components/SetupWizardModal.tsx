@@ -254,7 +254,10 @@ export default function SetupWizardModal({
               <div className="space-y-2">
                 <Label>How do you power your system?</Label>
                 <p className="text-sm text-muted-foreground">
-                  Select a generator preset to add to your project. You can add more generators later.
+                  Select a generator or shore power preset to add to your project. You can add more generators later.
+                </p>
+                <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                  Don't see your generator? No problem — proceed and add it manually in the editor.
                 </p>
               </div>
 
@@ -269,39 +272,85 @@ export default function SetupWizardModal({
                 />
               </div>
 
-              <ScrollArea className="h-48 border rounded-md">
-                <div className="p-2 space-y-1">
-                  <button
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                      selectedGenerator === null 
-                        ? "bg-primary text-primary-foreground" 
-                        : "hover-elevate"
-                    }`}
-                    onClick={() => setSelectedGenerator(null)}
-                    data-testid="button-generator-skip"
-                  >
-                    <div className="font-medium">Skip for now</div>
-                    <div className="text-xs opacity-70">Add generators manually later</div>
-                  </button>
-                  {filteredPresets.map(([key, preset]) => (
-                    <button
-                      key={key}
-                      className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
-                        selectedGenerator === key 
-                          ? "bg-primary text-primary-foreground" 
-                          : "hover-elevate"
-                      }`}
-                      onClick={() => setSelectedGenerator(key)}
-                      data-testid={`button-generator-${key}`}
-                    >
-                      <div className="font-medium">{preset.name}</div>
-                      <div className="text-xs opacity-70">
-                        {preset.continuousWatts?.toLocaleString()}W continuous, {preset.type}
-                      </div>
-                    </button>
-                  ))}
+              <div className="grid grid-cols-2 gap-3 h-80">
+                {/* Generators Column */}
+                <div className="flex flex-col">
+                  <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-2">Generators</h3>
+                  <ScrollArea className="flex-1 border rounded-md">
+                    <div className="p-2 space-y-1">
+                      {filteredPresets.filter(([_, preset]) => preset.type !== "shore").length === 0 ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">No generators found</div>
+                      ) : (
+                        filteredPresets
+                          .filter(([_, preset]) => preset.type !== "shore")
+                          .map(([key, preset]) => (
+                            <button
+                              key={key}
+                              className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                                selectedGenerator === key 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "hover-elevate"
+                              }`}
+                              onClick={() => setSelectedGenerator(key)}
+                              data-testid={`button-generator-${key}`}
+                            >
+                              <div className="font-medium text-sm">{preset.name}</div>
+                              <div className="text-xs opacity-70">
+                                {preset.continuousWatts?.toLocaleString()}W
+                              </div>
+                            </button>
+                          ))
+                      )}
+                    </div>
+                  </ScrollArea>
                 </div>
-              </ScrollArea>
+
+                {/* Shore Power Column */}
+                <div className="flex flex-col">
+                  <h3 className="text-xs font-semibold text-muted-foreground mb-2 px-2">Shore Power</h3>
+                  <ScrollArea className="flex-1 border rounded-md">
+                    <div className="p-2 space-y-1">
+                      <button
+                        className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                          selectedGenerator === null 
+                            ? "bg-primary text-primary-foreground" 
+                            : "hover-elevate"
+                        }`}
+                        onClick={() => setSelectedGenerator(null)}
+                        data-testid="button-generator-skip"
+                      >
+                        <div className="font-medium text-sm">Skip for now</div>
+                        <div className="text-xs opacity-70">Add manually</div>
+                      </button>
+                      {filteredPresets
+                        .filter(([_, preset]) => preset.type === "shore")
+                        .length === 0 ? (
+                        <div className="text-xs text-muted-foreground text-center py-4">No shore power found</div>
+                      ) : (
+                        filteredPresets
+                          .filter(([_, preset]) => preset.type === "shore")
+                          .map(([key, preset]) => (
+                            <button
+                              key={key}
+                              className={`w-full text-left px-3 py-2 rounded-md transition-colors text-sm ${
+                                selectedGenerator === key 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "hover-elevate"
+                              }`}
+                              onClick={() => setSelectedGenerator(key)}
+                              data-testid={`button-generator-${key}`}
+                            >
+                              <div className="font-medium text-sm">{preset.name}</div>
+                              <div className="text-xs opacity-70">
+                                {preset.continuousWatts?.toLocaleString()}W
+                              </div>
+                            </button>
+                          ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </div>
             </div>
           )}
 
