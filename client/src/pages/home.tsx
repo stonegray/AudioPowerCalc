@@ -767,63 +767,61 @@ export default function Home() {
             if (presetKey) {
               const preset = GENERATOR_PRESETS[presetKey];
               setTimeout(() => {
-                const gens = state.generators;
-                if (gens.length > 0) {
-                  const genId = gens[gens.length - 1].id;
-                  // Regenerate distro IDs to avoid conflicts
+                const newGen = state.generators[state.generators.length - 1];
+                if (newGen) {
                   const distroChannels = preset.distroChannels?.map(dc => ({
                     ...dc,
                     id: `distro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
                   }));
-                  updateGenerator(genId, {
+                  updateGenerator(newGen.id, {
                     ...preset,
                     model: presetKey,
                     distroChannels
                   });
                 }
-              }, 0);
+              }, 50);
             }
           } else if (equipmentType === "amplifier") {
             addAmplifier();
             if (presetKey) {
               const preset = AMPLIFIER_PRESETS[presetKey];
               setTimeout(() => {
-                const amps = state.amplifiers;
-                if (amps.length > 0) {
-                  updateAmplifier(amps[amps.length - 1].id, {
+                const newAmp = state.amplifiers[state.amplifiers.length - 1];
+                if (newAmp) {
+                  updateAmplifier(newAmp.id, {
                     ...preset,
                     model: presetKey,
                   });
                 }
-              }, 0);
+              }, 50);
             }
           } else if (equipmentType === "speaker") {
             addSpeaker();
             if (presetKey) {
               const preset = SPEAKER_PRESETS[presetKey];
               setTimeout(() => {
-                const spks = state.speakers;
-                if (spks.length > 0) {
-                  updateSpeaker(spks[spks.length - 1].id, {
+                const newSpk = state.speakers[state.speakers.length - 1];
+                if (newSpk) {
+                  updateSpeaker(newSpk.id, {
                     ...preset,
                     model: presetKey,
                   });
                 }
-              }, 0);
+              }, 50);
             }
           } else if (equipmentType === "poweredSpeaker") {
             addPoweredSpeaker();
             if (presetKey) {
               const preset = POWERED_SPEAKER_PRESETS[presetKey];
               setTimeout(() => {
-                const pwSpks = state.poweredSpeakers;
-                if (pwSpks.length > 0) {
-                  updatePoweredSpeaker(pwSpks[pwSpks.length - 1].id, {
+                const newPwSpk = state.poweredSpeakers[state.poweredSpeakers.length - 1];
+                if (newPwSpk) {
+                  updatePoweredSpeaker(newPwSpk.id, {
                     ...preset,
                     model: presetKey,
                   });
                 }
-              }, 0);
+              }, 50);
             }
           }
           setEquipmentType(null);
