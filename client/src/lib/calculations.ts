@@ -160,6 +160,64 @@ export function getCrestFactor(genre: string): number {
   }
 }
 
+// Preset formulas for each music genre
+export const CREST_FORMULAS: Record<string, string> = {
+  bass_dubstep: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
+  rock: '8',
+  acoustic: '10 + 2.5 * log10(f / 10)',
+  white_noise: '0',
+  custom: '7.836251 + (1.774292 - 7.836251)/(1 + (f/107.2078)^11.43433)',
+};
+
+// Safely evaluate a crest formula at a given frequency
+export function evaluateCrestFormula(formula: string, f: number): number | null {
+  try {
+    const sanitized = formula
+      .replace(/log10/g, 'Math.log10')
+      .replace(/log/g, 'Math.log')
+      .replace(/ln/g, 'Math.log')
+      .replace(/sqrt/g, 'Math.sqrt')
+      .replace(/abs/g, 'Math.abs')
+      .replace(/pow/g, 'Math.pow')
+      .replace(/sin/g, 'Math.sin')
+      .replace(/cos/g, 'Math.cos')
+      .replace(/exp/g, 'Math.exp')
+      .replace(/pi/gi, 'Math.PI')
+      .replace(/\^/g, '**');
+    
+    const func = new Function('f', `return ${sanitized}`);
+    const result = func(f);
+    
+    if (typeof result !== 'number' || isNaN(result) || !isFinite(result)) {
+      return null;
+    }
+    return Math.max(0, Math.min(20, result));
+  } catch {
+    return null;
+  }
+}
+
+// Generate a crest curve from a formula
+export function generateCrestCurveFromFormula(formula: string): CrestCurvePoint[] {
+  const points: CrestCurvePoint[] = [];
+  const frequencies = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000];
+  
+  for (const freq of frequencies) {
+    const crest = evaluateCrestFormula(formula, freq);
+    if (crest !== null) {
+      points.push({ frequency: freq, crestFactor: Math.round(crest * 10) / 10 });
+    }
+  }
+  
+  return points;
+}
+
+// Generate crest curve from genre
+export function generateCrestCurveFromGenre(genre: string): CrestCurvePoint[] {
+  const formula = CREST_FORMULAS[genre] || CREST_FORMULAS.rock;
+  return generateCrestCurveFromFormula(formula);
+}
+
 export function calculateChannelEffectiveZ(
   connectedSpeakers: Speaker[]
 ): number {

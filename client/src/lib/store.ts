@@ -10,7 +10,7 @@ import type {
   DistroChannel,
   AmpChannel 
 } from './types';
-import { recalculateAmplifiers, recalculateSpeakers, recalculateDistroChannels } from './calculations';
+import { recalculateAmplifiers, recalculateSpeakers, recalculateDistroChannels, generateCrestCurveFromGenre } from './calculations';
 
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   musicGenre: 'rock',
@@ -60,8 +60,15 @@ export function useSystemStore() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        const globalSettings = { ...DEFAULT_GLOBAL_SETTINGS, ...parsed.globalSettings };
+        
+        // Generate crest curve if it's empty
+        if (!globalSettings.crestCurve || globalSettings.crestCurve.length === 0) {
+          globalSettings.crestCurve = generateCrestCurveFromGenre(globalSettings.musicGenre);
+        }
+        
         return {
-          globalSettings: { ...DEFAULT_GLOBAL_SETTINGS, ...parsed.globalSettings },
+          globalSettings,
           generators: parsed.generators || [],
           amplifiers: parsed.amplifiers || [],
           speakers: parsed.speakers || [],
@@ -73,8 +80,15 @@ export function useSystemStore() {
         // Fall through to default
       }
     }
+    
+    // Generate default crest curve for new state
+    const defaultSettings = {
+      ...DEFAULT_GLOBAL_SETTINGS,
+      crestCurve: generateCrestCurveFromGenre(DEFAULT_GLOBAL_SETTINGS.musicGenre),
+    };
+    
     return {
-      globalSettings: DEFAULT_GLOBAL_SETTINGS,
+      globalSettings: defaultSettings,
       generators: [],
       amplifiers: [],
       speakers: [],

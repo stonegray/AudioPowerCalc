@@ -207,6 +207,17 @@ export default function ProjectSettingsModal({
     setFormula(newFormula);
     setFormulaError(null);
   }, [settings.musicGenre]);
+  
+  // Generate crest curve on mount if it's empty
+  useEffect(() => {
+    if (!settings.crestCurve || settings.crestCurve.length === 0) {
+      const currentFormula = PRESET_FORMULAS[settings.musicGenre] || PRESET_FORMULAS.rock;
+      const newCurve = generateCurveFromFormula(currentFormula);
+      if (newCurve.length > 0) {
+        onUpdate({ crestCurve: newCurve });
+      }
+    }
+  }, []);
 
   const formulaCurvePoints = useMemo(() => {
     const points: { x: number; y: number }[] = [];
@@ -238,8 +249,10 @@ export default function ProjectSettingsModal({
   const curveValidation = useMemo(() => validateFormula(formula), [formula]);
 
   const handleGenreChange = useCallback((newGenre: MusicGenre) => {
-    onUpdate({ musicGenre: newGenre });
-    setFormula(PRESET_FORMULAS[newGenre]);
+    const newFormula = PRESET_FORMULAS[newGenre];
+    setFormula(newFormula);
+    const newCurve = generateCurveFromFormula(newFormula);
+    onUpdate({ musicGenre: newGenre, crestCurve: newCurve });
   }, [onUpdate]);
 
   const handleFormulaChange = useCallback((newFormula: string) => {
