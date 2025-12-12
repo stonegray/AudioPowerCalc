@@ -119,7 +119,7 @@ export default function GlobalSettingsPanel({
                 <p className="text-xs font-medium mb-1">Crest Factor Algorithm:</p>
                 <ul className="text-xs space-y-1">
                   <li><strong>Average:</strong> Arithmetic mean across HPF/LPF window</li>
-                  <li><strong>Minimum:</strong> Lowest crest (conservative, highest energy)</li>
+                  <li><strong>Peak:</strong> Lowest crest (conservative, highest energy)</li>
                   <li><strong>Maximum:</strong> Highest crest (optimistic, lowest energy)</li>
                   <li><strong>RMS-Weighted:</strong> Weights lower frequencies more heavily</li>
                 </ul>
@@ -134,7 +134,7 @@ export default function GlobalSettingsPanel({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="average">Average</SelectItem>
-                <SelectItem value="minimum">Minimum</SelectItem>
+                <SelectItem value="peak">Peak</SelectItem>
                 <SelectItem value="maximum">Maximum</SelectItem>
                 <SelectItem value="rms_weighted">RMS-Weighted</SelectItem>
               </SelectContent>

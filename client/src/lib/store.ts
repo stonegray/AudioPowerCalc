@@ -34,6 +34,7 @@ const createDefaultDistroChannel = (id: string): DistroChannel => ({
   cable: { mode: 'awg', awg: 12, length: 50 },
   loadAmps: 0,
   loadWatts: 0,
+  peakLoadWatts: 0,
 });
 
 const createDefaultAmpChannel = (id: string, index: number): AmpChannel => ({
@@ -44,6 +45,7 @@ const createDefaultAmpChannel = (id: string, index: number): AmpChannel => ({
   lpf: index < 2 ? 100 : 16000,
   loadOhms: 8,
   energyWatts: 0,
+  peakEnergyWatts: 0,
   musicPowerWatts: 0,
   gain: 0,
   effectiveZ: 8,
@@ -124,6 +126,7 @@ export function useSystemStore() {
       feederCable: { mode: 'awg', awg: 10, length: 25 },
       distroChannels: [createDefaultDistroChannel(`distro_${Date.now()}`)],
       utilizationPercent: 0,
+      peakUtilizationPercent: 0,
     };
     saveState({ ...state, generators: [...state.generators, newGenerator] });
   }, [state, saveState]);
@@ -172,7 +175,9 @@ export function useSystemStore() {
       channelCount: 4,
       channels,
       rmsWattsDrawn: 0,
+      peakRmsWattsDrawn: 0,
       utilizationPercent: 0,
+      peakUtilizationPercent: 0,
       minImpedance: 4,
     };
     saveState({ ...state, amplifiers: [...state.amplifiers, newAmplifier] });

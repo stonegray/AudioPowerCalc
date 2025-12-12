@@ -284,7 +284,7 @@ function calculateRmsWeightedCrest(
   return totalWeight > 0 ? weightedSum / totalWeight : 8;
 }
 
-export type CrestAlgorithmType = "average" | "minimum" | "maximum" | "rms_weighted";
+export type CrestAlgorithmType = "average" | "peak" | "maximum" | "rms_weighted";
 
 // Calculate crest factor between HPF and LPF frequencies using selected algorithm
 export function calculateCrestWithAlgorithm(
@@ -297,7 +297,7 @@ export function calculateCrestWithAlgorithm(
   if (hpf >= lpf) return interpolateCrest(crestCurve, hpf);
   
   switch (algorithm) {
-    case "minimum":
+    case "peak":
       return calculateMinimumCrest(hpf, lpf, crestCurve);
     case "maximum":
       return calculateMaximumCrest(hpf, lpf, crestCurve);
@@ -307,6 +307,17 @@ export function calculateCrestWithAlgorithm(
     default:
       return calculateAverageCrestInternal(hpf, lpf, crestCurve);
   }
+}
+
+// Calculate peak crest factor (minimum crest = highest energy)
+export function calculatePeakCrest(
+  hpf: number,
+  lpf: number,
+  crestCurve: CrestCurvePoint[]
+): number {
+  if (crestCurve.length === 0) return 8;
+  if (hpf >= lpf) return interpolateCrest(crestCurve, hpf);
+  return calculateMinimumCrest(hpf, lpf, crestCurve);
 }
 
 // Legacy function for backward compatibility
@@ -407,29 +418,39 @@ export function recalculateAmplifiers(
       });
       
       const averageCrest = calculateCrestWithAlgorithm(channel.hpf, channel.lpf, crestCurve, crestAlgorithm);
+      const peakCrest = calculatePeakCrest(channel.hpf, channel.lpf, crestCurve);
       const audioPower = calculateChannelAudioPower(channel, connectedSpeakers);
       const channelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency, averageCrest);
+      const peakChannelEnergy = calculateChannelEnergy(channel, connectedSpeakers, amp.efficiency, peakCrest);
       const effectiveZ = calculateChannelEffectiveZ(connectedSpeakers);
       
       return {
         ...channel,
         musicPowerWatts: audioPower,
         energyWatts: channelEnergy,
+        peakEnergyWatts: peakChannelEnergy,
         effectiveZ,
         averageCrest,
+        peakCrest,
       };
     });
     
     const energyWatts = updatedChannels.reduce((sum, ch) => sum + ch.energyWatts, 0) + amp.parasiticDraw;
+    const peakEnergyWatts = updatedChannels.reduce((sum, ch) => sum + ch.peakEnergyWatts, 0) + amp.parasiticDraw;
     const utilizationPercent = amp.pmax > 0 
       ? (energyWatts / amp.pmax) * 100
+      : 0;
+    const peakUtilizationPercent = amp.pmax > 0 
+      ? (peakEnergyWatts / amp.pmax) * 100
       : 0;
     
     return {
       ...amp,
       channels: updatedChannels,
       rmsWattsDrawn: energyWatts,
+      peakRmsWattsDrawn: peakEnergyWatts,
       utilizationPercent,
+      peakUtilizationPercent,
     };
   });
 }
@@ -473,19 +494,21 @@ export function calculateDistroChannelLoad(
   distroChannelId: string,
   amplifiers: Amplifier[],
   connections: Connection[]
-): number {
+): { loadWatts: number; peakLoadWatts: number } {
   let totalLoadWatts = 0;
+  let totalPeakLoadWatts = 0;
   
   for (const connection of connections) {
     if (connection.sourceId === distroChannelId && connection.sourceType === 'distro' && connection.targetType === 'amp') {
       const amplifier = amplifiers.find(amp => amp.id === connection.targetId);
       if (amplifier) {
         totalLoadWatts += amplifier.rmsWattsDrawn;
+        totalPeakLoadWatts += amplifier.peakRmsWattsDrawn || amplifier.rmsWattsDrawn;
       }
     }
   }
   
-  return totalLoadWatts;
+  return { loadWatts: totalLoadWatts, peakLoadWatts: totalPeakLoadWatts };
 }
 
 export function recalculateDistroChannels(
@@ -495,16 +518,29 @@ export function recalculateDistroChannels(
 ): Generator[] {
   return generators.map(gen => {
     const updatedChannels = (gen.distroChannels || []).map(channel => {
-      const loadWatts = calculateDistroChannelLoad(channel.id, amplifiers, connections);
+      const { loadWatts, peakLoadWatts } = calculateDistroChannelLoad(channel.id, amplifiers, connections);
       return {
         ...channel,
         loadWatts,
+        peakLoadWatts,
       };
     });
+    
+    const totalLoadWatts = updatedChannels.reduce((sum, ch) => sum + ch.loadWatts, 0);
+    const totalPeakLoadWatts = updatedChannels.reduce((sum, ch) => sum + ch.peakLoadWatts, 0);
+    
+    const utilizationPercent = gen.continuousWatts > 0
+      ? (totalLoadWatts / gen.continuousWatts) * 100
+      : 0;
+    const peakUtilizationPercent = gen.continuousWatts > 0
+      ? (totalPeakLoadWatts / gen.continuousWatts) * 100
+      : 0;
     
     return {
       ...gen,
       distroChannels: updatedChannels,
+      utilizationPercent,
+      peakUtilizationPercent,
     };
   });
 }

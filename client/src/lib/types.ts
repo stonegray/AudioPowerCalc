@@ -5,7 +5,7 @@ export type Units = "metric" | "imperial";
 export type SPLDistance = "1m" | "10m" | "50m";
 export type CableInputMode = "awg" | "manual";
 export type AppMode = "basic" | "advanced" | "engineering";
-export type CrestAlgorithm = "average" | "minimum" | "maximum" | "rms_weighted";
+export type CrestAlgorithm = "average" | "peak" | "maximum" | "rms_weighted";
 
 export interface CrestCurvePoint {
   frequency: number;
@@ -95,6 +95,7 @@ export interface DistroChannel {
   cable: CableConfig;
   loadAmps: number;
   loadWatts: number;
+  peakLoadWatts: number;
 }
 
 export interface Generator {
@@ -111,6 +112,7 @@ export interface Generator {
   feederCable: CableConfig;
   distroChannels: DistroChannel[];
   utilizationPercent: number;
+  peakUtilizationPercent: number;
 }
 
 export interface AmpChannel {
@@ -121,10 +123,12 @@ export interface AmpChannel {
   lpf: number;
   loadOhms: number;
   energyWatts: number;
+  peakEnergyWatts: number;
   musicPowerWatts: number;
   gain: number;
   effectiveZ: number;
   averageCrest?: number;
+  peakCrest?: number;
 }
 
 export interface Amplifier {
@@ -139,7 +143,9 @@ export interface Amplifier {
   channelCount: 1 | 2 | 4 | 8;
   channels: AmpChannel[];
   rmsWattsDrawn: number;
+  peakRmsWattsDrawn: number;
   utilizationPercent: number;
+  peakUtilizationPercent: number;
   minImpedance: number;
   connectedDistroId?: string;
 }

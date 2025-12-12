@@ -64,6 +64,9 @@ export default function AmplifierCard({
   })();
   const utilizationColor = amplifier.utilizationPercent > 90 ? 'text-destructive' : 
     amplifier.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
+  const peakUtilization = amplifier.peakUtilizationPercent ?? amplifier.utilizationPercent;
+  const peakUtilizationColor = peakUtilization > 90 ? 'text-destructive' : 
+    peakUtilization > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-muted-foreground';
 
   const handleModelChange = (model: string) => {
     const preset = presets[model];
@@ -83,6 +86,7 @@ export default function AmplifierCard({
             lpf: i < 2 ? 100 : 16000,
             loadOhms: existingChannel?.loadOhms || 8,
             energyWatts: 0,
+            peakEnergyWatts: 0,
             musicPowerWatts: 0,
             gain: 0,
             effectiveZ: 8,
@@ -162,7 +166,12 @@ export default function AmplifierCard({
               <span className={cn('text-xl font-mono font-semibold', utilizationColor)}>
                 {amplifier.utilizationPercent.toFixed(0)}%
               </span>
-              <span className="text-xs text-muted-foreground">util</span>
+              <span className="text-xs text-muted-foreground">avg</span>
+              <span className="text-muted-foreground">/</span>
+              <span className={cn('text-lg font-mono font-semibold', peakUtilizationColor)}>
+                {peakUtilization.toFixed(0)}%
+              </span>
+              <span className="text-xs text-muted-foreground">peak</span>
             </div>
             <Progress value={amplifier.utilizationPercent} className="h-1.5" />
           </div>

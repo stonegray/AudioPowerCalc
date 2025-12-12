@@ -70,6 +70,9 @@ export default function GeneratorCard({
   const isBasic = appMode === 'basic';
   const utilizationColor = generator.utilizationPercent > 90 ? 'text-destructive' : 
     generator.utilizationPercent > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-foreground';
+  const peakUtilization = generator.peakUtilizationPercent ?? generator.utilizationPercent;
+  const peakUtilizationColor = peakUtilization > 90 ? 'text-destructive' : 
+    peakUtilization > 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-muted-foreground';
   
   const totalLoadWatts = generator.distroChannels.reduce((sum, ch) => sum + (ch.loadWatts || 0), 0);
   const derateDescriptions = globalSettings ? generateDerateDescriptions(generator, globalSettings, totalLoadWatts) : null;
@@ -128,7 +131,12 @@ export default function GeneratorCard({
               <span className={cn('text-xl font-mono font-semibold', utilizationColor)}>
                 {generator.utilizationPercent.toFixed(0)}%
               </span>
-              <span className="text-xs text-muted-foreground">util</span>
+              <span className="text-xs text-muted-foreground">avg</span>
+              <span className="text-muted-foreground">/</span>
+              <span className={cn('text-lg font-mono font-semibold', peakUtilizationColor)}>
+                {peakUtilization.toFixed(0)}%
+              </span>
+              <span className="text-xs text-muted-foreground">peak</span>
             </div>
             <Progress value={generator.utilizationPercent} className="h-1.5" />
           </div>
