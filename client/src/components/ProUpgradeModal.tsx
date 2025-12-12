@@ -27,7 +27,7 @@ const proFeatures = [
   {
     icon: TrendingUp,
     title: 'Crest Curve Analysis',
-    description: 'Advanced frequency-based crest factor curves',
+    description: 'G frequency-based crest factor curves',
   },
   {
     icon: Cpu,

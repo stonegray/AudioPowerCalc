@@ -11,6 +11,7 @@ import { ChevronDown, Trash2, Volume2 } from 'lucide-react';
 import AmpChannelRow from './AmpChannelRow';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
+import DebugPanel from './DebugPanel';
 import type { Amplifier, AmpChannel, AMPLIFIER_PRESETS, AppMode, Connection, Generator } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -342,6 +343,67 @@ export default function AmplifierCard({
               </div>
             </CollapsibleContent>
           </Collapsible>
+        )}
+
+        {appMode === 'engineering' && (
+          <DebugPanel
+            testId={`button-toggle-debug-amp-${amplifier.id}`}
+            sections={[
+              {
+                title: 'User Inputs',
+                entries: [
+                  { label: 'Model', value: amplifier.model },
+                  { label: 'Pmax', value: amplifier.pmax, unit: 'W' },
+                  { label: 'Efficiency', value: amplifier.efficiency * 100, unit: '%' },
+                  { label: 'Parasitic Draw', value: amplifier.parasiticDraw, unit: 'W' },
+                  { label: 'Power Factor', value: amplifier.powerFactor },
+                  { label: 'Min Impedance', value: amplifier.minImpedance, unit: 'Ω' },
+                  { label: 'Channel Count', value: amplifier.channelCount },
+                  { label: 'Supports Bridging', value: amplifier.supportsBridging },
+                ]
+              },
+              {
+                title: 'Connection Input',
+                entries: [
+                  { label: 'Connected Distro ID', value: amplifier.connectedDistroId || 'None', isConnection: true },
+                  { label: 'Has Power Connection', value: hasConnection, isConnection: true },
+                  { label: 'Is Powered (Distro Enabled)', value: isPowered, isConnection: true },
+                  { label: 'Power Path', value: powerPath || 'None', isConnection: true },
+                ]
+              },
+              {
+                title: 'Calculated Outputs',
+                entries: [
+                  { label: 'RMS Watts Drawn (Avg)', value: amplifier.rmsWattsDrawn, unit: 'W', isCalculated: true },
+                  { label: 'RMS Watts Drawn (Peak)', value: amplifier.peakRmsWattsDrawn, unit: 'W', isCalculated: true },
+                  { label: 'Avg Utilization', value: amplifier.utilizationPercent, unit: '%', isCalculated: true },
+                  { label: 'Peak Utilization', value: amplifier.peakUtilizationPercent, unit: '%', isCalculated: true },
+                ]
+              },
+              {
+                title: 'Channel Details',
+                entries: amplifier.channels.flatMap((ch, i) => [
+                  { label: `Ch ${i + 1} Enabled`, value: ch.enabled },
+                  { label: `Ch ${i + 1} HPF`, value: ch.hpf, unit: 'Hz' },
+                  { label: `Ch ${i + 1} LPF`, value: ch.lpf, unit: 'Hz' },
+                  { label: `Ch ${i + 1} Gain`, value: ch.gain, unit: 'dB' },
+                  { label: `Ch ${i + 1} Bridged`, value: ch.bridged },
+                  { label: `Ch ${i + 1} Effective Z`, value: ch.effectiveZ, unit: 'Ω', isCalculated: true },
+                  { label: `Ch ${i + 1} Music Power`, value: ch.musicPowerWatts, unit: 'W', isCalculated: true },
+                  { label: `Ch ${i + 1} Energy (Avg)`, value: ch.energyWatts, unit: 'W', isCalculated: true },
+                  { label: `Ch ${i + 1} Energy (Peak)`, value: ch.peakEnergyWatts, unit: 'W', isCalculated: true },
+                ])
+              },
+              {
+                title: 'Outputs To (Speakers)',
+                entries: amplifier.channels.map((ch, i) => ({
+                  label: `Ch ${i + 1} Output Node`,
+                  value: ch.id,
+                  isConnection: true
+                }))
+              }
+            ]}
+          />
         )}
 
         <div className="space-y-1.5">

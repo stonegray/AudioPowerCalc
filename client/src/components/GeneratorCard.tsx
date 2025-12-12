@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ChevronDown, Plus, Trash2, Zap, Info, Cable } from 'lucide-react';
 import DistroChannelRow from './DistroChannelRow';
 import SearchableModelSelect from './SearchableModelSelect';
+import DebugPanel from './DebugPanel';
 import type { Generator, GeneratorType, PhaseType, CableInputMode, DistroChannel, GENERATOR_PRESETS, AppMode, GlobalSettings, CableConfig } from '@/lib/types';
 import { generateDerateDescriptions } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
@@ -372,6 +373,63 @@ export default function GeneratorCard({
               </div>
             </CollapsibleContent>
           </Collapsible>
+        )}
+
+        {appMode === 'engineering' && (
+          <DebugPanel
+            testId={`button-toggle-debug-generator-${generator.id}`}
+            sections={[
+              {
+                title: 'User Inputs',
+                entries: [
+                  { label: 'Model', value: generator.model },
+                  { label: 'Generator Type', value: generator.generatorType },
+                  { label: 'Continuous Watts', value: generator.continuousWatts, unit: 'W' },
+                  { label: 'Peak Watts', value: generator.peakWatts, unit: 'W' },
+                  { label: 'Voltage', value: generator.voltage, unit: 'V' },
+                  { label: 'Phase Type', value: generator.phaseType },
+                  { label: 'Phase Count', value: generator.phaseCount },
+                  { label: 'Feeder AWG', value: generator.feederCable?.awg },
+                  { label: 'Feeder Length', value: generator.feederCable?.lengthFeet, unit: 'ft' },
+                ]
+              },
+              {
+                title: 'Derate Factors',
+                entries: [
+                  { label: 'Temp Derate', value: derates.temp, isCalculated: true },
+                  { label: 'Altitude Derate', value: derates.altitude, isCalculated: true },
+                  { label: 'User Derate', value: derates.user, isCalculated: true },
+                  { label: 'Combined Derate', value: (derates.temp * derates.altitude * derates.user), isCalculated: true },
+                ]
+              },
+              {
+                title: 'Calculated Outputs',
+                entries: [
+                  { label: 'Effective Watts', value: effectiveWatts, unit: 'W', isCalculated: true },
+                  { label: 'Total Load Watts', value: generator.distroChannels.reduce((sum, dc) => sum + dc.loadWatts, 0), unit: 'W', isCalculated: true },
+                  { label: 'Total Peak Load Watts', value: generator.distroChannels.reduce((sum, dc) => sum + (dc.peakLoadWatts || 0), 0), unit: 'W', isCalculated: true },
+                  { label: 'Avg Utilization', value: generator.utilizationPercent, unit: '%', isCalculated: true },
+                  { label: 'Peak Utilization', value: generator.peakUtilizationPercent, unit: '%', isCalculated: true },
+                ]
+              },
+              {
+                title: 'Distro Channels',
+                entries: generator.distroChannels.map((dc, i) => ({
+                  label: `Ch ${i + 1} (${dc.enabled ? 'ON' : 'OFF'})`,
+                  value: `${dc.loadWatts.toFixed(0)}W avg / ${(dc.peakLoadWatts || 0).toFixed(0)}W peak`,
+                  isConnection: true
+                }))
+              },
+              {
+                title: 'Outputs To',
+                entries: generator.distroChannels.map((dc, i) => ({
+                  label: `Ch ${i + 1} Node`,
+                  value: dc.id,
+                  isConnection: true
+                }))
+              }
+            ]}
+          />
         )}
 
         <div className="space-y-1.5">

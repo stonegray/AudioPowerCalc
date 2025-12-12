@@ -5,9 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Trash2, Speaker } from 'lucide-react';
+import { useState } from 'react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, Trash2, Speaker } from 'lucide-react';
 import ConnectionNode from './ConnectionNode';
 import SearchableModelSelect from './SearchableModelSelect';
+import DebugPanel from './DebugPanel';
 import type { Speaker as SpeakerType, SPEAKER_PRESETS, AppMode, Connection, Units, Amplifier, Generator } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -321,6 +324,60 @@ export default function SpeakerCard({
           <span className="text-muted-foreground">Eff Z: </span>
           <span>{((effectiveImpedance + cableImpedanceOhms) / speaker.quantity).toFixed(2)}Ω</span>
         </div>
+
+        {appMode === 'engineering' && (
+          <DebugPanel
+            testId={`button-toggle-debug-speaker-${speaker.id}`}
+            sections={[
+              {
+                title: 'User Inputs',
+                entries: [
+                  { label: 'Model', value: speaker.model },
+                  { label: 'Pmax', value: speaker.pmax, unit: 'W' },
+                  { label: 'Nominal Z', value: nominalZ, unit: 'Ω' },
+                  { label: 'Actual Z (override)', value: speaker.actualImpedance, unit: 'Ω' },
+                  { label: 'Cable Z', value: cableZ, unit: 'mΩ' },
+                  { label: 'Sensitivity', value: speaker.sensitivity, unit: 'dB' },
+                  { label: 'Quantity', value: speaker.quantity },
+                  { label: 'Gain', value: speaker.gain, unit: 'dB' },
+                ]
+              },
+              {
+                title: 'Connection Input',
+                entries: [
+                  { label: 'Connected Amp Channel', value: speaker.connectedAmpChannelId || 'None', isConnection: true },
+                  { label: 'Has Power Connection', value: hasConnection, isConnection: true },
+                  { label: 'Is Powered (Upstream Enabled)', value: isPowered, isConnection: true },
+                  { label: 'Power Path', value: powerPath || 'None', isConnection: true },
+                ]
+              },
+              {
+                title: 'Incoming Audio Power',
+                entries: [
+                  { label: 'Incoming Audio Power', value: speaker.incomingAudioPower, unit: 'W', isCalculated: true },
+                  { label: 'Pmax x Quantity', value: speaker.pmax * speaker.quantity, unit: 'W', isCalculated: true },
+                ]
+              },
+              {
+                title: 'Calculated Outputs',
+                entries: [
+                  { label: 'Effective Impedance (per unit)', value: effectiveImpedance, unit: 'Ω', isCalculated: true },
+                  { label: 'Effective Z + Cable (per unit)', value: effectiveImpedance + cableImpedanceOhms, unit: 'Ω', isCalculated: true },
+                  { label: 'Parallel Z (all units)', value: (effectiveImpedance + cableImpedanceOhms) / speaker.quantity, unit: 'Ω', isCalculated: true },
+                  { label: 'SPL Output', value: speaker.splOutput, unit: 'dB', isCalculated: true },
+                  { label: 'Utilization (per speaker)', value: speaker.utilizationPercent, unit: '%', isCalculated: true },
+                ]
+              },
+              {
+                title: 'SPL Calculation Inputs',
+                entries: [
+                  { label: 'SPL Distance', value: splDistance },
+                  { label: 'Base SPL', value: `Sensitivity + 10*log10(power/quantity)`, isCalculated: true },
+                ]
+              }
+            ]}
+          />
+        )}
       </CardContent>
     </Card>
   );
