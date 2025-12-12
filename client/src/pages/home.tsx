@@ -777,6 +777,7 @@ export default function Home() {
                   }));
                   updateGenerator(genId, {
                     ...preset,
+                    model: presetKey,
                     distroChannels
                   });
                 }

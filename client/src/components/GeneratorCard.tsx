@@ -343,7 +343,7 @@ export default function GeneratorCard({
           </div>
         )}
 
-        {!isBasic && !generator.hideFeeder && (
+        {!isBasic && generator.hideFeeder !== true && (
           <div className="flex flex-wrap items-center gap-2">
             <Label className="text-xs text-muted-foreground">Feeder</Label>
             <Popover open={feederPresetsOpen} onOpenChange={setFeederPresetsOpen}>
