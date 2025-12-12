@@ -128,7 +128,7 @@ export function useSystemStore() {
       phaseType: 'single',
       voltage: 120,
       feederCable: { mode: 'awg', awg: 10, length: 25 },
-      distroChannels: [createDefaultDistroChannel(`distro_${Date.now()}`)],
+      distroChannels: [createDefaultDistroChannel(`distro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)],
       utilizationPercent: 0,
       peakUtilizationPercent: 0,
       powerFactor: 0.95,
@@ -158,7 +158,7 @@ export function useSystemStore() {
     const generator = state.generators.find(g => g.id === generatorId);
     if (!generator) return;
     
-    const newChannel = createDefaultDistroChannel(`distro_${Date.now()}`);
+    const newChannel = createDefaultDistroChannel(`distro_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
     updateGenerator(generatorId, {
       distroChannels: [...generator.distroChannels, newChannel],
     });
