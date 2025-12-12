@@ -197,32 +197,6 @@ export default function GlobalSettingsPanel({
             </>
           )}
 
-          <div className="flex items-center gap-1">
-            <span className={`text-xs ${settings.units === 'metric' ? 'font-medium' : 'text-muted-foreground'}`}>M</span>
-            <Switch
-              checked={settings.units === 'imperial'}
-              onCheckedChange={(checked) => onUpdate({ units: checked ? 'imperial' : 'metric' })}
-              data-testid="switch-units"
-            />
-            <span className={`text-xs ${settings.units === 'imperial' ? 'font-medium' : 'text-muted-foreground'}`}>I</span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Label className="text-xs text-muted-foreground">SPL</Label>
-            <Select
-              value={settings.splDistance}
-              onValueChange={(v: SPLDistance) => onUpdate({ splDistance: v })}
-            >
-              <SelectTrigger className="w-16 h-8" data-testid="select-spl-distance">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1m">1m</SelectItem>
-                <SelectItem value="10m">10m</SelectItem>
-                <SelectItem value="50m">50m</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           {!isBasic && (
             <div className="flex items-center gap-1">
