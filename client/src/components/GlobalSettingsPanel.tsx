@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Save, FolderOpen, AlertTriangle, Play, Info, Settings, FilePlus } from 'lucide-react';
 import type { GlobalSettings, MusicGenre, Units, SPLDistance, AppMode, CrestAlgorithm } from '@/lib/types';
 import { GENRE_PRESETS } from '@/lib/types';
+import { generateCrestCurveFromFormula } from '@/lib/calculations';
 
 interface GlobalSettingsPanelProps {
   settings: GlobalSettings;
@@ -82,7 +83,11 @@ export default function GlobalSettingsPanel({
             <Label className="text-xs text-muted-foreground">Genre</Label>
             <Select
               value={settings.musicGenre}
-              onValueChange={(v: MusicGenre) => onUpdate({ musicGenre: v })}
+              onValueChange={(v: MusicGenre) => {
+                const formula = GENRE_PRESETS[v]?.crestCurveFormula || GENRE_PRESETS.rock.crestCurveFormula;
+                const crestCurve = generateCrestCurveFromFormula(formula);
+                onUpdate({ musicGenre: v, crestCurve });
+              }}
             >
               <SelectTrigger className="w-40 h-8" data-testid="select-music-genre">
                 <SelectValue />
